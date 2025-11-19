@@ -7,11 +7,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        handldCream: '#f7f7f3',
-        handldBlue: '#e8f4fb',
+        cream: "var(--cream)",
+        sky: "var(--sky)",
+        "sky-light": "var(--sky-light)",
+        navy: "var(--navy)",
       },
-      boxShadow: {
-        soft: '0 4px 6px rgba(0,0,0,0.05)',
+      fontFamily: {
+        serif: ["Playfair Display", "serif"],
       },
     },
   },
