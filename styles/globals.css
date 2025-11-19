@@ -1,1 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --cream: #faf7f2;
+  --sky-light: #eaf3ff;
+  --navy: #1c2a3a;
+  --sky: #3b82f6;
+}
+
+body {
+  background: var(--cream);
+}
+
+.font-serif {
+  font-family: "Playfair Display", serif;
+}
 
