@@ -1,34 +1,45 @@
-import React from 'react';
-import Link from 'next/link';
+"use client";
+
+import { motion } from "framer-motion";
 
 export default function Hero() {
   return (
-    <section className="relative w-full h-screen flex items-center justify-center overflow-hidden bg-black">
+    <section className="relative h-[85vh] w-full overflow-hidden bg-black">
+      {/* Background Video */}
       <video
-        className="absolute inset-0 w-full h-full object-cover opacity-90"
+        className="absolute top-0 left-0 w-full h-full object-cover"
         src="/hero.mp4"
         autoPlay
-        loop
         muted
+        loop
         playsInline
       />
-      <div className="absolute inset-0 bg-black/40"></div>
 
-      <div className="relative z-10 text-center px-6 max-w-3xl">
-        <h1 className="text-white text-4xl md:text-6xl font-bold mb-4">
-          Care for your home without the hassle.
+      {/* Overlay Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-cream/90" />
+
+      {/* Content */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.9 }}
+        className="relative z-10 max-w-4xl mx-auto px-6 flex flex-col justify-center h-full"
+      >
+        <h1 className="font-serif text-5xl md:text-6xl font-bold text-navy mb-4">
+          Care for your home<br />without the hassle.
         </h1>
 
-        <p className="text-white text-xl md:text-2xl mb-8">
-          Everything—from quote to scheduled—handled in under 5 minutes.
+        <p className="text-lg md:text-xl text-navy/80 max-w-2xl">
+          Your home's personal concierge — one place to plan, price, and schedule a year’s worth of upkeep in just a few minutes.
         </p>
 
-        <Link href="https://form.typeform.com/to/lEaYy0ka">
-          <span className="inline-block bg-[#2A54A1] hover:bg-[#1E3C78] text-white font-semibold py-3 px-6 rounded-lg cursor-pointer transition">
-            Get My Custom Quote
-          </span>
-        </Link>
-      </div>
+        <a
+          href="https://handldhome.typeform.com/to/lEaYy0ka"
+          className="mt-6 inline-block bg-sky text-white px-6 py-3 rounded-full text-md font-medium"
+        >
+          Get My Custom Quote
+        </a>
+      </motion.div>
     </section>
   );
 }
