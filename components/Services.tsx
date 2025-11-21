@@ -1,45 +1,63 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Image from "next/image";
 
 const services = [
-  { name: "Gutter Cleaning", price: "$95", img: "/services/gutter.jpg" },
-  { name: "Handyman", price: "$75", img: "/services/handyman.jpg" },
-  { name: "Holiday Lights", price: "$385", img: "/services/holiday.jpg" },
-  { name: "Outdoor Furniture", price: "$55", img: "/services/furniture.jpg" },
-  { name: "Pressure Washing", price: "$135", img: "/services/pressure.jpg" },
-  { name: "Trash Bin", price: "$55", img: "/services/bin.jpg" },
-  { name: "Window Washing", price: "$130", img: "/services/window.jpg" },
-  { name: "Pest Control", price: "$95", img: "/services/pest.jpg" },
+  {
+    name: "Pressure Washing",
+    price: "$130",
+    img: "/services/pressure.jpg",
+    desc: "Save time and restore brightness to your home’s exterior.",
+  },
+  {
+    name: "Window Cleaning",
+    price: "$95",
+    img: "/services/window.jpg",
+    desc: "Keep your windows spotless year-round with zero hassle.",
+  },
+  {
+    name: "Gutter Cleaning",
+    price: "$95",
+    img: "/services/gutter.jpg",
+    desc: "Prevent clogs and protect your home with routine cleaning.",
+  },
+  {
+    name: "Holiday Lights",
+    price: "$385",
+    img: "/services/holiday.jpg",
+    desc: "Professional installation, removal, and storage for lights.",
+  },
 ];
 
 export default function Services() {
   return (
-    <section className="py-20 bg-cream">
+    <section id="services" className="bg-cream py-20">
       <div className="max-w-6xl mx-auto px-6">
         <h2 className="font-serif text-4xl text-navy mb-10">Services</h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-          {services.map((service, i) => (
-            <motion.div
-              key={service.name}
-              initial={{ opacity: 0, y: 25 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.08 }}
-              viewport={{ once: true }}
-              className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition"
+        <div className="flex gap-8 overflow-x-auto no-scrollbar pb-4">
+          {services.map((s) => (
+            <div
+              key={s.name}
+              className="min-w-[260px] bg-white shadow-md rounded-xl p-4"
             >
-              <Image src={service.img} width={600} height={400} className="w-full h-40 object-cover" alt={service.name} />
-              <div className="p-4">
-                <h3 className="text-lg font-semibold text-navy">{service.name}</h3>
-                <p className="text-sm text-navy/60 mt-1">Starting at {service.price}</p>
-              </div>
-            </motion.div>
+              <Image
+                src={s.img}
+                alt={s.name}
+                width={400}
+                height={300}
+                className="rounded-lg mb-4 object-cover h-[160px] w-full"
+              />
+
+              <h3 className="font-serif text-2xl text-navy">{s.name}</h3>
+              <p className="text-sm text-navy/70 font-medium">
+                Starting at {s.price}
+              </p>
+              <p className="text-sm text-navy/80 mt-2 leading-relaxed">{s.desc}</p>
+            </div>
           ))}
         </div>
       </div>
     </section>
   );
 }
-
