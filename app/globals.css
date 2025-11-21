@@ -2,7 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Hide scrollbars for horizontal scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #F7F5EF;
+}
+
+/* Hide horizontal scrollbar */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -11,7 +19,34 @@
   scrollbar-width: none;
 }
 
-body {
-  font-family: var(--font-inter);
-  background-color: #f7f5ef;
+/* Section-spacing utilities */
+.section {
+  padding-top: theme("spacing.section");
+  padding-bottom: theme("spacing.section");
+}
+
+.section-tight {
+  padding-top: theme("spacing.sectionTight");
+  padding-bottom: theme("spacing.sectionTight");
+}
+
+/* Soft card shadow */
+.card {
+  @apply shadow-soft rounded-xl bg-white;
+}
+
+/* Auto-scroll wrapper */
+.auto-scroll {
+  display: flex;
+  white-space: nowrap;
+  animation: scroll 25s linear infinite;
+  will-change: transform;
+}
+
+/* Better typography */
+h1, h2, h3 {
+  @apply font-serif text-navy;
+}
+p {
+  @apply font-sans text-navy/80;
 }
