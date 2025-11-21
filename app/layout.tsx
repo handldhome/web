@@ -1,26 +1,23 @@
-// app/layout.tsx
 import "./globals.css";
 import { Inter, Playfair_Display } from "next/font/google";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
-import Navbar from "../components/Navbar";
-
-const inter = Inter({ subsets: ["latin"] });
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
-});
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const playfair = Playfair_Display({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-playfair" });
 
 export const metadata = {
   title: "Handld Home Services",
-  description: "Your personal home concierge for year-round upkeep.",
+  description: "Your home’s personal concierge for year-round maintenance.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-cream`}>
+      <body className={`${inter.variable} ${playfair.variable} bg-cream`}>
         <Navbar />
         {children}
+        <Footer />
       </body>
     </html>
   );
