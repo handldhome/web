@@ -7,13 +7,33 @@ import FAQ from "@/components/FAQ";
 
 export default function Page() {
   return (
-    <main>
+    <>
       <Hero />
-      <Services />
-      <HowItWorks />
-      <BundldSave />
-      <Testimonials />
-      <FAQ />
-    </main>
+
+      {/* Services Section */}
+      <section className="section-tight bg-offwhite" id="services">
+        <Services />
+      </section>
+
+      {/* How it Works */}
+      <section className="section bg-white" id="how">
+        <HowItWorks />
+      </section>
+
+      {/* Bundld & Save */}
+      <section className="section-tight bg-lightblue">
+        <BundldSave />
+      </section>
+
+      {/* Testimonials */}
+      <section className="section bg-offwhite">
+        <Testimonials />
+      </section>
+
+      {/* FAQ */}
+      <section className="section bg-white">
+        <FAQ />
+      </section>
+    </>
   );
 }
