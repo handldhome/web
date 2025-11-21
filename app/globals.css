@@ -2,7 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+html, body {
+  scroll-behavior: smooth;
+}
+
 body {
-  background-color: #f7f7f3;
-  color: #1f2937;
+  background-color: #FAF6EF; /* cream */
+  color: #1A2A3A; /* navy */
+}
+
+/* Horizontal scroll styling */
+.scroll-snap-x {
+  scroll-snap-type: x mandatory;
+}
+.scroll-snap-item {
+  scroll-snap-align: start;
+}
+
+/* Navbar shadow on scroll */
+.nav-scrolled {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.85);
 }
