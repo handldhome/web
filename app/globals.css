@@ -2,29 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-/* -------------------------------------------
-   Global Styles
---------------------------------------------*/
-
-/* Prevent layout shift due to scrollbars */
 html {
   scroll-behavior: smooth;
 }
 
-/* Smooth font rendering */
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f7f5ef;
 }
-
-/* Background color for entire site */
-body {
-  background-color: #f7f5ef; /* cream */
-}
-
-/* -------------------------------------------
-   Infinite Scrolling Marquee Animation
---------------------------------------------*/
 
 @keyframes marquee {
   0% {
