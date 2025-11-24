@@ -36,17 +36,17 @@ export default function Services() {
 
         <h2 className="text-3xl font-serif text-navy mb-8">Services</h2>
 
-        {/* Marquee Wrapper */}
+        {/* Marquee wrapper */}
         <div className="relative overflow-hidden">
           <div className="flex animate-marquee gap-10 whitespace-nowrap">
 
-            {/* DUPLICATE ARRAY FOR LOOP */}
             {[...services, ...services].map((service, idx) => (
               <div
                 key={idx}
-                className="inline-block w-[380px] bg-white shadow-md rounded-xl overflow-hidden"
+                className="inline-block flex-shrink-0 w-[430px] bg-white shadow-md rounded-xl overflow-hidden"
               >
-                <div className="relative h-56 w-full">
+                
+                <div className="relative h-60 w-full">
                   <Image
                     src={service.img}
                     alt={service.title}
@@ -59,20 +59,20 @@ export default function Services() {
                   <h3 className="text-lg font-semibold text-navy">
                     {service.title}
                   </h3>
-
                   <p className="text-sm text-gray-600">
                     Starting at {service.price}
                   </p>
-
                   <p className="text-sm text-gray-700 mt-2">
                     {service.desc}
                   </p>
                 </div>
+
               </div>
             ))}
 
           </div>
         </div>
+
       </div>
     </section>
   );
