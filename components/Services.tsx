@@ -32,20 +32,22 @@ const services = [
 export default function Services() {
   return (
     <section id="services" className="py-16 bg-cream">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-6 overflow-hidden">
+
         <h2 className="text-3xl font-serif text-navy mb-8">Services</h2>
 
-        {/* Marquee */}
-        <div className="overflow-hidden">
-          <div className="flex gap-8 animate-marquee whitespace-nowrap">
+        {/* Marquee Wrapper */}
+        <div className="relative overflow-hidden">
+          <div className="flex animate-marquee gap-10 whitespace-nowrap">
 
+            {/* DUPLICATE ARRAY FOR LOOP */}
             {[...services, ...services].map((service, idx) => (
               <div
                 key={idx}
-                className="inline-block w-[360px] bg-white shadow-md rounded-xl overflow-hidden"
+                className="inline-block w-[380px] bg-white shadow-md rounded-xl overflow-hidden"
               >
-                <div className="relative h-52 w-full">
-                  <Image 
+                <div className="relative h-56 w-full">
+                  <Image
                     src={service.img}
                     alt={service.title}
                     fill
@@ -57,9 +59,11 @@ export default function Services() {
                   <h3 className="text-lg font-semibold text-navy">
                     {service.title}
                   </h3>
+
                   <p className="text-sm text-gray-600">
                     Starting at {service.price}
                   </p>
+
                   <p className="text-sm text-gray-700 mt-2">
                     {service.desc}
                   </p>
