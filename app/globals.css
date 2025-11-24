@@ -2,59 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
+/* -------------------------------------------
+   Global Styles
+--------------------------------------------*/
+
+/* Prevent layout shift due to scrollbars */
 html {
   scroll-behavior: smooth;
 }
 
+/* Smooth font rendering */
 body {
-  background: #F7F5EF;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Hide horizontal scrollbar */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+/* Optional: Background color for entire site */
+body {
+  background-color: #f7f5ef; /* your cream tone */
 }
 
-/* Section-spacing utilities */
-.section {
-  padding-top: theme("spacing.section");
-  padding-bottom: theme("spacing.section");
+/* -------------------------------------------
+   Infinite Scrolling Marquee Animation
+--------------------------------------------*/
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
-.section-tight {
-  padding-top: theme("spacing.sectionTight");
-  padding-bottom: theme("spacing.sectionTight");
-}
-
-/* Soft card shadow */
-.card {
-  @apply shadow-soft rounded-xl bg-white;
-}
-
-/* Auto-scroll wrapper */
-.auto-scroll {
-  display: flex;
-  white-space: nowrap;
-  animation: scroll 25s linear infinite;
-  will-change: transform;
-}
-
-/* Better typography */
-h1, h2, h3 {
-  @apply font-serif text-navy;
-}
-p {
-  @apply font-sans text-navy/80;
-}
-@keyframes scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.animate-scroll {
-  animation: scroll 22s linear infinite;
+.animate-marquee {
+  animation: marquee 45s linear infinite;
 }
