@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Services from "@/app/components/Services";
+import Services from "./components/Services";
 
 export default function Home() {
   return (
@@ -35,7 +35,6 @@ export default function Home() {
       {/* HOW IT WORKS SECTION */}
       <section id="how" className="py-20 bg-white border-t border-black/5">
         <div className="max-w-7xl mx-auto px-6">
-
           <h2 className="text-3xl font-serif text-navy mb-10">How It Works</h2>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
