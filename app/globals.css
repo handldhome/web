@@ -2,16 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Smooth scroll */
 html {
   scroll-behavior: smooth;
 }
 
+/* Antialiasing */
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #f7f5ef;
 }
 
+/* Infinite marquee animation */
 @keyframes marquee {
   0% {
     transform: translateX(0);
