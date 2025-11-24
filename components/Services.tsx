@@ -1,86 +1,71 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
 
 const services = [
   {
-    name: "Pressure Washing",
-    price: "$130",
-    img: "/services/pressure.jpg",
-    desc: "Save time and restore brightness to your home’s exterior.",
-  },
-  {
-    name: "Window Cleaning",
-    price: "$95",
-    img: "/services/window.jpg",
-    desc: "Keep your windows spotless year-round with zero hassle.",
-  },
-  {
-    name: "Gutter Cleaning",
-    price: "$95",
-    img: "/services/gutter.jpg",
-    desc: "Prevent clogs and protect your home with routine cleaning.",
-  },
-  {
-    name: "Holiday Lights",
+    title: "Holiday Lights",
     price: "$385",
-    img: "/services/holiday.jpg",
     desc: "Professional installation, removal, and storage for lights.",
+    img: "/services/holiday-lights.jpg",
+  },
+  {
+    title: "Pressure Washing",
+    price: "$130",
+    desc: "Save time and restore brightness to your home’s exterior.",
+    img: "/services/pressure-washing.jpg",
+  },
+  {
+    title: "Window Cleaning",
+    price: "$95",
+    desc: "Keep your windows spotless year-round with zero hassle.",
+    img: "/services/window-cleaning.jpg",
+  },
+  {
+    title: "Gutter Cleaning",
+    price: "$95",
+    desc: "Prevent clogs and protect your home with routine cleaning.",
+    img: "/services/gutter-cleaning.jpg",
   },
 ];
 
 export default function Services() {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  /** Auto-scroll logic **/
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    let scrollAmount = 0;
-
-    const scroll = () => {
-      if (!el) return;
-      scrollAmount += 0.7;
-      el.scrollLeft = scrollAmount;
-
-      if (scrollAmount >= el.scrollWidth / 2) {
-        scrollAmount = 0;
-      }
-    };
-
-    const interval = setInterval(scroll, 20);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <div className="max-w-6xl mx-auto px-6">
-      <h2 className="font-serif text-4xl text-navy mb-8">Services</h2>
+    <section id="services" className="py-16 bg-cream">
+      <div className="max-w-7xl mx-auto px-6">
+        <h2 className="text-3xl font-serif text-navy mb-8">Services</h2>
 
-      <div
-        ref={scrollRef}
-        className="flex gap-8 overflow-x-auto no-scrollbar pb-3 snap-x snap-mandatory"
-      >
-        {[...services, ...services].map((s, idx) => (
-          <div
-            key={idx}
-            className="min-w-[240px] max-w-[260px] card snap-start hover:-translate-y-1 transition"
-          >
-            <Image
-              src={s.img}
-              alt={s.name}
-              width={500}
-              height={350}
-              className="rounded-lg mb-4 object-cover h-[150px] w-full"
-            />
+        {/* Auto-scrolling marquee */}
+        <div className="overflow-hidden">
+          <div className="flex gap-6 whitespace-nowrap animate-scroll">
+            
+            {[...services, ...services].map((service, idx) => (
+              <div
+                key={idx}
+                className="inline-block w-64 bg-white shadow-md rounded-xl overflow-hidden"
+              >
+                <div className="h-40 bg-gray-100">
+                  <Image
+                    src={service.img}
+                    alt={service.title}
+                    width={300}
+                    height={200}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-navy">
+                    {service.title}
+                  </h3>
+                  <p className="text-sm text-gray-600">Starting at {service.price}</p>
+                  <p className="text-sm text-gray-700 mt-2">{service.desc}</p>
+                </div>
+              </div>
+            ))}
 
-            <h3 className="font-serif text-xl text-navy">{s.name}</h3>
-            <p className="text-sm text-navy/70">Starting at {s.price}</p>
-            <p className="text-sm text-navy/80 mt-2 leading-relaxed">{s.desc}</p>
           </div>
-        ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
