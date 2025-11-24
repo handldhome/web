@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Services from "./components/Services";
+import Services from "@/app/components/Services";
 
 export default function Home() {
   return (
