@@ -4,28 +4,28 @@ import Image from "next/image";
 
 const services = [
   {
-    title: "Holiday Lights",
-    price: "$385",
-    desc: "Professional installation, removal, and storage for lights.",
-    img: "/services/holiday-lights.jpg",
-  },
-  {
     title: "Pressure Washing",
     price: "$130",
     desc: "Save time and restore brightness to your home’s exterior.",
-    img: "/services/pressure-washing.jpg",
+    img: "/services/pressure.jpg",
   },
   {
     title: "Window Cleaning",
     price: "$95",
     desc: "Keep your windows spotless year-round with zero hassle.",
-    img: "/services/window-cleaning.jpg",
+    img: "/services/window.jpg",
   },
   {
     title: "Gutter Cleaning",
     price: "$95",
     desc: "Prevent clogs and protect your home with routine cleaning.",
-    img: "/services/gutter-cleaning.jpg",
+    img: "/services/gutter.jpg",
+  },
+  {
+    title: "Holiday Lights",
+    price: "$385",
+    desc: "Professional installation, removal, and storage for lights.",
+    img: "/services/holiday.JPG",
   },
 ];
 
@@ -35,17 +35,17 @@ export default function Services() {
       <div className="max-w-7xl mx-auto px-6">
         <h2 className="text-3xl font-serif text-navy mb-8">Services</h2>
 
-        {/* Marquee container */}
-        <div className="overflow-hidden relative">
-          <div className="flex gap-6 animate-marquee whitespace-nowrap">
+        {/* Marquee */}
+        <div className="overflow-hidden">
+          <div className="flex gap-8 animate-marquee whitespace-nowrap">
 
             {[...services, ...services].map((service, idx) => (
               <div
                 key={idx}
-                className="inline-block w-[340px] bg-white shadow-md rounded-xl overflow-hidden"
+                className="inline-block w-[360px] bg-white shadow-md rounded-xl overflow-hidden"
               >
-                <div className="relative h-48 w-full">
-                  <Image
+                <div className="relative h-52 w-full">
+                  <Image 
                     src={service.img}
                     alt={service.title}
                     fill
@@ -54,9 +54,15 @@ export default function Services() {
                 </div>
 
                 <div className="p-4">
-                  <h3 className="text-lg font-semibold text-navy">{service.title}</h3>
-                  <p className="text-sm text-gray-600">Starting at {service.price}</p>
-                  <p className="text-sm text-gray-700 mt-2">{service.desc}</p>
+                  <h3 className="text-lg font-semibold text-navy">
+                    {service.title}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Starting at {service.price}
+                  </p>
+                  <p className="text-sm text-gray-700 mt-2">
+                    {service.desc}
+                  </p>
                 </div>
               </div>
             ))}
