@@ -1,97 +1,81 @@
+"use client";
+
 import Image from "next/image";
+import Services from "./components/Services";
 
-const services = [
-  {
-    title: "Pressure Washing",
-    price: "$130",
-    desc: "Restore brightness to walkways, siding, and outdoor surfaces.",
-    long:
-      "Our professional pressure washing services remove dirt, mildew, and buildup from your home’s exterior. Safe for concrete, siding, outdoor furniture, stone, and more.",
-    img: "/services/pressure.jpg",
-  },
-  {
-    title: "Window Cleaning",
-    price: "$95",
-    desc: "Crystal clear windows, year-round.",
-    long:
-      "Enjoy streak-free, sparkling windows inside and out. Our team cleans screens, frames, and glass for a spotless finish.",
-    img: "/services/window.jpg",
-  },
-  {
-    title: "Gutter Cleaning",
-    price: "$95",
-    desc: "Prevent clogs and protect your home.",
-    long:
-      "We remove leaves, debris, and buildup to ensure your gutters flow smoothly. Includes downspout flushing for full drainage.",
-    img: "/services/gutter.jpg",
-  },
-  {
-    title: "Holiday Lights",
-    price: "$385",
-    desc: "Professional installation, takedown, and storage.",
-    long:
-      "We design, install, maintain, remove, and store beautiful holiday light displays so you don’t have to lift a finger.",
-    img: "/services/holiday.JPG",
-  },
-  {
-    title: "Outdoor Furniture Cleaning",
-    price: "$95",
-    desc: "Deep cleaning for patio sets, cushions, and more.",
-    long:
-      "Extend the life of your outdoor furniture with detailed washing and sanitizing designed for sun, weather, and outdoor wear.",
-    img: "/services/furniture.jpg",
-  },
-  {
-    title: "Handyman Services",
-    price: "$95",
-    desc: "Small fixes done right.",
-    long:
-      "From repairs to installations, our handyman team tackles everyday home tasks quickly and professionally.",
-    img: "/services/handyman.jpg",
-  },
-  {
-    title: "Trash Bin Cleaning",
-    price: "$45",
-    desc: "Odor-free, sanitized bins.",
-    long:
-      "We pressure wash, degrease, and sanitize household bins so they stay clean, odorless, and hygienic.",
-    img: "/services/bin.jpg",
-  },
-];
-
-export default function ServicesPage() {
+export default function Home() {
   return (
-    <main className="pt-32 pb-20 bg-cream min-h-screen">
-      <div className="max-w-7xl mx-auto px-6">
+    <main className="pt-28 bg-cream">
 
-        <h1 className="text-4xl font-serif text-navy mb-10">Our Services</h1>
+      {/* HERO SECTION */}
+      <section className="max-w-7xl mx-auto px-6 pb-20">
+        <div className="flex flex-col items-start gap-6">
+          <h1 className="text-4xl sm:text-5xl font-serif text-navy leading-tight">
+            The easiest way to keep your home clean, bright, and maintained.
+          </h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {services.map((service, idx) => (
-            <div
-              key={idx}
-              className="bg-white rounded-xl shadow-lg overflow-hidden hover:-translate-y-2 transform transition-all duration-300 hover:shadow-xl"
-            >
-              <div className="relative h-56 w-full">
-                <Image
-                  src={service.img}
-                  alt={service.title}
-                  fill
-                  className="object-cover"
-                />
-              </div>
+          <p className="text-lg text-gray-700 max-w-2xl">
+            Handld Home Services takes care of the tasks you don’t want to—
+            from window cleaning and gutter clearing to outdoor furniture,
+            trash bin cleaning, holiday lights, handyman tasks, and more.
+          </p>
 
-              <div className="p-6">
-                <h2 className="text-xl font-semibold text-navy">{service.title}</h2>
-                <p className="text-sm text-gray-600 mt-1">Starting at {service.price}</p>
-
-                <p className="mt-3 text-gray-700 leading-relaxed">{service.long}</p>
-              </div>
-            </div>
-          ))}
+          <a
+            href="https://handldhome.typeform.com/to/lEaYy0ka"
+            className="rounded-full bg-[#2A54A1] text-white text-base font-semibold px-6 py-3 shadow hover:bg-[#244987] transition"
+          >
+            Get My Custom Quote
+          </a>
         </div>
+      </section>
 
-      </div>
+      {/* SERVICES MARQUEE */}
+      <Services />
+
+      {/* HOW IT WORKS SECTION */}
+      <section id="how" className="py-20 bg-white border-t border-black/5">
+        <div className="max-w-7xl mx-auto px-6">
+
+          <h2 className="text-3xl font-serif text-navy mb-10">How It Works</h2>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
+
+            <div className="flex flex-col items-start">
+              <span className="text-4xl font-bold text-navy mb-3">1</span>
+              <h3 className="text-xl font-semibold text-navy mb-2">Tell Us What You Need</h3>
+              <p className="text-gray-700">
+                Answer a few quick questions about your home and the services you want.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-start">
+              <span className="text-4xl font-bold text-navy mb-3">2</span>
+              <h3 className="text-xl font-semibold text-navy mb-2">Review Your Quote</h3>
+              <p className="text-gray-700">
+                We build a simple, transparent quote with pricing based on your home.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-start">
+              <span className="text-4xl font-bold text-navy mb-3">3</span>
+              <h3 className="text-xl font-semibold text-navy mb-2">Book Your Services</h3>
+              <p className="text-gray-700">
+                Choose your appointment date or enroll in membership for preferred scheduling.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-start">
+              <span className="text-4xl font-bold text-navy mb-3">4</span>
+              <h3 className="text-xl font-semibold text-navy mb-2">We Take Care of the Rest</h3>
+              <p className="text-gray-700">
+                Your assigned technician arrives fully prepared—no surprises, no hassle.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
     </main>
   );
 }
