@@ -35,28 +35,26 @@ export default function Services() {
       <div className="max-w-7xl mx-auto px-6">
         <h2 className="text-3xl font-serif text-navy mb-8">Services</h2>
 
-        {/* Auto-scrolling marquee */}
-        <div className="overflow-hidden">
-          <div className="flex gap-6 whitespace-nowrap animate-scroll">
-            
+        {/* Marquee container */}
+        <div className="overflow-hidden relative">
+          <div className="flex gap-6 animate-marquee whitespace-nowrap">
+
             {[...services, ...services].map((service, idx) => (
               <div
                 key={idx}
-                className="inline-block w-64 bg-white shadow-md rounded-xl overflow-hidden"
+                className="inline-block w-[340px] bg-white shadow-md rounded-xl overflow-hidden"
               >
-                <div className="h-40 bg-gray-100">
+                <div className="relative h-48 w-full">
                   <Image
                     src={service.img}
                     alt={service.title}
-                    width={300}
-                    height={200}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                   />
                 </div>
+
                 <div className="p-4">
-                  <h3 className="text-lg font-semibold text-navy">
-                    {service.title}
-                  </h3>
+                  <h3 className="text-lg font-semibold text-navy">{service.title}</h3>
                   <p className="text-sm text-gray-600">Starting at {service.price}</p>
                   <p className="text-sm text-gray-700 mt-2">{service.desc}</p>
                 </div>
