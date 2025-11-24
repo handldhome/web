@@ -8,7 +8,7 @@ export default function Navbar() {
     <header className="fixed top-0 left-0 w-full z-50 bg-cream/80 backdrop-blur-md border-b border-black/5">
       <nav className="max-w-7xl mx-auto flex items-center justify-between px-4 py-1.5">
 
-        {/* Logo */}
+        {/* Logo → Homepage */}
         <Link href="/">
           <Image
             src="/logo.png"
