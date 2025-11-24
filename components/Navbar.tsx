@@ -5,14 +5,14 @@ import Image from "next/image";
 export default function Navbar() {
   return (
     <header className="fixed top-0 left-0 w-full z-50 bg-cream/80 backdrop-blur-md border-b border-black/5">
-      <nav className="max-w-7xl mx-auto flex items-center justify-between px-6 py-2">
+      <nav className="max-w-7xl mx-auto flex items-center justify-between px-4 py-1.5">
         
         {/* Logo */}
         <a href="/">
           <Image
             src="/logo.png"
             alt="Handld Home Services"
-            width={110}   // ↓ reduced from 200
+            width={110}
             height={40}
             className="h-auto w-auto"
           />
