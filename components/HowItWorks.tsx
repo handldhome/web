@@ -4,26 +4,16 @@ import Image from "next/image";
 
 export default function HowItWorks() {
   return (
-    <section className="w-full bg-cream py-20">
-      <div className="max-w-7xl mx-auto px-6">
-        
-        {/* Section Title */}
-        <h2 className="font-serif text-4xl text-navy mb-12 text-center">
-          How It Works
-        </h2>
-
-        {/* Graphic */}
-        <div className="w-full flex justify-center">
-          <Image
-            src="/how-it-works.png"   // <-- make sure the file is placed in /public/
-            alt="How Handld Works"
-            width={1600}
-            height={600}
-            className="w-full h-auto"
-            priority
-          />
-        </div>
-
+    <section className="w-full bg-cream py-24 flex justify-center">
+      <div className="relative w-full max-w-6xl px-6">
+        <Image
+          src="/how-it-works.png"  // <-- replace with your actual filename
+          alt="How It Works Flow"
+          width={2000}
+          height={1200}
+          className="w-full h-auto object-contain drop-shadow-sm"
+          priority
+        />
       </div>
     </section>
   );
