@@ -6,6 +6,7 @@ import { Check } from 'lucide-react';
 export default function Page() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const servicesRef = useRef<HTMLDivElement>(null);
+  const [isAutoScrolling, setIsAutoScrolling] = useState(true);
 
   const services = [
     { title: "Gutter Cleaning", description: "Avoid costly water damage by keeping your gutters clear and flowing. We remove debris to protect your roof and foundation.", price: "$90", img: "/services/gutter.jpg" },
@@ -37,7 +38,8 @@ export default function Page() {
 
   useEffect(() => {
     const container = servicesRef.current;
-    if (!container) return;
+    if (!container || !isAutoScrolling) return;
+    
     let scrollAmount = 0;
     const scroll = () => {
       scrollAmount += 0.5;
@@ -46,7 +48,7 @@ export default function Page() {
     };
     const interval = setInterval(scroll, 40);
     return () => clearInterval(interval);
-  }, []);
+  }, [isAutoScrolling]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -57,6 +59,23 @@ export default function Page() {
 
   const handleCTA = () => window.open('https://handldhome.pro.typeform.com/to/lEaYy0ka', '_blank');
   const handleEmail = () => window.location.href = 'mailto:Concierge@HandldHome.com';
+
+  const scrollToService = (idx: number) => {
+    const container = servicesRef.current;
+    if (container) {
+      setIsAutoScrolling(false);
+      const cardWidth = 408; // 384px card + 24px gap
+      container.scrollTo({
+        left: idx * cardWidth,
+        behavior: 'smooth'
+      });
+      
+      // Resume auto-scroll after 5 seconds
+      setTimeout(() => {
+        setIsAutoScrolling(true);
+      }, 5000);
+    }
+  };
 
   return (
     <div className="bg-[#FFFFF2] text-[#2A54A1]">
@@ -119,7 +138,7 @@ export default function Page() {
           <p className="font-body text-base md:text-lg text-[#2A54A1]">Let us take care of the jobs you don't have time for</p>
         </div>
         <div className="relative">
-          <div ref={servicesRef} className="flex gap-6 px-6 pb-6 scrollbar-hide overflow-x-auto snap-x snap-mandatory" style={{ scrollBehavior: 'smooth' }}>
+          <div ref={servicesRef} className="flex gap-6 px-6 pb-6 scrollbar-hide overflow-x-auto snap-x snap-mandatory">
             {[...services, ...services].map((service, idx) => (
               <div key={idx} className="flex-shrink-0 w-80 md:w-96 bg-white rounded-xl overflow-hidden shadow-retro border-2 border-[#2A54A1]/10 hover:shadow-2xl transition-shadow snap-center">
                 <div className="h-48 md:h-56 bg-gray-200 relative overflow-hidden">
@@ -138,13 +157,7 @@ export default function Page() {
             {services.map((_, idx) => (
               <button
                 key={idx}
-                onClick={() => {
-                  const container = servicesRef.current;
-                  if (container) {
-                    const cardWidth = 384 + 24;
-                    container.scrollLeft = idx * cardWidth;
-                  }
-                }}
+                onClick={() => scrollToService(idx)}
                 className="h-2.5 rounded-full transition-all bg-[#2A54A1]/30 w-2.5 hover:bg-[#2A54A1] hover:w-8"
               />
             ))}
