@@ -1,23 +1,19 @@
+import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Handld Home Services",
-  description: "Your home’s personal concierge for year-round upkeep."
+  description: "Professional home maintenance services in Pasadena and surrounding areas",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en">
-      <body className="bg-cream text-navy">
-        <Navbar />
-        <main className="pt-24"> 
-          {/* Padding to offset sticky navbar */}
-          {children}
-        </main>
-        <Footer />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
