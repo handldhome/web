@@ -8,13 +8,13 @@ export default function Page() {
   const servicesRef = useRef<HTMLDivElement>(null);
 
   const services = [
-    { title: "Window Washing", description: "Crystal-clear views and natural light. We clean inside and out, leaving every pane spotless and streak-free.", price: "$175", img: "/services/window.jpg" },
-    { title: "Pressure Washing", description: "Restore your home's curb appeal. From driveways to patios, we blast away dirt, grime, and years of buildup.", price: "$65", img: "/services/pressure.jpg" },
     { title: "Gutter Cleaning", description: "Avoid costly water damage by keeping your gutters clear and flowing. We remove debris to protect your roof and foundation.", price: "$90", img: "/services/gutter.jpg" },
+    { title: "Pressure Washing", description: "Restore your home's curb appeal. From driveways to patios, we blast away dirt, grime, and years of buildup.", price: "$65", img: "/services/pressure.jpg" },
+    { title: "Handyman", description: "From minor repairs to odd jobs around the house, our skilled handymen can tackle it all with expertise and care.", price: "$75/hr", img: "/services/handyman.jpg" },
+    { title: "Window Washing", description: "Crystal-clear views and natural light. We clean inside and out, leaving every pane spotless and streak-free.", price: "$175", img: "/services/window.jpg" },
     { title: "Trash Bin Cleaning", description: "Eliminate odors and bacteria from your trash bins. Deep-cleaning service that keeps these areas hygienic and fresh.", price: "$45", img: "/services/bin.jpg" },
-    { title: "BBQ Cleaning", description: "Clean where it really counts. Remove grease and harmful bacteria from your BBQ grill for safe, delicious cooking.", price: "$125", img: "/services/furniture.jpg" },
-    { title: "Pest Control", description: "Discreet and effective pest management. We ensure your home stays protected and pest-free without disrupting your peace.", price: "$170", img: "/services/handyman.jpg" },
-    { title: "Mobile Car Wash", description: "Professional detailing at your doorstep. Keep your car looking its best without ever leaving home.", price: "$95", img: "/services/holiday.jpg" }
+    { title: "Outdoor Furniture Cleaning", description: "Restore your patio furniture to like-new condition. We clean and protect all types of outdoor furniture.", price: "$125", img: "/services/furniture.jpg" },
+    { title: "Holiday Light Install & Take Down", description: "Professional installation and removal of holiday lighting. Make your home festive without the hassle.", price: "$200", img: "/services/holiday.jpg" }
   ];
 
   const testimonials = [
@@ -56,6 +56,7 @@ export default function Page() {
   }, []);
 
   const handleCTA = () => window.open('https://handldhome.pro.typeform.com/to/lEaYy0ka', '_blank');
+  const handleEmail = () => window.location.href = 'mailto:Concierge@HandldHome.com';
 
   return (
     <div className="bg-[#FFFFF2] text-[#2A54A1]">
@@ -85,7 +86,7 @@ export default function Page() {
 
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#FFFFF2] border-b-2 border-[#2A54A1]/20">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
-          <img src="/logo.png" alt="Handld Home" className="h-10 md:h-12" />
+          <img src="/logo.png" alt="Handld Home" className="h-16 md:h-20" />
           <div className="flex gap-6 md:gap-8 items-center font-body font-medium">
             <a href="#services" className="text-[#2A54A1] hover:opacity-70 transition-opacity text-sm md:text-base">Services</a>
             <a href="#how-it-works" className="text-[#2A54A1] hover:opacity-70 transition-opacity text-sm md:text-base">How It Works</a>
@@ -134,7 +135,7 @@ export default function Page() {
         </div>
         <div className="text-center mt-6">
           <button onClick={handleCTA} className="cta-button text-white px-8 md:px-10 py-3 rounded-full text-base md:text-lg font-body font-bold">
-            See All Services & Pricing
+            See Pricing for My Home
           </button>
         </div>
       </section>
@@ -225,9 +226,7 @@ export default function Page() {
               <button onClick={handleCTA} className="bg-[#FFFFF2] text-[#2A54A1] px-8 md:px-10 py-3 rounded-full text-base md:text-lg font-body font-bold hover:bg-white transition-all transform hover:scale-105 shadow-lg">Build My Bundle</button>
             </div>
             <div className="rounded-xl overflow-hidden shadow-2xl border-4 border-[#FFFFF2]/20">
-              <div className="bg-[#FFFFF2]/20 h-64 md:h-80 flex items-center justify-center">
-                <span className="text-[#FFFFF2]/50 font-body text-lg">Bundle Services Photo</span>
-              </div>
+              <img src="/bundle-photo.jpg" alt="Bundle Services" className="w-full h-64 md:h-80 object-cover" />
             </div>
           </div>
         </div>
@@ -266,7 +265,7 @@ export default function Page() {
             ))}
           </div>
           <div className="text-center mt-6">
-            <button onClick={handleCTA} className="cta-button text-white px-8 md:px-10 py-3 rounded-full text-base md:text-lg font-body font-bold">Still Have Questions? Let's Talk</button>
+            <button onClick={handleEmail} className="cta-button text-white px-8 md:px-10 py-3 rounded-full text-base md:text-lg font-body font-bold">Email Us Your Questions</button>
           </div>
         </div>
       </section>
@@ -277,7 +276,7 @@ export default function Page() {
           <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
             <div className="bg-white rounded-xl p-6 border-2 border-[#2A54A1]/10 shadow-lg">
               <div className="bg-gray-200 rounded-lg h-56 mb-5 flex items-center justify-center overflow-hidden">
-                <span className="text-[#2A54A1]/40 font-body">Team Photo Placeholder</span>
+                <img src="/about-photo.jpg" alt="Handld Team" className="w-full h-full object-cover" />
               </div>
               <p className="font-body text-base text-[#2A54A1] leading-relaxed mb-3">At Handld Home, we believe in simplifying the way you care for your home. From proactive seasonal upkeep to responsive repairs, our membership is built to give you time back and peace of mind, year-round.</p>
               <p className="font-body text-base text-[#2A54A1] leading-relaxed">We're a local company serving Pasadena, La Cañada, San Marino, Glendale, and South Pasadena with experienced professionals, natural products, and top-tier equipment.</p>
