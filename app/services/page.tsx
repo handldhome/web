@@ -348,22 +348,3 @@ const HandldHomeSite = () => {
 };
 
 export default HandldHomeSite;
-```
-
-### Step 2: Replace Your File
-
-1. Open your project folder on your computer
-2. Navigate to: `app/page.tsx` (or `app/page.ts`)
-3. **Delete all the existing code** in that file
-4. **Paste the code above** (replace everything)
-5. Save the file
-
-### Step 3: Deploy to Vercel
-
-**Option A - If you have the project connected to GitHub:**
-1. Open your terminal/command prompt in your project folder
-2. Type these commands one at a time:
-```
-   git add .
-   git commit -m "Update homepage design"
-   git push
