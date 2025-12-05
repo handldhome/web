@@ -14,7 +14,7 @@ export default function Page() {
     { title: "Window Washing", description: "Crystal-clear views and natural light. We clean inside and out, leaving every pane spotless and streak-free.", price: "$175", img: "/services/window.jpg" },
     { title: "Trash Bin Cleaning", description: "Eliminate odors and bacteria from your trash bins. Deep-cleaning service that keeps these areas hygienic and fresh.", price: "$45", img: "/services/bin.jpg" },
     { title: "Outdoor Furniture Cleaning", description: "Restore your patio furniture to like-new condition. We clean and protect all types of outdoor furniture.", price: "$125", img: "/services/furniture.jpg" },
-    { title: "Holiday Light Install & Take Down", description: "Professional installation and removal of holiday lighting. Make your home festive without the hassle.", price: "$200", img: "/services/holiday.jpg" }
+    { title: "Holiday Light Install & Take Down", description: "Professional installation and removal of holiday lighting. Make your home festive without the hassle.", price: "$200", img: "/services/holiday.JPG" }
   ];
 
   const testimonials = [
@@ -118,20 +118,37 @@ export default function Page() {
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-2 text-[#2A54A1]">Our Services</h2>
           <p className="font-body text-base md:text-lg text-[#2A54A1]">Let us take care of the jobs you don't have time for</p>
         </div>
-        <div ref={servicesRef} className="flex gap-6 px-6 pb-6 scrollbar-hide" style={{ overflowX: 'hidden' }}>
-          {[...services, ...services].map((service, idx) => (
-            <div key={idx} className="flex-shrink-0 w-80 md:w-96 bg-white rounded-xl overflow-hidden shadow-retro border-2 border-[#2A54A1]/10 hover:shadow-2xl transition-shadow">
-              <div className="h-48 md:h-56 bg-gray-200 relative overflow-hidden">
-                <img src={service.img} alt={service.title} className="w-full h-full object-cover" />
+        <div className="relative">
+          <div ref={servicesRef} className="flex gap-6 px-6 pb-6 scrollbar-hide overflow-x-auto snap-x snap-mandatory" style={{ scrollBehavior: 'smooth' }}>
+            {[...services, ...services].map((service, idx) => (
+              <div key={idx} className="flex-shrink-0 w-80 md:w-96 bg-white rounded-xl overflow-hidden shadow-retro border-2 border-[#2A54A1]/10 hover:shadow-2xl transition-shadow snap-center">
+                <div className="h-48 md:h-56 bg-gray-200 relative overflow-hidden">
+                  <img src={service.img} alt={service.title} className="w-full h-full object-cover" />
+                </div>
+                <div className="p-5 md:p-6">
+                  <h3 className="font-display text-lg md:text-xl font-bold mb-2 text-[#2A54A1]">{service.title}</h3>
+                  <p className="font-body text-sm text-[#2A54A1] mb-3 leading-relaxed">{service.description}</p>
+                  <div className="font-display text-2xl font-bold text-[#2A54A1]">{service.price}</div>
+                  <p className="font-body text-xs text-[#2A54A1]/70 mt-1">starting at</p>
+                </div>
               </div>
-              <div className="p-5 md:p-6">
-                <h3 className="font-display text-lg md:text-xl font-bold mb-2 text-[#2A54A1]">{service.title}</h3>
-                <p className="font-body text-sm text-[#2A54A1] mb-3 leading-relaxed">{service.description}</p>
-                <div className="font-display text-2xl font-bold text-[#2A54A1]">{service.price}</div>
-                <p className="font-body text-xs text-[#2A54A1]/70 mt-1">starting at</p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
+          <div className="flex justify-center gap-2 mt-6">
+            {services.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => {
+                  const container = servicesRef.current;
+                  if (container) {
+                    const cardWidth = 384 + 24;
+                    container.scrollLeft = idx * cardWidth;
+                  }
+                }}
+                className="h-2.5 rounded-full transition-all bg-[#2A54A1]/30 w-2.5 hover:bg-[#2A54A1] hover:w-8"
+              />
+            ))}
+          </div>
         </div>
         <div className="text-center mt-6">
           <button onClick={handleCTA} className="cta-button text-white px-8 md:px-10 py-3 rounded-full text-base md:text-lg font-body font-bold">
