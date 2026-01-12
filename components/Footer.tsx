@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -19,6 +20,21 @@ export default function Footer() {
         >
           Concierge@HandldHome.com
         </a>
+
+        <div className="flex justify-center gap-6 mt-4">
+          <Link
+            href="/terms"
+            className="text-navy/70 text-sm hover:text-navy transition"
+          >
+            Terms &amp; Conditions
+          </Link>
+          <Link
+            href="/privacy"
+            className="text-navy/70 text-sm hover:text-navy transition"
+          >
+            Privacy Policy
+          </Link>
+        </div>
 
         <p className="text-navy/60 text-sm mt-4">
           © {new Date().getFullYear()} Handld Home Services. All rights reserved.
