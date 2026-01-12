@@ -357,7 +357,10 @@ export default function Page() {
           </div>
           <div className="border-t border-[#FFFFF2]/20 pt-6 text-center">
             <p className="font-body text-[#FFFFF2]/60 mb-2">&copy; 2024 Handld Home Services. All rights reserved.</p>
-            <a href="/privacy-policy" className="font-body text-[#FFFFF2]/80 hover:text-[#FFFFF2] transition-colors text-sm underline">Privacy Policy</a>
+            <div className="flex justify-center gap-4">
+              <a href="/terms" className="font-body text-[#FFFFF2]/80 hover:text-[#FFFFF2] transition-colors text-sm underline">Terms &amp; Conditions</a>
+              <a href="/privacy" className="font-body text-[#FFFFF2]/80 hover:text-[#FFFFF2] transition-colors text-sm underline">Privacy Policy</a>
+            </div>
           </div>
         </div>
       </footer>
