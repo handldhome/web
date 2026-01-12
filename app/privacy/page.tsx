@@ -264,8 +264,8 @@ export default function PrivacyPage() {
           removal, you may contact us at{" "}
           <a href="mailto:Concierge@HandldHome.com" className="text-brandBlue underline hover:text-navy">
             Concierge@HandldHome.com
-          </a>{" "}
-          or at Handld Home LLC Privacy Office, 4000 Handld Home LLC Blvd., Bldg. 700, Burbank, CA 91522. Please note that we
+          </a>.{" "}
+          Please note that we
           cannot completely prevent further use or disclosure of that content or information by others once you
           have shared it in a publicly available forum.
         </p>
@@ -292,7 +292,6 @@ export default function PrivacyPage() {
         <ul className="list-disc pl-6 text-gray-700 leading-relaxed mb-4 space-y-2">
           <li>Email: <a href="mailto:Concierge@HandldHome.com" className="text-brandBlue underline hover:text-navy">Concierge@HandldHome.com</a></li>
           <li>Phone: 1-866-324-3637 or TTY: use 711</li>
-          <li>Mail: Handld Home LLC Privacy Office, 4000 Handld Home LLC Blvd., Bldg. 700, Burbank, CA 91522</li>
         </ul>
 
         <hr className="border-gray-200 my-8" />
