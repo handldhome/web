@@ -28,8 +28,36 @@ export default function ContactPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here (e.g., send to API)
-    console.log("Form submitted:", formData);
+
+    // Build email body with form data and opt-in preferences
+    const smsPreferences = [];
+    if (formData.optInOffersNews) {
+      smsPreferences.push("✓ Opted in to receive text messages for offers and news");
+    }
+    if (formData.optInCustomerUpdates) {
+      smsPreferences.push("✓ Opted in to receive text messages for customer updates");
+    }
+
+    const emailBody = `
+Name: ${formData.name}
+Email: ${formData.email}
+Phone: ${formData.phone || "Not provided"}
+
+Message:
+${formData.message}
+
+---
+SMS Text Message Preferences:
+${smsPreferences.length > 0 ? smsPreferences.join("\n") : "No SMS opt-ins selected"}
+
+Submitted: ${new Date().toLocaleString()}
+    `.trim();
+
+    const mailtoLink = `mailto:Concierge@HandldHome.com?subject=${encodeURIComponent(
+      `Contact Form: ${formData.name}`
+    )}&body=${encodeURIComponent(emailBody)}`;
+
+    window.location.href = mailtoLink;
     setSubmitted(true);
   };
 
@@ -44,9 +72,15 @@ export default function ContactPage() {
 
         {submitted ? (
           <div className="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-            <h2 className="font-serif text-2xl text-navy mb-2">Thank You!</h2>
+            <h2 className="font-serif text-2xl text-navy mb-2">Almost There!</h2>
             <p className="text-gray-700">
-              Your message has been received. We&apos;ll get back to you shortly.
+              Your email client should have opened with your message. Please click send to complete your submission.
+            </p>
+            <p className="text-gray-500 text-sm mt-2">
+              If your email client didn&apos;t open, you can email us directly at{" "}
+              <a href="mailto:Concierge@HandldHome.com" className="text-brandBlue hover:underline">
+                Concierge@HandldHome.com
+              </a>
             </p>
             <Link
               href="/"
