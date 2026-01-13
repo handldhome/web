@@ -286,11 +286,8 @@ export default function Page() {
                 <span className="font-body text-sm font-semibold text-[#FFFFF2]">New Service</span>
               </div>
               <h2 className="font-display text-3xl md:text-4xl font-bold mb-4 text-[#2A54A1]">Home Tune-Up</h2>
-              <p className="font-body text-sm md:text-base text-[#2A54A1] mb-3 leading-relaxed">
-                Your home has dozens of small details that quietly keep everything running safely and efficiently—until they don't. A loose outlet cover, an aging smoke detector, a slow dryer vent clog. Individually, they seem minor. Together, they can mean safety hazards and expensive emergency repairs.
-              </p>
               <p className="font-body text-sm md:text-base text-[#2A54A1] mb-5 leading-relaxed">
-                Our <strong>Home Tune-Up</strong> is a dedicated 4-hour block with an experienced handyman who methodically works through a comprehensive 31-point inspection and maintenance checklist. We catch the small stuff before it becomes big stuff. For every item requiring attention, you'll receive a detailed report with photos and easy booking options or trusted vendor referrals to get it handled.
+                Small issues become big problems. A 4-hour block with an experienced handyman to complete our 31-point inspection and maintenance checklist—catching safety hazards and preventing costly repairs before they happen. You'll receive a photo report with easy booking or trusted vendor referrals for anything that needs attention.
               </p>
               <div className="flex flex-col gap-3">
                 <button onClick={handleCTA} className="cta-button text-white px-6 py-3 rounded-full text-sm font-body font-bold">
