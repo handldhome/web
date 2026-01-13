@@ -7,6 +7,41 @@ export default function Page() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const servicesRef = useRef<HTMLDivElement>(null);
   const [isAutoScrolling, setIsAutoScrolling] = useState(true);
+  const [showChecklist, setShowChecklist] = useState(false);
+
+  const tuneUpChecklist = [
+    "Smoke Detector Function & Age",
+    "CO Detector Function & Age",
+    "Carbon Monoxide Detector Protection",
+    "Dryer Vent Lint Accumulation (Fire Prevention)",
+    "Dryer Vent Hose Termination Assessment",
+    "GFCI Outlet Protection Test",
+    "Electrical Panel Visual Inspection",
+    "Attic Visual Inspection",
+    "Stairway Safety & Lighting",
+    "Outlet & Switch Safety Check",
+    "Water Heater Condition & Safety",
+    "Foundation Perimeter Inspection",
+    "Deck & External Stair Condition",
+    "Fence Condition (including finishing and sealing)",
+    "HVAC System Age & Early Warning",
+    "Kitchen Exhaust Grease Management",
+    "HVAC Filter Condition & Upgrade",
+    "HVAC Secondary Drain Line",
+    "Water Heater Loss Protection",
+    "Hose Bib Condition",
+    "Pool/Spa Leak Detection",
+    "Window & Door Seal Assessment",
+    "Caulking Assessment & Maintenance",
+    "Garage Safety Inspection",
+    "Refrigerator Efficiency Check",
+    "Water Supply Assessment",
+    "Indoor Air Quality Assessment",
+    "Exterior Faucet Winterization",
+    "Exterior Paint Assessment",
+    "Main Water Shut-Off Accessibility",
+    "Dishwasher Seal & Leak Prevention"
+  ];
 
   const services = [
     { title: "Gutter Cleaning", description: "Avoid costly water damage by keeping your gutters clear and flowing. We remove debris to protect your roof and foundation.", price: "$90", img: "/services/gutter.jpg" },
@@ -237,6 +272,77 @@ export default function Page() {
         </div>
       </section>
 
+      <section className="py-12 md:py-16 bg-[#FBF9F0]">
+        <div className="max-w-6xl mx-auto px-4 md:px-6">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+            <div>
+              <div className="bg-[#2A54A1] px-4 py-1.5 rounded-full inline-block mb-4">
+                <span className="font-body text-sm font-semibold text-[#FFFFF2]">New Service</span>
+              </div>
+              <h2 className="font-display text-4xl md:text-5xl font-bold mb-4 text-[#2A54A1]">Home Tune-Up</h2>
+              <p className="font-body text-base md:text-lg text-[#2A54A1] mb-4 leading-relaxed">
+                Your home has dozens of small details that quietly keep everything running safely and efficiently—until they don't. A loose outlet cover, an aging smoke detector, a slow dryer vent clog. Individually, they seem minor. Together, they can mean safety hazards and expensive emergency repairs.
+              </p>
+              <p className="font-body text-base md:text-lg text-[#2A54A1] mb-6 leading-relaxed">
+                Our <strong>Home Tune-Up</strong> is a dedicated 4-hour block with an experienced handyman who methodically works through a comprehensive 31-point inspection and maintenance checklist. We catch the small stuff before it becomes big stuff—so you can rest easy knowing your home is fully dialed in.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button onClick={handleCTA} className="cta-button text-white px-8 py-3 rounded-full text-base font-body font-bold">
+                  Schedule My Tune-Up
+                </button>
+                <button
+                  onClick={() => setShowChecklist(true)}
+                  className="border-2 border-[#2A54A1] text-[#2A54A1] px-8 py-3 rounded-full text-base font-body font-bold hover:bg-[#2A54A1] hover:text-[#FFFFF2] transition-all"
+                >
+                  View 31-Point Checklist
+                </button>
+              </div>
+            </div>
+            <div className="relative">
+              <div className="bg-white rounded-2xl p-6 md:p-8 shadow-retro border-2 border-[#2A54A1]/10">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-[#2A54A1] rounded-full flex items-center justify-center">
+                    <Check className="w-6 h-6 text-[#FFFFF2]" />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-xl font-bold text-[#2A54A1]">4-Hour Service Block</h3>
+                    <p className="font-body text-sm text-[#2A54A1]/70">Comprehensive home inspection</p>
+                  </div>
+                </div>
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-start gap-3">
+                    <Check className="w-5 h-5 text-[#2A54A1] mt-0.5 flex-shrink-0" />
+                    <p className="font-body text-sm text-[#2A54A1]">Safety systems check (smoke detectors, CO detectors, GFCI outlets)</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Check className="w-5 h-5 text-[#2A54A1] mt-0.5 flex-shrink-0" />
+                    <p className="font-body text-sm text-[#2A54A1]">Fire prevention inspection (dryer vents, electrical panels)</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Check className="w-5 h-5 text-[#2A54A1] mt-0.5 flex-shrink-0" />
+                    <p className="font-body text-sm text-[#2A54A1]">Water damage prevention (hose bibs, seals, shut-offs)</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Check className="w-5 h-5 text-[#2A54A1] mt-0.5 flex-shrink-0" />
+                    <p className="font-body text-sm text-[#2A54A1]">HVAC efficiency assessment</p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Check className="w-5 h-5 text-[#2A54A1] mt-0.5 flex-shrink-0" />
+                    <p className="font-body text-sm text-[#2A54A1]">Minor repairs & adjustments included</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowChecklist(true)}
+                  className="w-full text-center font-body text-sm font-semibold text-[#2A54A1] hover:underline"
+                >
+                  + View all 31 checklist items
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="py-8 md:py-12 bg-[#2A54A1] text-[#FFFFF2] relative overflow-hidden">
         <div className="absolute inset-0 opacity-20">
           <div className="absolute inset-0 bg-gradient-to-br from-transparent via-[#FFFFF2]/10 to-transparent" />
@@ -364,6 +470,37 @@ export default function Page() {
           </div>
         </div>
       </footer>
+
+      {showChecklist && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowChecklist(false)}>
+          <div className="bg-[#FFFFF2] rounded-2xl max-w-3xl w-full max-h-[85vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-[#2A54A1] px-6 py-4 flex items-center justify-between">
+              <h3 className="font-display text-xl md:text-2xl font-bold text-[#FFFFF2]">Home Tune-Up Checklist</h3>
+              <button onClick={() => setShowChecklist(false)} className="text-[#FFFFF2] hover:opacity-70 transition-opacity">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6 overflow-y-auto max-h-[calc(85vh-140px)]">
+              <p className="font-body text-sm text-[#2A54A1]/70 mb-4">4-Hour Visit Includes Full Inspection + Handyman Work</p>
+              <div className="grid md:grid-cols-2 gap-x-6 gap-y-2">
+                {tuneUpChecklist.map((item, idx) => (
+                  <div key={idx} className="flex items-start gap-2 py-2 border-b border-[#2A54A1]/10">
+                    <Check className="w-4 h-4 text-[#2A54A1] mt-0.5 flex-shrink-0" />
+                    <span className="font-body text-sm text-[#2A54A1]">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="bg-[#FBF9F0] px-6 py-4 border-t border-[#2A54A1]/10">
+              <button onClick={() => { setShowChecklist(false); handleCTA(); }} className="w-full cta-button text-white px-8 py-3 rounded-full text-base font-body font-bold">
+                Schedule My Home Tune-Up
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
