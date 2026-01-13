@@ -278,6 +278,12 @@ export default function PrivacyPage() {
           substantively responded.
         </p>
 
+        <h2 className="font-serif text-2xl text-navy mt-10 mb-4">Mobile/Text Messaging</h2>
+        <p className="text-gray-700 leading-relaxed mb-4">
+          Mobile information or text messaging opt-in data and consent will not be sold or shared with
+          third parties or affiliates for their marketing or promotional purposes.
+        </p>
+
         <h2 className="font-serif text-2xl text-navy mt-10 mb-4">Changes or Revisions to this Supplement</h2>
         <p className="text-gray-700 leading-relaxed mb-4">
           From time to time, we may update this US State Supplement. If there are material changes made to this

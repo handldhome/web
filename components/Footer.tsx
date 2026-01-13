@@ -23,6 +23,12 @@ export default function Footer() {
 
         <div className="flex justify-center gap-6 mt-4">
           <Link
+            href="/contact"
+            className="text-navy/70 text-sm hover:text-navy transition"
+          >
+            Contact Us
+          </Link>
+          <Link
             href="/terms"
             className="text-navy/70 text-sm hover:text-navy transition"
           >
