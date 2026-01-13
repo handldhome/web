@@ -298,7 +298,10 @@ export default function Page() {
                 </button>
               </div>
             </div>
-            <div className="relative">
+            <div className="relative space-y-6">
+              <div className="rounded-2xl overflow-hidden shadow-retro border-2 border-[#2A54A1]/10">
+                <img src="/Handyman Notes.jpg" alt="Home Tune-Up Inspection" className="w-full h-48 md:h-56 object-cover" />
+              </div>
               <div className="bg-white rounded-2xl p-6 md:p-8 shadow-retro border-2 border-[#2A54A1]/10">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 bg-[#2A54A1] rounded-full flex items-center justify-center">
