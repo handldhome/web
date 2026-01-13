@@ -290,7 +290,7 @@ export default function Page() {
                 Your home has dozens of small details that quietly keep everything running safely and efficiently—until they don't. A loose outlet cover, an aging smoke detector, a slow dryer vent clog. Individually, they seem minor. Together, they can mean safety hazards and expensive emergency repairs.
               </p>
               <p className="font-body text-sm md:text-base text-[#2A54A1] mb-5 leading-relaxed">
-                Our <strong>Home Tune-Up</strong> is a dedicated 4-hour block with an experienced handyman who methodically works through a comprehensive 31-point inspection and maintenance checklist. We catch the small stuff before it becomes big stuff.
+                Our <strong>Home Tune-Up</strong> is a dedicated 4-hour block with an experienced handyman who methodically works through a comprehensive 31-point inspection and maintenance checklist. We catch the small stuff before it becomes big stuff. For every item requiring attention, you'll receive a detailed report with photos and easy booking options or trusted vendor referrals to get it handled.
               </p>
               <div className="flex flex-col gap-3">
                 <button onClick={handleCTA} className="cta-button text-white px-6 py-3 rounded-full text-sm font-body font-bold">
