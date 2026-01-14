@@ -166,6 +166,22 @@ Submitted: ${new Date().toLocaleString()}
               />
             </div>
 
+            {/* SMS Consent Disclosure */}
+            <p className="text-xs text-gray-600 leading-relaxed">
+              By submitting this form and signing up for texts, you consent to receive
+              informational text messages (e.g., appointment notifications) from Handld Home
+              at the number provided. Consent is not a condition of purchase. Msg &amp; data
+              rates may apply. Msg frequency varies. Unsubscribe anytime by replying STOP.
+              Reply HELP for help.{" "}
+              <Link href="/privacy" className="text-brandBlue hover:underline">
+                Privacy Policy
+              </Link>
+              {" & "}
+              <Link href="/terms" className="text-brandBlue hover:underline">
+                Terms
+              </Link>
+            </p>
+
             {/* SMS Opt-In Checkboxes */}
             <div className="space-y-4 pt-2">
               <h3 className="text-sm font-medium text-navy">
