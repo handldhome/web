@@ -6,8 +6,14 @@ const services = [
   {
     title: "Pressure Washing",
     price: "$130",
-    desc: "Save time and restore brightness to your home’s exterior.",
+    desc: "Save time and restore brightness to your home's exterior.",
     img: "/services/pressure.jpg",
+  },
+  {
+    title: "Plumbing Repairs",
+    price: "$105",
+    desc: "Licensed professionals to fix leaks, clogs, and other plumbing issues.",
+    img: "/services/plumbing.jpg",
   },
   {
     title: "Window Cleaning",
@@ -25,7 +31,7 @@ const services = [
     title: "Holiday Lights",
     price: "$385",
     desc: "Professional installation, removal, and storage for lights.",
-    img: "/services/holiday.JPG",
+    img: "/services/holiday.jpg",
   },
   {
     title: "Outdoor Furniture Cleaning",
@@ -34,8 +40,14 @@ const services = [
     img: "/services/furniture.jpg",
   },
   {
+    title: "Electrical Repairs",
+    price: "$69",
+    desc: "Licensed electricians for outlets, switches, and minor electrical work.",
+    img: "/services/electrical.jpg",
+  },
+  {
     title: "Handyman Services",
-    price: "$95",
+    price: "$75",
     desc: "Reliable help for small home fixes, repairs, and improvements.",
     img: "/services/handyman.jpg",
   },
