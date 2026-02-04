@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Check } from 'lucide-react';
 
 export default function Page() {
@@ -123,7 +124,7 @@ export default function Page() {
 
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#FFFFF2] border-b-2 border-[#2A54A1]/20">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
-          <img src="/logo.png" alt="Handld Home" className="h-16 md:h-20" />
+          <Image src="/logo.png" alt="Handld Home" width={160} height={80} className="h-16 md:h-20 w-auto" />
           <div className="flex gap-6 md:gap-8 items-center font-body font-medium">
             <a href="#services" className="text-[#2A54A1] hover:opacity-70 transition-opacity text-sm md:text-base">Services</a>
             <a href="#how-it-works" className="text-[#2A54A1] hover:opacity-70 transition-opacity text-sm md:text-base">How It Works</a>
@@ -160,7 +161,7 @@ export default function Page() {
             {[...services, ...services].map((service, idx) => (
               <div key={idx} className="flex-shrink-0 w-80 md:w-96 bg-white rounded-xl overflow-hidden shadow-retro border-2 border-[#2A54A1]/10 hover:shadow-2xl transition-shadow">
                 <div className="h-48 md:h-56 bg-gray-200 relative overflow-hidden">
-                  <img src={service.img} alt={service.title} className="w-full h-full object-cover" />
+                  <Image src={service.img} alt={service.title} fill className="object-cover" sizes="(max-width: 768px) 320px, 384px" />
                 </div>
                 <div className="p-5 md:p-6">
                   <h3 className="font-display text-lg md:text-xl font-bold mb-2 text-[#2A54A1]">{service.title}</h3>
@@ -227,8 +228,8 @@ export default function Page() {
               <div className="ml-24 md:ml-48 step-card">
                 <div className="bg-gradient-to-br from-[#2A54A1] to-[#1e3d7a] p-6 md:p-8 rounded-2xl shadow-2xl border-2 border-[#2A54A1]/20 relative overflow-hidden">
                   <div className="flex items-center justify-center md:justify-start gap-4">
-                    <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-full flex items-center justify-center shadow-xl p-3">
-                      <img src="/logo.png" alt="Handld" className="w-full h-full object-contain" />
+                    <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-full flex items-center justify-center shadow-xl p-3 relative">
+                      <Image src="/logo.png" alt="Handld" fill className="object-contain p-2" sizes="80px" />
                     </div>
                     <div className="text-[#FFFFF2]">
                       <h3 className="font-display text-xl md:text-2xl font-bold mb-1">Enjoy your free time!</h3>
@@ -250,8 +251,8 @@ export default function Page() {
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="grid md:grid-cols-3 gap-6 md:gap-8 items-center">
             {/* Photo - Left */}
-            <div className="rounded-2xl overflow-hidden shadow-retro border-2 border-[#2A54A1]/10 order-1 md:order-1">
-              <img src="/Handyman Notes.jpg" alt="Home Tune-Up Inspection" className="w-full h-64 md:h-80 object-cover" />
+            <div className="rounded-2xl overflow-hidden shadow-retro border-2 border-[#2A54A1]/10 order-1 md:order-1 relative h-64 md:h-80">
+              <Image src="/Handyman Notes.jpg" alt="Home Tune-Up Inspection" fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
             </div>
 
             {/* Description - Middle */}
@@ -340,8 +341,8 @@ export default function Page() {
               </div>
               <button onClick={handleCTA} className="bg-[#FFFFF2] text-[#2A54A1] px-8 md:px-10 py-3 rounded-full text-base md:text-lg font-body font-bold hover:bg-white transition-all transform hover:scale-105 shadow-lg">Build My Bundle</button>
             </div>
-            <div className="rounded-xl overflow-hidden shadow-2xl border-4 border-[#FFFFF2]/20">
-              <img src="/bundle-photo.jpg" alt="Bundle Services" className="w-full h-64 md:h-80 object-cover" />
+            <div className="rounded-xl overflow-hidden shadow-2xl border-4 border-[#FFFFF2]/20 relative h-64 md:h-80">
+              <Image src="/bundle-photo.jpg" alt="Bundle Services" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
             </div>
           </div>
         </div>
@@ -390,8 +391,8 @@ export default function Page() {
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-center text-[#2A54A1]">About Handld Home</h2>
           <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
             <div className="bg-white rounded-xl p-6 border-2 border-[#2A54A1]/10 shadow-lg">
-              <div className="bg-gray-200 rounded-lg h-56 mb-5 flex items-center justify-center overflow-hidden">
-                <img src="/about-photo.jpg" alt="Handld Team" className="w-full h-full object-cover" />
+              <div className="bg-gray-200 rounded-lg h-56 mb-5 relative overflow-hidden">
+                <Image src="/about-photo.jpg" alt="Handld Team" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
               </div>
               <p className="font-body text-base text-[#2A54A1] leading-relaxed mb-3">At Handld Home, we believe in simplifying the way you care for your home. From proactive seasonal upkeep to responsive repairs, our membership is built to give you time back and peace of mind, year-round.</p>
               <p className="font-body text-base text-[#2A54A1] leading-relaxed">We're a local company serving Pasadena, La Cañada, San Marino, Glendale, and South Pasadena with experienced professionals, natural products, and top-tier equipment.</p>
@@ -426,7 +427,7 @@ export default function Page() {
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8 mb-8">
             <div>
-              <img src="/logo.png" alt="Handld Home" className="h-10 md:h-12 mb-4" />
+              <Image src="/logo.png" alt="Handld Home" width={120} height={48} className="h-10 md:h-12 w-auto mb-4" />
               <p className="font-body text-sm md:text-base text-[#FFFFF2]/80">Your trusted home maintenance partner</p>
             </div>
             <div>
