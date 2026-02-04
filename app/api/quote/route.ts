@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
+    if (!process.env.AIRTABLE_PAT || !process.env.AIRTABLE_BASE_ID) {
+      console.error('Missing Airtable credentials. Set AIRTABLE_PAT and AIRTABLE_BASE_ID in environment variables.');
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      );
+    }
+
     const body = await request.json();
 
     const airtableResponse = await fetch(
@@ -22,6 +30,7 @@ export async function POST(request: NextRequest) {
                 'Address': body.address || '',
                 'Address line 2': body.addressLine2 || '',
                 'City': body.city || '',
+                'State': body.state || '',
                 'Zip Code': body.zipCode || '',
                 'Square Footage': body.squareFootage || '',
                 'Stories': body.stories || '',

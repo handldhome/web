@@ -14,6 +14,7 @@ export interface QuoteFormState {
   phone: string;
   address: string;
   addressLine2: string;
+  state: string;
   zipCode: string;
 }
 
@@ -39,6 +40,7 @@ export const initialFormState: QuoteFormState = {
   phone: '',
   address: '',
   addressLine2: '',
+  state: '',
   zipCode: '',
 };
 

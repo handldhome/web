@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useReducer, useMemo, useState, useEffect, useCallback } from 'react';
+import React, { useReducer, useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, ChevronLeft } from 'lucide-react';
 import {
-  QuoteFormState,
   initialFormState,
   formReducer,
   SERVICE_TYPE_OPTIONS,
@@ -12,7 +11,6 @@ import {
   SERVICE_OPTIONS,
   PLUMBING_OPTIONS,
   ELECTRICAL_OPTIONS,
-  CITY_OPTIONS,
   SQFT_OPTIONS,
   STORY_OPTIONS,
   LOT_OPTIONS,
@@ -31,7 +29,6 @@ type StepId =
   | 'services'
   | 'plumbing'
   | 'electrical'
-  | 'city'
   | 'sqft'
   | 'stories'
   | 'lotSize'
@@ -134,6 +131,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
   const [direction, setDirection] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const autoAdvanceTimer = useRef<NodeJS.Timeout | null>(null);
 
   // Lock body scroll when open
   useEffect(() => {
@@ -147,14 +145,45 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
     };
   }, [isOpen]);
 
+  // Cleanup auto-advance timer
+  useEffect(() => {
+    return () => {
+      if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
+    };
+  }, []);
+
   // Compute visible steps based on selections
   const visibleSteps = useMemo<StepId[]>(() => {
-    const steps: StepId[] = ['welcome', 'serviceType', 'wantBundle', 'bundleChoice', 'services'];
-    if (formState.selectedServices.includes('Plumbing Repairs')) steps.push('plumbing');
-    if (formState.selectedServices.includes('Electrical Repairs')) steps.push('electrical');
-    steps.push('city', 'sqft', 'stories', 'lotSize', 'contact', 'thanks');
+    const steps: StepId[] = ['welcome', 'serviceType'];
+
+    const isHomeTuneUp = formState.serviceType === 'Home TuneUp';
+
+    if (!isHomeTuneUp) {
+      steps.push('wantBundle');
+
+      const wantsBundle = formState.wantBundle.startsWith('Yes');
+
+      if (wantsBundle) {
+        steps.push('bundleChoice');
+      }
+
+      // Show services unless they picked a specific named bundle
+      const pickedSpecificBundle =
+        wantsBundle &&
+        formState.bundleChoice !== '' &&
+        formState.bundleChoice !== 'Build Your Own Bundle';
+
+      if (!pickedSpecificBundle) {
+        steps.push('services');
+      }
+
+      if (formState.selectedServices.includes('Plumbing Repairs')) steps.push('plumbing');
+      if (formState.selectedServices.includes('Electrical Repairs')) steps.push('electrical');
+    }
+
+    steps.push('sqft', 'stories', 'lotSize', 'contact', 'thanks');
     return steps;
-  }, [formState.selectedServices]);
+  }, [formState.serviceType, formState.wantBundle, formState.bundleChoice, formState.selectedServices]);
 
   const currentStep = visibleSteps[Math.min(stepIndex, visibleSteps.length - 1)];
 
@@ -182,8 +211,6 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
         return formState.plumbingIssues.length > 0;
       case 'electrical':
         return formState.electricalIssues.length > 0;
-      case 'city':
-        return formState.city !== '';
       case 'sqft':
         return formState.squareFootage !== '';
       case 'stories':
@@ -203,6 +230,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
   }, [currentStep, formState]);
 
   const handleClose = useCallback(() => {
+    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
     if (currentStep === 'thanks') {
       dispatch({ type: 'RESET' });
       setStepIndex(0);
@@ -219,6 +247,11 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, handleClose]);
+
+  const advanceStep = useCallback(() => {
+    setDirection(1);
+    setStepIndex((prev) => Math.min(prev + 1, visibleSteps.length - 1));
+  }, [visibleSteps.length]);
 
   const handleNext = async () => {
     // Clear conditional data if parent deselected
@@ -239,7 +272,10 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formState),
         });
-        if (!res.ok) throw new Error('Submit failed');
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || 'Submit failed');
+        }
         setDirection(1);
         setStepIndex((prev) => prev + 1);
       } catch {
@@ -250,11 +286,35 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
       return;
     }
 
-    setDirection(1);
-    setStepIndex((prev) => Math.min(prev + 1, visibleSteps.length - 1));
+    advanceStep();
   };
 
+  // Auto-advance for single-select questions
+  const handleSingleSelect = useCallback(
+    (field: string, value: string) => {
+      dispatch({ type: 'SET_FIELD', field: field as keyof typeof initialFormState, value });
+      if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
+      autoAdvanceTimer.current = setTimeout(() => {
+        advanceStep();
+      }, 350);
+    },
+    [advanceStep]
+  );
+
+  // Auto-advance for bundle choice (same pattern)
+  const handleBundleSelect = useCallback(
+    (value: string) => {
+      dispatch({ type: 'SET_FIELD', field: 'bundleChoice', value });
+      if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
+      autoAdvanceTimer.current = setTimeout(() => {
+        advanceStep();
+      }, 350);
+    },
+    [advanceStep]
+  );
+
   const handleBack = () => {
+    if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
     setDirection(-1);
     setStepIndex((prev) => Math.max(prev - 1, 0));
   };
@@ -288,7 +348,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
             <SingleSelect
               options={SERVICE_TYPE_OPTIONS}
               value={formState.serviceType}
-              onChange={(v) => dispatch({ type: 'SET_FIELD', field: 'serviceType', value: v })}
+              onChange={(v) => handleSingleSelect('serviceType', v)}
             />
           </div>
         );
@@ -302,7 +362,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
             <SingleSelect
               options={['Yes — make it easy, bundle & save 30%', 'No']}
               value={formState.wantBundle}
-              onChange={(v) => dispatch({ type: 'SET_FIELD', field: 'wantBundle', value: v })}
+              onChange={(v) => handleSingleSelect('wantBundle', v)}
               descriptions={{
                 'Yes — make it easy, bundle & save 30%': 'Recommended',
               }}
@@ -321,7 +381,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
                 <button
                   key={bundle.name}
                   type="button"
-                  onClick={() => dispatch({ type: 'SET_FIELD', field: 'bundleChoice', value: bundle.name })}
+                  onClick={() => handleBundleSelect(bundle.name)}
                   className={`w-full text-left p-4 rounded-xl border-2 transition-all ${
                     formState.bundleChoice === bundle.name
                       ? 'border-[#2A54A1] bg-[#2A54A1]/10'
@@ -398,20 +458,6 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
           </div>
         );
 
-      case 'city':
-        return (
-          <div>
-            <h2 className="font-display text-2xl md:text-3xl font-bold text-[#2A54A1] mb-6">
-              What city do you live in?
-            </h2>
-            <SingleSelect
-              options={CITY_OPTIONS}
-              value={formState.city}
-              onChange={(v) => dispatch({ type: 'SET_FIELD', field: 'city', value: v })}
-            />
-          </div>
-        );
-
       case 'sqft':
         return (
           <div>
@@ -421,7 +467,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
             <SingleSelect
               options={SQFT_OPTIONS}
               value={formState.squareFootage}
-              onChange={(v) => dispatch({ type: 'SET_FIELD', field: 'squareFootage', value: v })}
+              onChange={(v) => handleSingleSelect('squareFootage', v)}
             />
           </div>
         );
@@ -436,7 +482,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
             <SingleSelect
               options={STORY_OPTIONS}
               value={formState.stories}
-              onChange={(v) => dispatch({ type: 'SET_FIELD', field: 'stories', value: v })}
+              onChange={(v) => handleSingleSelect('stories', v)}
             />
           </div>
         );
@@ -450,7 +496,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
             <SingleSelect
               options={LOT_OPTIONS}
               value={formState.lotSize}
-              onChange={(v) => dispatch({ type: 'SET_FIELD', field: 'lotSize', value: v })}
+              onChange={(v) => handleSingleSelect('lotSize', v)}
             />
           </div>
         );
@@ -502,15 +548,25 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
                   placeholder="123 Main St"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">Apt/Unit</label>
+                  <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">City</label>
                   <input
                     type="text"
-                    value={formState.addressLine2}
-                    onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'addressLine2', value: e.target.value })}
+                    value={formState.city}
+                    onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'city', value: e.target.value })}
                     className="w-full p-3.5 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none transition-colors"
-                    placeholder="Optional"
+                    placeholder="Pasadena"
+                  />
+                </div>
+                <div>
+                  <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">State</label>
+                  <input
+                    type="text"
+                    value={formState.state}
+                    onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'state', value: e.target.value })}
+                    className="w-full p-3.5 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none transition-colors"
+                    placeholder="CA"
                   />
                 </div>
                 <div>
@@ -523,6 +579,16 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
                     placeholder="91101"
                   />
                 </div>
+              </div>
+              <div>
+                <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">Apt/Unit</label>
+                <input
+                  type="text"
+                  value={formState.addressLine2}
+                  onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'addressLine2', value: e.target.value })}
+                  className="w-full p-3.5 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none transition-colors"
+                  placeholder="Optional"
+                />
               </div>
             </div>
             {submitError && (
