@@ -43,12 +43,14 @@ export default function Page() {
 
   const services = [
     { title: "Gutter Cleaning", description: "Avoid costly water damage by keeping your gutters clear and flowing. We remove debris to protect your roof and foundation.", price: "$90", img: "/services/gutter.jpg" },
+    { title: "Plumbing Repairs", description: "Licensed professionals to fix leaks, clogs, and other plumbing issues quickly and reliably.", price: "$105", img: "/services/plumbing.jpg" },
     { title: "Pressure Washing", description: "Restore your home's curb appeal. From driveways to patios, we blast away dirt, grime, and years of buildup.", price: "$65", img: "/services/pressure.jpg" },
-    { title: "Handyman", description: "From minor repairs to odd jobs around the house, our skilled handymen can tackle it all with expertise and care.", price: "$75/hr", img: "/services/handyman.jpg" },
+    { title: "Handyman", description: "From minor repairs to odd jobs around the house, our skilled handymen can tackle it all with expertise and care.", price: "$75", img: "/services/handyman.jpg" },
     { title: "Window Washing", description: "Crystal-clear views and natural light. We clean inside and out, leaving every pane spotless and streak-free.", price: "$175", img: "/services/window.jpg" },
+    { title: "Electrical Repairs", description: "Licensed electricians for outlets, switches, and minor electrical work.", price: "$69", img: "/services/electrical.jpg" },
     { title: "Trash Bin Cleaning", description: "Eliminate odors and bacteria from your trash bins. Deep-cleaning service that keeps these areas hygienic and fresh.", price: "$45", img: "/services/bin.jpg" },
     { title: "Outdoor Furniture Cleaning", description: "Restore your patio furniture to like-new condition. We clean and protect all types of outdoor furniture.", price: "$125", img: "/services/furniture.jpg" },
-    { title: "Holiday Light Install & Take Down", description: "Professional installation and removal of holiday lighting. Make your home festive without the hassle.", price: "$200", img: "/services/holiday.JPG" }
+    { title: "Holiday Light Install & Take Down", description: "Professional installation and removal of holiday lighting. Make your home festive without the hassle.", price: "$200", img: "/services/holiday.jpg" }
   ];
 
   const testimonials = [
