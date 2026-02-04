@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Check } from 'lucide-react';
+import QuoteModal from '@/components/QuoteModal';
 
 export default function Page() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [showChecklist, setShowChecklist] = useState(false);
+  const [showQuoteModal, setShowQuoteModal] = useState(false);
 
   const tuneUpChecklist = [
     "Smoke Detector Function & Age",
@@ -79,7 +81,7 @@ export default function Page() {
     return () => clearInterval(timer);
   }, []);
 
-  const handleCTA = () => window.open('https://handldhome.pro.typeform.com/to/lEaYy0ka', '_blank');
+  const handleCTA = () => setShowQuoteModal(true);
   const handleEmail = () => window.location.href = 'mailto:Concierge@HandldHome.com';
 
   return (
@@ -482,6 +484,8 @@ export default function Page() {
           </div>
         </div>
       )}
+
+      <QuoteModal isOpen={showQuoteModal} onClose={() => setShowQuoteModal(false)} />
     </div>
   );
 }

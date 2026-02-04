@@ -1,6 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Shared typography */
+.font-display { font-family: 'Libre Baskerville', serif; }
+.font-body { font-family: 'DM Sans', sans-serif; }
+
+/* Shared CTA button */
+.cta-button {
+  background: linear-gradient(135deg, #2A54A1 0%, #1e3d7a 100%);
+  box-shadow: 0 4px 15px rgba(42, 84, 161, 0.3);
+  transition: all 0.3s ease;
+}
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(42, 84, 161, 0.4);
+}
+.cta-button:disabled {
+  opacity: 0.4;
+  transform: none;
+  cursor: not-allowed;
+}
+
+/* Shared shadow */
+.shadow-retro { box-shadow: 8px 8px 0px rgba(42, 84, 161, 0.15); }
 
 /* Smooth scroll */
 html {
