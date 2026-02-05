@@ -267,7 +267,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
       setIsSubmitting(true);
       setSubmitError('');
       try {
-        const res = await fetch('/api/quote', {
+        const res = await fetch('/api/submit-quote', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formState),

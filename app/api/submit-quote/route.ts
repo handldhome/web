@@ -3,17 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-// Diagnostic GET — visit /api/quote in browser
-export async function GET() {
-  return NextResponse.json({
-    pat_exists: !!process.env.AIRTABLE_PAT,
-    base_id_exists: !!process.env.AIRTABLE_BASE_ID,
-    airtable_keys: Object.keys(process.env).filter(k => k.includes('AIRTABLE')),
-    method: 'GET',
-    ts: Date.now(),
-  });
-}
-
 export async function POST(request: NextRequest) {
   const headers = { 'Cache-Control': 'no-store, no-cache, must-revalidate' };
 
@@ -22,7 +11,6 @@ export async function POST(request: NextRequest) {
     const baseId = process.env.AIRTABLE_BASE_ID;
 
     if (!pat || !baseId) {
-      // Include all AIRTABLE-related env keys and a timestamp so we can verify freshness
       return NextResponse.json(
         {
           error: `Missing credentials — PAT: ${!!pat}, BASE_ID: ${!!baseId}`,
@@ -36,7 +24,6 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // Build fields object, only including non-empty values
     const fields: Record<string, string> = {};
 
     const fieldMap: [string, string | undefined][] = [
