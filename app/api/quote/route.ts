@@ -1,6 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
+// Diagnostic GET — visit /api/quote in browser to check env vars on THIS route
+export async function GET() {
+  const pat = process.env.AIRTABLE_PAT;
+  const baseId = process.env.AIRTABLE_BASE_ID;
+  return NextResponse.json({
+    pat_exists: !!pat,
+    pat_length: pat?.length ?? 0,
+    base_id_exists: !!baseId,
+    base_id_length: baseId?.length ?? 0,
+    route: '/api/quote',
+    timestamp: new Date().toISOString(),
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
