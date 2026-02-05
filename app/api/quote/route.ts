@@ -2,10 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
   try {
-    if (!process.env.AIRTABLE_PAT || !process.env.AIRTABLE_BASE_ID) {
-      console.error('Missing Airtable credentials. Set AIRTABLE_PAT and AIRTABLE_BASE_ID in environment variables.');
+    const pat = process.env.AIRTABLE_PAT || process.env.NEXT_PUBLIC_AIRTABLE_PAT;
+    const baseId = process.env.AIRTABLE_BASE_ID || process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID;
+
+    if (!pat || !baseId) {
+      console.error('Missing Airtable credentials:', {
+        hasPat: !!process.env.AIRTABLE_PAT,
+        hasPublicPat: !!process.env.NEXT_PUBLIC_AIRTABLE_PAT,
+        hasBaseId: !!process.env.AIRTABLE_BASE_ID,
+        hasPublicBaseId: !!process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID,
+      });
       return NextResponse.json(
-        { error: 'Server configuration error: missing API credentials' },
+        { error: `Missing credentials — PAT: ${!!pat}, BASE_ID: ${!!baseId}. Check Vercel env var names match exactly: AIRTABLE_PAT and AIRTABLE_BASE_ID` },
         { status: 500 }
       );
     }
@@ -41,11 +49,11 @@ export async function POST(request: NextRequest) {
     }
 
     const airtableResponse = await fetch(
-      `https://api.airtable.com/v0/${process.env.AIRTABLE_BASE_ID}/Quote%20Requests`,
+      `https://api.airtable.com/v0/${baseId}/Quote%20Requests`,
       {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${process.env.AIRTABLE_PAT}`,
+          Authorization: `Bearer ${pat}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
