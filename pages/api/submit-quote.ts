@@ -13,10 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!pat || !baseId) {
       return res.status(500).json({
-        error: `Missing credentials — PAT: ${!!pat}, BASE_ID: ${!!baseId}`,
-        airtable_keys: Object.keys(process.env).filter(k => k.includes('AIRTABLE')),
-        all_env_count: Object.keys(process.env).length,
-        ts: Date.now(),
+        error: 'Server configuration error: missing API credentials',
       });
     }
 
