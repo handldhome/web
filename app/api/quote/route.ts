@@ -3,24 +3,47 @@ import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
+// Read at module scope
+const MODULE_PAT = process.env.AIRTABLE_PAT;
+const MODULE_BASE = process.env.AIRTABLE_BASE_ID;
+
 // Diagnostic GET — visit /api/quote in browser to check env vars on THIS route
 export async function GET() {
-  const pat = process.env.AIRTABLE_PAT;
-  const baseId = process.env.AIRTABLE_BASE_ID;
   return NextResponse.json({
-    pat_exists: !!pat,
-    pat_length: pat?.length ?? 0,
-    base_id_exists: !!baseId,
-    base_id_length: baseId?.length ?? 0,
+    module_pat: !!MODULE_PAT,
+    module_base: !!MODULE_BASE,
+    inline_pat: !!process.env.AIRTABLE_PAT,
+    inline_base: !!process.env.AIRTABLE_BASE_ID,
     route: '/api/quote',
+    method: 'GET',
     timestamp: new Date().toISOString(),
   });
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const pat = process.env.AIRTABLE_PAT;
-    const baseId = process.env.AIRTABLE_BASE_ID;
+    // Temporarily return diagnostics from POST to debug
+    const inlinePat = process.env.AIRTABLE_PAT;
+    const inlineBase = process.env.AIRTABLE_BASE_ID;
+
+    // Return diagnostics — REMOVE after debugging
+    if (!MODULE_PAT && !inlinePat) {
+      return NextResponse.json({
+        error: `Missing credentials — PAT: ${!!inlinePat}, BASE_ID: ${!!inlineBase}`,
+        debug: {
+          module_pat: !!MODULE_PAT,
+          module_base: !!MODULE_BASE,
+          inline_pat: !!inlinePat,
+          inline_base: !!inlineBase,
+          env_keys_sample: Object.keys(process.env).filter(k => k.startsWith('AIRTABLE')),
+          method: 'POST',
+          runtime: typeof EdgeRuntime !== 'undefined' ? 'edge' : 'nodejs',
+        }
+      }, { status: 500 });
+    }
+
+    const pat = MODULE_PAT || inlinePat;
+    const baseId = MODULE_BASE || inlineBase;
 
     if (!pat || !baseId) {
       return NextResponse.json(
