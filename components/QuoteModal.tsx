@@ -273,13 +273,14 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
           body: JSON.stringify(formState),
         });
         if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || 'Submit failed');
+          const data = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+          throw new Error(data.error || `Submit failed (${res.status})`);
         }
         setDirection(1);
         setStepIndex((prev) => prev + 1);
-      } catch {
-        setSubmitError('Something went wrong. Please try again or call us at (626) 298-7128.');
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : '';
+        setSubmitError(msg || 'Something went wrong. Please try again or call us at (626) 298-7128.');
       } finally {
         setIsSubmitting(false);
       }
