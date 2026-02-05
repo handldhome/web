@@ -24,8 +24,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const fields: Record<string, string> = {};
 
+    // Split name into first/last — "Customer Name" is a formula field in Airtable
+    const nameParts = (body.name || '').trim().split(/\s+/);
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+
     const fieldMap: [string, string | undefined][] = [
-      ['Customer Name', body.name],
+      ['First Name', firstName],
+      ['Last Name', lastName],
       ['Customer Phone', body.phone],
       ['Email', body.email],
       ['Address', body.address],
