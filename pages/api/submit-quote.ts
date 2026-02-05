@@ -22,14 +22,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const body = req.body;
 
-    const fields: Record<string, string> = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const fields: Record<string, any> = {};
 
     // Split name into first/last — "Customer Name" is a formula field in Airtable
     const nameParts = (body.name || '').trim().split(/\s+/);
     const firstName = nameParts[0] || '';
     const lastName = nameParts.slice(1).join(' ') || '';
 
-    const fieldMap: [string, string | undefined][] = [
+    // String fields
+    const stringFields: [string, string | undefined][] = [
       ['First Name', firstName],
       ['Last Name', lastName],
       ['Customer Phone', body.phone],
@@ -42,17 +44,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ['Square Footage', body.squareFootage],
       ['Stories', body.stories],
       ['Lot Size', body.lotSize],
-      ['Selected Services', body.selectedServices?.join(', ')],
       ['Service Detail', body.serviceType],
-      ['Plumbing Detail', body.plumbingIssues?.join(', ')],
-      ['Electrical Detail', body.electricalIssues?.join(', ')],
       ['Bundle Type', body.bundleChoice],
     ];
 
-    for (const [key, value] of fieldMap) {
+    for (const [key, value] of stringFields) {
       if (value && value.trim() !== '') {
         fields[key] = value;
       }
+    }
+
+    // Multi-select fields — Airtable expects arrays, not comma-separated strings
+    if (body.selectedServices?.length) {
+      fields['Selected Services'] = body.selectedServices;
+    }
+    if (body.plumbingIssues?.length) {
+      fields['Plumbing Detail'] = body.plumbingIssues;
+    }
+    if (body.electricalIssues?.length) {
+      fields['Electrical Detail'] = body.electricalIssues;
     }
 
     const airtableResponse = await fetch(
