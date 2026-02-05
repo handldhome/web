@@ -1,19 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
-    const pat = process.env.AIRTABLE_PAT || process.env.NEXT_PUBLIC_AIRTABLE_PAT;
-    const baseId = process.env.AIRTABLE_BASE_ID || process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID;
+    const pat = process.env.AIRTABLE_PAT;
+    const baseId = process.env.AIRTABLE_BASE_ID;
 
     if (!pat || !baseId) {
-      console.error('Missing Airtable credentials:', {
-        hasPat: !!process.env.AIRTABLE_PAT,
-        hasPublicPat: !!process.env.NEXT_PUBLIC_AIRTABLE_PAT,
-        hasBaseId: !!process.env.AIRTABLE_BASE_ID,
-        hasPublicBaseId: !!process.env.NEXT_PUBLIC_AIRTABLE_BASE_ID,
-      });
       return NextResponse.json(
-        { error: `Missing credentials — PAT: ${!!pat}, BASE_ID: ${!!baseId}. Check Vercel env var names match exactly: AIRTABLE_PAT and AIRTABLE_BASE_ID` },
+        { error: `Missing credentials — PAT: ${!!pat}, BASE_ID: ${!!baseId}` },
         { status: 500 }
       );
     }
