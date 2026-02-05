@@ -44,7 +44,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ['Square Footage', body.squareFootage],
       ['Stories', body.stories],
       ['Lot Size', body.lotSize],
-      ['Service Detail', body.serviceType],
       ['Bundle Type', body.bundleChoice],
     ];
 
