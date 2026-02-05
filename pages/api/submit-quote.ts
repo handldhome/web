@@ -1,28 +1,26 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
 
-export async function POST(request: NextRequest) {
-  const headers = { 'Cache-Control': 'no-store, no-cache, must-revalidate' };
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
   try {
     const pat = process.env.AIRTABLE_PAT;
     const baseId = process.env.AIRTABLE_BASE_ID;
 
     if (!pat || !baseId) {
-      return NextResponse.json(
-        {
-          error: `Missing credentials — PAT: ${!!pat}, BASE_ID: ${!!baseId}`,
-          airtable_keys: Object.keys(process.env).filter(k => k.includes('AIRTABLE')),
-          all_env_count: Object.keys(process.env).length,
-          ts: Date.now(),
-        },
-        { status: 500, headers }
-      );
+      return res.status(500).json({
+        error: `Missing credentials — PAT: ${!!pat}, BASE_ID: ${!!baseId}`,
+        airtable_keys: Object.keys(process.env).filter(k => k.includes('AIRTABLE')),
+        all_env_count: Object.keys(process.env).length,
+        ts: Date.now(),
+      });
     }
 
-    const body = await request.json();
+    const body = req.body;
 
     const fields: Record<string, string> = {};
 
@@ -69,18 +67,14 @@ export async function POST(request: NextRequest) {
       const error = await airtableResponse.json();
       console.error('Airtable error:', JSON.stringify(error, null, 2));
       const detail = error?.error?.message || error?.error?.type || 'Unknown Airtable error';
-      return NextResponse.json(
-        { error: `Airtable: ${detail}` },
-        { status: 500, headers }
-      );
+      return res.status(500).json({ error: `Airtable: ${detail}` });
     }
 
-    return NextResponse.json({ success: true }, { headers });
+    return res.status(200).json({ success: true });
   } catch (err) {
     console.error('Quote submission error:', err);
-    return NextResponse.json(
-      { error: `Server error: ${err instanceof Error ? err.message : 'Unknown error'}` },
-      { status: 500, headers }
-    );
+    return res.status(500).json({
+      error: `Server error: ${err instanceof Error ? err.message : 'Unknown error'}`,
+    });
   }
 }
