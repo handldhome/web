@@ -3,52 +3,34 @@ import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-// Read at module scope
-const MODULE_PAT = process.env.AIRTABLE_PAT;
-const MODULE_BASE = process.env.AIRTABLE_BASE_ID;
-
-// Diagnostic GET — visit /api/quote in browser to check env vars on THIS route
+// Diagnostic GET — visit /api/quote in browser
 export async function GET() {
   return NextResponse.json({
-    module_pat: !!MODULE_PAT,
-    module_base: !!MODULE_BASE,
-    inline_pat: !!process.env.AIRTABLE_PAT,
-    inline_base: !!process.env.AIRTABLE_BASE_ID,
-    route: '/api/quote',
+    pat_exists: !!process.env.AIRTABLE_PAT,
+    base_id_exists: !!process.env.AIRTABLE_BASE_ID,
+    airtable_keys: Object.keys(process.env).filter(k => k.includes('AIRTABLE')),
     method: 'GET',
-    timestamp: new Date().toISOString(),
+    ts: Date.now(),
   });
 }
 
 export async function POST(request: NextRequest) {
+  const headers = { 'Cache-Control': 'no-store, no-cache, must-revalidate' };
+
   try {
-    // Temporarily return diagnostics from POST to debug
-    const inlinePat = process.env.AIRTABLE_PAT;
-    const inlineBase = process.env.AIRTABLE_BASE_ID;
-
-    // Return diagnostics — REMOVE after debugging
-    if (!MODULE_PAT && !inlinePat) {
-      return NextResponse.json({
-        error: `Missing credentials — PAT: ${!!inlinePat}, BASE_ID: ${!!inlineBase}`,
-        debug: {
-          module_pat: !!MODULE_PAT,
-          module_base: !!MODULE_BASE,
-          inline_pat: !!inlinePat,
-          inline_base: !!inlineBase,
-          env_keys_sample: Object.keys(process.env).filter(k => k.startsWith('AIRTABLE')),
-          method: 'POST',
-          runtime: typeof EdgeRuntime !== 'undefined' ? 'edge' : 'nodejs',
-        }
-      }, { status: 500 });
-    }
-
-    const pat = MODULE_PAT || inlinePat;
-    const baseId = MODULE_BASE || inlineBase;
+    const pat = process.env.AIRTABLE_PAT;
+    const baseId = process.env.AIRTABLE_BASE_ID;
 
     if (!pat || !baseId) {
+      // Include all AIRTABLE-related env keys and a timestamp so we can verify freshness
       return NextResponse.json(
-        { error: `Missing credentials — PAT: ${!!pat}, BASE_ID: ${!!baseId}` },
-        { status: 500 }
+        {
+          error: `Missing credentials — PAT: ${!!pat}, BASE_ID: ${!!baseId}`,
+          airtable_keys: Object.keys(process.env).filter(k => k.includes('AIRTABLE')),
+          all_env_count: Object.keys(process.env).length,
+          ts: Date.now(),
+        },
+        { status: 500, headers }
       );
     }
 
@@ -102,16 +84,16 @@ export async function POST(request: NextRequest) {
       const detail = error?.error?.message || error?.error?.type || 'Unknown Airtable error';
       return NextResponse.json(
         { error: `Airtable: ${detail}` },
-        { status: 500 }
+        { status: 500, headers }
       );
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true }, { headers });
   } catch (err) {
     console.error('Quote submission error:', err);
     return NextResponse.json(
       { error: `Server error: ${err instanceof Error ? err.message : 'Unknown error'}` },
-      { status: 500 }
+      { status: 500, headers }
     );
   }
 }

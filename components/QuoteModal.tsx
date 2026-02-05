@@ -274,7 +274,9 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
         });
         if (!res.ok) {
           const data = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
-          throw new Error(data.error || `Submit failed (${res.status})`);
+          // Include diagnostic fields if present
+          const extra = data.airtable_keys ? ` | keys: [${data.airtable_keys}] | env_count: ${data.all_env_count} | ts: ${data.ts}` : '';
+          throw new Error((data.error || `Submit failed (${res.status})`) + extra);
         }
         setDirection(1);
         setStepIndex((prev) => prev + 1);
