@@ -30,7 +30,7 @@ export default function ContactPage() {
     e.preventDefault();
 
     // Build email body with form data and opt-in preferences
-    const smsPreferences = [];
+    const smsPreferences: string[] = [];
     if (formData.optInOffersNews) {
       smsPreferences.push("✓ Opted in to receive text messages for offers and news");
     }
