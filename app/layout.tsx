@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import "./globals.css";
+import HeymarketWidget from "@/components/HeymarketWidget";
 
 export const metadata: Metadata = {
   title: "Handld Home Services",
@@ -16,19 +16,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         {children}
-        <Script
-          src="https://widget.heymarket.com/heymk-widget.bundle.js"
-          strategy="afterInteractive"
-          onLoad={() => {
-            // @ts-expect-error - HeymarketWidget is loaded by the external script
-            if (window.HeymarketWidget) {
-              // @ts-expect-error - HeymarketWidget is loaded by the external script
-              window.HeymarketWidget.construct({
-                CLIENT_ID: "1S6UdeduTkwjM0fVSKY3C1IuH-LvN4lBQ237lGPj"
-              });
-            }
-          }}
-        />
+        <HeymarketWidget />
       </body>
     </html>
   );
