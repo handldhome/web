@@ -17,25 +17,16 @@ export default function RootLayout({
       <body>
         {children}
         <Script
-          id="heymarket-widget"
+          src="https://widget.heymarket.com/heymk-widget.bundle.js"
           strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-(function(_a,id,a,_) {
-  function Modal(){
-    var h = a.createElement('script'); h.type = 'text/javascript'; h.async = true;
-    var e = id; h.src = e+(e.indexOf("?")>=0?"&":"?")+'ref='+_;
-    var y = a.getElementsByTagName('script')[0]; y.parentNode.insertBefore(h, y);
-    h.onload = h.onreadystatechange = function() {
-      var r = this.readyState; if (r && r != 'complete' && r != 'loaded') return;
-      try { HeymarketWidget.construct(_); } catch (e) {}
-    };
-  };
-  (_a.attachEvent ? _a.attachEvent('onload', Modal) : _a.addEventListener('load', Modal, false));
-})(window,'https://widget.heymarket.com/heymk-widget.bundle.js',document,{
-  CLIENT_ID: "1S6UdeduTkwjM0fVSKY3C1IuH-LvN4lBQ237lGPj"
-});
-            `,
+          onLoad={() => {
+            // @ts-expect-error - HeymarketWidget is loaded by the external script
+            if (window.HeymarketWidget) {
+              // @ts-expect-error - HeymarketWidget is loaded by the external script
+              window.HeymarketWidget.construct({
+                CLIENT_ID: "1S6UdeduTkwjM0fVSKY3C1IuH-LvN4lBQ237lGPj"
+              });
+            }
           }}
         />
       </body>
