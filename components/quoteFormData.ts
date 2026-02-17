@@ -5,6 +5,7 @@ export interface QuoteFormState {
   selectedServices: string[];
   plumbingIssues: string[];
   electricalIssues: string[];
+  handymanProjects: string;
   city: string;
   squareFootage: string;
   stories: string;
@@ -31,6 +32,7 @@ export const initialFormState: QuoteFormState = {
   selectedServices: [],
   plumbingIssues: [],
   electricalIssues: [],
+  handymanProjects: '',
   city: '',
   squareFootage: '',
   stories: '',

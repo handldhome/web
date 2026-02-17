@@ -27,6 +27,7 @@ type StepId =
   | 'wantBundle'
   | 'bundleChoice'
   | 'services'
+  | 'handyman'
   | 'plumbing'
   | 'electrical'
   | 'sqft'
@@ -177,6 +178,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
         steps.push('services');
       }
 
+      if (formState.selectedServices.includes('Handyman')) steps.push('handyman');
       if (formState.selectedServices.includes('Plumbing Repairs')) steps.push('plumbing');
       if (formState.selectedServices.includes('Electrical Repairs')) steps.push('electrical');
     }
@@ -207,6 +209,8 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
         return formState.bundleChoice !== '';
       case 'services':
         return formState.selectedServices.length > 0;
+      case 'handyman':
+        return formState.handymanProjects.trim().length > 0;
       case 'plumbing':
         return formState.plumbingIssues.length > 0;
       case 'electrical':
@@ -425,6 +429,24 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
               options={SERVICE_OPTIONS}
               selected={formState.selectedServices}
               onToggle={(v) => dispatch({ type: 'TOGGLE_MULTI', field: 'selectedServices', value: v })}
+            />
+          </div>
+        );
+
+      case 'handyman':
+        return (
+          <div>
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-[#2A54A1] mb-2">
+              What handyman projects do you need help with?
+            </h2>
+            <p className="font-body text-sm text-[#2A54A1]/60 mb-6">
+              Describe each project you&apos;d like us to handle — the more detail, the better!
+            </p>
+            <textarea
+              value={formState.handymanProjects}
+              onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'handymanProjects', value: e.target.value })}
+              placeholder="Example: Mount 55&quot; TV on living room wall, patch two small holes in bedroom drywall, fix squeaky door hinge in bathroom..."
+              className="w-full h-40 p-4 rounded-xl border-2 border-[#2A54A1]/20 focus:border-[#2A54A1] focus:outline-none font-body text-[#2A54A1] placeholder:text-[#2A54A1]/40 resize-none"
             />
           </div>
         );

@@ -42,6 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ['Stories', body.stories],
       ['Lot Size', body.lotSize],
       ['Bundle Type', body.bundleChoice],
+      ['Handyman Projects', body.handymanProjects],
     ];
 
     for (const [key, value] of stringFields) {
