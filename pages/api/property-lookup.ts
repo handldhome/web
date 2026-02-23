@@ -64,6 +64,8 @@ export default async function handler(
     const encodedAddress = encodeURIComponent(address.trim());
     const url = `https://api.rentcast.io/v1/properties?address=${encodedAddress}`;
 
+    console.log('[PropertyLookup] Calling RentCast API:', url);
+
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -71,6 +73,8 @@ export default async function handler(
         'Accept': 'application/json',
       },
     });
+
+    console.log('[PropertyLookup] RentCast response status:', response.status);
 
     if (response.status === 429) {
       return res.status(429).json({
@@ -96,11 +100,13 @@ export default async function handler(
     }
 
     const data = await response.json();
+    console.log('[PropertyLookup] RentCast response data:', JSON.stringify(data, null, 2));
 
     // RentCast returns an array of properties
     const properties: RentCastProperty[] = Array.isArray(data) ? data : [];
 
     if (properties.length === 0) {
+      console.log('[PropertyLookup] No properties found in response');
       return res.status(404).json({
         success: false,
         error: 'Property not found. Please enter your home details manually.',
@@ -108,11 +114,14 @@ export default async function handler(
     }
 
     const property = properties[0];
+    console.log('[PropertyLookup] First property:', JSON.stringify(property, null, 2));
 
     // Validate required fields
     const squareFootage = property.squareFootage;
     const lotSize = property.lotSize;
     const stories = property.stories;
+
+    console.log('[PropertyLookup] Extracted values:', { squareFootage, lotSize, stories });
 
     if (!squareFootage || !lotSize || !stories) {
       const missing: string[] = [];
