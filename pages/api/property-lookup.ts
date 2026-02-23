@@ -13,6 +13,10 @@ interface RentCastProperty {
   city?: string;
   state?: string;
   zipCode?: string;
+  features?: {
+    floorCount?: number;
+    [key: string]: unknown;
+  };
 }
 
 interface PropertyLookupResponse {
@@ -117,11 +121,12 @@ export default async function handler(
     console.log('[PropertyLookup] First property:', JSON.stringify(property, null, 2));
 
     // Validate required fields
+    // Note: RentCast uses features.floorCount for stories, not a top-level "stories" field
     const squareFootage = property.squareFootage;
     const lotSize = property.lotSize;
-    const stories = property.stories;
+    const stories = property.stories ?? property.features?.floorCount;
 
-    console.log('[PropertyLookup] Extracted values:', { squareFootage, lotSize, stories });
+    console.log('[PropertyLookup] Extracted values:', { squareFootage, lotSize, stories, floorCount: property.features?.floorCount });
 
     if (!squareFootage || !lotSize || !stories) {
       const missing: string[] = [];
