@@ -133,8 +133,11 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
   const [submitError, setSubmitError] = useState('');
   const autoAdvanceTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // Property lookup state
-  const [propertyLookupAddress, setPropertyLookupAddress] = useState('');
+  // Property lookup state - structured address fields
+  const [lookupStreet, setLookupStreet] = useState('');
+  const [lookupCity, setLookupCity] = useState('');
+  const [lookupState, setLookupState] = useState('CA'); // Default to CA
+  const [lookupZip, setLookupZip] = useState('');
   const [isLookingUpProperty, setIsLookingUpProperty] = useState(false);
   const [propertyLookupError, setPropertyLookupError] = useState('');
   const [showManualEntry, setShowManualEntry] = useState(false);
@@ -228,11 +231,13 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
           formState.lotSize !== ''
         );
       case 'contact':
+        // If property lookup was successful, we already have the address - don't require it again
+        const addressRequired = formState.propertyDataSource !== 'RentCast';
         return (
           formState.name.trim() !== '' &&
           formState.email.trim() !== '' &&
           formState.phone.trim() !== '' &&
-          formState.address.trim() !== ''
+          (!addressRequired || formState.address.trim() !== '')
         );
       default:
         return true;
@@ -332,10 +337,21 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
 
   // Property lookup handler
   const handlePropertyLookup = async () => {
-    if (!propertyLookupAddress.trim()) {
-      setPropertyLookupError('Please enter your address');
+    if (!lookupStreet.trim()) {
+      setPropertyLookupError('Please enter your street address');
       return;
     }
+    if (!lookupCity.trim()) {
+      setPropertyLookupError('Please enter your city');
+      return;
+    }
+    if (!lookupZip.trim()) {
+      setPropertyLookupError('Please enter your zip code');
+      return;
+    }
+
+    // Build full address string for API
+    const fullAddress = `${lookupStreet.trim()}, ${lookupCity.trim()}, ${lookupState.trim()} ${lookupZip.trim()}`;
 
     setIsLookingUpProperty(true);
     setPropertyLookupError('');
@@ -344,7 +360,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
       const response = await fetch('/api/property-lookup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address: propertyLookupAddress }),
+        body: JSON.stringify({ address: fullAddress }),
       });
 
       const data = await response.json();
@@ -369,7 +385,10 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
 
   const handleClearPropertyLookup = () => {
     dispatch({ type: 'CLEAR_PROPERTY_LOOKUP' });
-    setPropertyLookupAddress('');
+    setLookupStreet('');
+    setLookupCity('');
+    setLookupState('CA');
+    setLookupZip('');
     setPropertyLookupError('');
     setShowManualEntry(false);
   };
@@ -600,39 +619,78 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
             {/* Address lookup section */}
             {!showManualEntry && (
               <div className="mb-6">
-                <div className="flex gap-3">
-                  <div className="flex-1 relative">
+                <div className="grid gap-4">
+                  {/* Street Address */}
+                  <div className="relative">
                     <Home className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-[#2A54A1]/40" />
                     <input
                       type="text"
-                      value={propertyLookupAddress}
-                      onChange={(e) => setPropertyLookupAddress(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handlePropertyLookup();
-                        }
-                      }}
-                      placeholder="123 Main St, Pasadena, CA 91101"
+                      value={lookupStreet}
+                      onChange={(e) => setLookupStreet(e.target.value)}
+                      placeholder="Street Address (e.g., 123 Main St)"
                       className="w-full pl-11 pr-4 py-3.5 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none transition-colors"
                       disabled={isLookingUpProperty}
                     />
                   </div>
+
+                  {/* City, State, Zip row */}
+                  <div className="grid grid-cols-6 gap-3">
+                    <div className="col-span-3">
+                      <input
+                        type="text"
+                        value={lookupCity}
+                        onChange={(e) => setLookupCity(e.target.value)}
+                        placeholder="City"
+                        className="w-full px-4 py-3.5 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none transition-colors"
+                        disabled={isLookingUpProperty}
+                      />
+                    </div>
+                    <div className="col-span-1">
+                      <input
+                        type="text"
+                        value={lookupState}
+                        onChange={(e) => setLookupState(e.target.value.toUpperCase().slice(0, 2))}
+                        placeholder="State"
+                        maxLength={2}
+                        className="w-full px-4 py-3.5 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none transition-colors text-center"
+                        disabled={isLookingUpProperty}
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <input
+                        type="text"
+                        value={lookupZip}
+                        onChange={(e) => setLookupZip(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handlePropertyLookup();
+                          }
+                        }}
+                        placeholder="Zip Code"
+                        maxLength={5}
+                        className="w-full px-4 py-3.5 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none transition-colors"
+                        disabled={isLookingUpProperty}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Look Up Button */}
                   <button
                     type="button"
                     onClick={handlePropertyLookup}
-                    disabled={isLookingUpProperty || !propertyLookupAddress.trim()}
-                    className="px-5 py-3.5 rounded-xl bg-[#2A54A1] text-white font-body font-medium flex items-center gap-2 hover:bg-[#2A54A1]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isLookingUpProperty || !lookupStreet.trim() || !lookupCity.trim() || !lookupZip.trim()}
+                    className="w-full py-3.5 rounded-xl bg-[#2A54A1] text-white font-body font-medium flex items-center justify-center gap-2 hover:bg-[#2A54A1]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLookingUpProperty ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        Looking up...
+                        Looking up your home...
                       </>
                     ) : (
                       <>
                         <Search className="w-4 h-4" />
-                        Look Up
+                        Look Up My Home
                       </>
                     )}
                   </button>
@@ -736,58 +794,63 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
                   placeholder="(555) 123-4567"
                 />
               </div>
-              <div>
-                <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">Service Address *</label>
-                <input
-                  type="text"
-                  value={formState.address}
-                  onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'address', value: e.target.value })}
-                  className="w-full p-3.5 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none transition-colors"
-                  placeholder="123 Main St"
-                />
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">City</label>
-                  <input
-                    type="text"
-                    value={formState.city}
-                    onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'city', value: e.target.value })}
-                    className="w-full p-3.5 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none transition-colors"
-                    placeholder="Pasadena"
-                  />
-                </div>
-                <div>
-                  <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">State</label>
-                  <input
-                    type="text"
-                    value={formState.state}
-                    onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'state', value: e.target.value })}
-                    className="w-full p-3.5 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none transition-colors"
-                    placeholder="CA"
-                  />
-                </div>
-                <div>
-                  <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">Zip Code</label>
-                  <input
-                    type="text"
-                    value={formState.zipCode}
-                    onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'zipCode', value: e.target.value })}
-                    className="w-full p-3.5 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none transition-colors"
-                    placeholder="91101"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">Apt/Unit</label>
-                <input
-                  type="text"
-                  value={formState.addressLine2}
-                  onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'addressLine2', value: e.target.value })}
-                  className="w-full p-3.5 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none transition-colors"
-                  placeholder="Optional"
-                />
-              </div>
+              {/* Only show address fields if property lookup wasn't successful */}
+              {formState.propertyDataSource !== 'RentCast' && (
+                <>
+                  <div>
+                    <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">Service Address *</label>
+                    <input
+                      type="text"
+                      value={formState.address}
+                      onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'address', value: e.target.value })}
+                      className="w-full p-3.5 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none transition-colors"
+                      placeholder="123 Main St"
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">City</label>
+                      <input
+                        type="text"
+                        value={formState.city}
+                        onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'city', value: e.target.value })}
+                        className="w-full p-3.5 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none transition-colors"
+                        placeholder="Pasadena"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">State</label>
+                      <input
+                        type="text"
+                        value={formState.state}
+                        onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'state', value: e.target.value })}
+                        className="w-full p-3.5 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none transition-colors"
+                        placeholder="CA"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">Zip Code</label>
+                      <input
+                        type="text"
+                        value={formState.zipCode}
+                        onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'zipCode', value: e.target.value })}
+                        className="w-full p-3.5 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none transition-colors"
+                        placeholder="91101"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">Apt/Unit</label>
+                    <input
+                      type="text"
+                      value={formState.addressLine2}
+                      onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'addressLine2', value: e.target.value })}
+                      className="w-full p-3.5 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none transition-colors"
+                      placeholder="Optional"
+                    />
+                  </div>
+                </>
+              )}
             </div>
             {submitError && (
               <p className="font-body text-sm text-red-600 mt-4">{submitError}</p>
