@@ -17,13 +17,32 @@ export interface QuoteFormState {
   addressLine2: string;
   state: string;
   zipCode: string;
+  // New property lookup fields
+  exactSquareFootage: number | null;
+  exactLotSize: number | null;
+  exactStories: number | null;
+  propertyAddress: string;
+  propertyDataSource: 'RentCast' | 'Manual Entry' | '';
 }
 
 export type FormAction =
   | { type: 'SET_FIELD'; field: keyof QuoteFormState; value: string }
+  | { type: 'SET_NUMBER_FIELD'; field: 'exactSquareFootage' | 'exactLotSize' | 'exactStories'; value: number | null }
+  | { type: 'SET_PROPERTY_DATA'; data: PropertyLookupData }
   | { type: 'TOGGLE_MULTI'; field: 'selectedServices' | 'plumbingIssues' | 'electricalIssues'; value: string }
   | { type: 'CLEAR_ARRAY'; field: 'plumbingIssues' | 'electricalIssues' }
+  | { type: 'CLEAR_PROPERTY_LOOKUP' }
   | { type: 'RESET' };
+
+export interface PropertyLookupData {
+  squareFootage: number;
+  lotSize: number;
+  stories: number;
+  formattedAddress: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+}
 
 export const initialFormState: QuoteFormState = {
   serviceType: '',
@@ -44,12 +63,38 @@ export const initialFormState: QuoteFormState = {
   addressLine2: '',
   state: '',
   zipCode: '',
+  // New property lookup fields
+  exactSquareFootage: null,
+  exactLotSize: null,
+  exactStories: null,
+  propertyAddress: '',
+  propertyDataSource: '',
 };
 
 export function formReducer(state: QuoteFormState, action: FormAction): QuoteFormState {
   switch (action.type) {
     case 'SET_FIELD':
       return { ...state, [action.field]: action.value };
+    case 'SET_NUMBER_FIELD':
+      return { ...state, [action.field]: action.value };
+    case 'SET_PROPERTY_DATA': {
+      const { squareFootage, lotSize, stories, formattedAddress, city, state: propState, zipCode } = action.data;
+      return {
+        ...state,
+        exactSquareFootage: squareFootage,
+        exactLotSize: lotSize,
+        exactStories: stories,
+        squareFootage: mapSquareFootageToBucket(squareFootage),
+        lotSize: mapLotSizeToBucket(lotSize),
+        stories: mapStoriesToBucket(stories),
+        propertyAddress: formattedAddress,
+        propertyDataSource: 'RentCast',
+        // Also populate city/state/zip if provided and not already filled
+        city: city || state.city,
+        state: propState || state.state,
+        zipCode: zipCode || state.zipCode,
+      };
+    }
     case 'TOGGLE_MULTI': {
       const arr = state[action.field] as string[];
       const newArr = arr.includes(action.value)
@@ -59,6 +104,18 @@ export function formReducer(state: QuoteFormState, action: FormAction): QuoteFor
     }
     case 'CLEAR_ARRAY':
       return { ...state, [action.field]: [] };
+    case 'CLEAR_PROPERTY_LOOKUP':
+      return {
+        ...state,
+        exactSquareFootage: null,
+        exactLotSize: null,
+        exactStories: null,
+        squareFootage: '',
+        lotSize: '',
+        stories: '',
+        propertyAddress: '',
+        propertyDataSource: '',
+      };
     case 'RESET':
       return initialFormState;
   }
@@ -134,3 +191,24 @@ export const LOT_OPTIONS = [
   '10,000-20,000 sq. feet',
   'Greater than 20,000 sq. feet',
 ];
+
+// Mapping functions to convert exact values to pricing bucket strings
+export function mapSquareFootageToBucket(sqft: number): string {
+  if (sqft < 1600) return 'Less than 1,600 sq. feet';
+  if (sqft < 2500) return '1,600-2,500 sq. feet';
+  if (sqft < 4500) return '2,500-4,500 sq. feet';
+  return '4,500+ sq. feet';
+}
+
+export function mapLotSizeToBucket(lotSize: number): string {
+  if (lotSize < 5000) return 'Less than 5,000 sq. feet';
+  if (lotSize < 10000) return '5,000-10,000 sq. feet';
+  if (lotSize < 20000) return '10,000-20,000 sq. feet';
+  return 'Greater than 20,000 sq. feet';
+}
+
+export function mapStoriesToBucket(stories: number): string {
+  if (stories === 1) return 'One';
+  // Treat 2+ stories as "Two" since we don't have a "Three" option that maps differently
+  return 'Two';
+}

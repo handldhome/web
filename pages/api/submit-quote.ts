@@ -43,12 +43,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ['Lot Size', body.lotSize],
       ['Bundle Type', body.bundleChoice],
       ['Handyman Projects', body.handymanProjects],
+      // New property lookup fields
+      ['Property Address', body.propertyAddress],
+      ['Property Data Source', body.propertyDataSource],
     ];
 
     for (const [key, value] of stringFields) {
       if (value && value.trim() !== '') {
         fields[key] = value;
       }
+    }
+
+    // Number fields for exact property values (from RentCast)
+    if (typeof body.exactSquareFootage === 'number' && body.exactSquareFootage > 0) {
+      fields['Exact Square Footage'] = body.exactSquareFootage;
+    }
+    if (typeof body.exactLotSize === 'number' && body.exactLotSize > 0) {
+      fields['Exact Lot Size'] = body.exactLotSize;
+    }
+    if (typeof body.exactStories === 'number' && body.exactStories > 0) {
+      fields['Exact Stories'] = body.exactStories;
     }
 
     // Multi-select fields — Airtable expects arrays, not comma-separated strings

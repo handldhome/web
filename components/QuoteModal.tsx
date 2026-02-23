@@ -2,7 +2,7 @@
 
 import React, { useReducer, useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { X, ChevronLeft } from 'lucide-react';
+import { X, ChevronLeft, Loader2, CheckCircle, Home, Search } from 'lucide-react';
 import {
   initialFormState,
   formReducer,
@@ -14,6 +14,7 @@ import {
   SQFT_OPTIONS,
   STORY_OPTIONS,
   LOT_OPTIONS,
+  type PropertyLookupData,
 } from './quoteFormData';
 
 interface QuoteModalProps {
@@ -30,9 +31,7 @@ type StepId =
   | 'handyman'
   | 'plumbing'
   | 'electrical'
-  | 'sqft'
-  | 'stories'
-  | 'lotSize'
+  | 'propertyLookup'
   | 'contact'
   | 'thanks';
 
@@ -134,6 +133,12 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
   const [submitError, setSubmitError] = useState('');
   const autoAdvanceTimer = useRef<NodeJS.Timeout | null>(null);
 
+  // Property lookup state
+  const [propertyLookupAddress, setPropertyLookupAddress] = useState('');
+  const [isLookingUpProperty, setIsLookingUpProperty] = useState(false);
+  const [propertyLookupError, setPropertyLookupError] = useState('');
+  const [showManualEntry, setShowManualEntry] = useState(false);
+
   // Lock body scroll when open
   useEffect(() => {
     if (isOpen) {
@@ -183,7 +188,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
       if (formState.selectedServices.includes('Electrical Repairs')) steps.push('electrical');
     }
 
-    steps.push('sqft', 'stories', 'lotSize', 'contact', 'thanks');
+    steps.push('propertyLookup', 'contact', 'thanks');
     return steps;
   }, [formState.serviceType, formState.wantBundle, formState.bundleChoice, formState.selectedServices]);
 
@@ -215,12 +220,13 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
         return formState.plumbingIssues.length > 0;
       case 'electrical':
         return formState.electricalIssues.length > 0;
-      case 'sqft':
-        return formState.squareFootage !== '';
-      case 'stories':
-        return formState.stories !== '';
-      case 'lotSize':
-        return formState.lotSize !== '';
+      case 'propertyLookup':
+        // Valid if we have all three property values (from lookup or manual entry)
+        return (
+          formState.squareFootage !== '' &&
+          formState.stories !== '' &&
+          formState.lotSize !== ''
+        );
       case 'contact':
         return (
           formState.name.trim() !== '' &&
@@ -322,6 +328,55 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
     if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
     setDirection(-1);
     setStepIndex((prev) => Math.max(prev - 1, 0));
+  };
+
+  // Property lookup handler
+  const handlePropertyLookup = async () => {
+    if (!propertyLookupAddress.trim()) {
+      setPropertyLookupError('Please enter your address');
+      return;
+    }
+
+    setIsLookingUpProperty(true);
+    setPropertyLookupError('');
+
+    try {
+      const response = await fetch('/api/property-lookup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: propertyLookupAddress }),
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        dispatch({
+          type: 'SET_PROPERTY_DATA',
+          data: data.data as PropertyLookupData,
+        });
+        setShowManualEntry(false);
+      } else {
+        setPropertyLookupError(data.error || 'Property not found. Please enter your home details manually.');
+        setShowManualEntry(true);
+      }
+    } catch {
+      setPropertyLookupError('Something went wrong. Please enter your home details manually.');
+      setShowManualEntry(true);
+    } finally {
+      setIsLookingUpProperty(false);
+    }
+  };
+
+  const handleClearPropertyLookup = () => {
+    dispatch({ type: 'CLEAR_PROPERTY_LOOKUP' });
+    setPropertyLookupAddress('');
+    setPropertyLookupError('');
+    setShowManualEntry(false);
+  };
+
+  const handleManualEntryClick = () => {
+    setShowManualEntry(true);
+    dispatch({ type: 'SET_FIELD', field: 'propertyDataSource', value: 'Manual Entry' });
   };
 
   const renderStep = () => {
@@ -481,46 +536,166 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
           </div>
         );
 
-      case 'sqft':
-        return (
-          <div>
-            <h2 className="font-display text-2xl md:text-3xl font-bold text-[#2A54A1] mb-6">
-              What is your home&apos;s square footage?
-            </h2>
-            <SingleSelect
-              options={SQFT_OPTIONS}
-              value={formState.squareFootage}
-              onChange={(v) => handleSingleSelect('squareFootage', v)}
-            />
-          </div>
-        );
+      case 'propertyLookup':
+        // If we already have property data from lookup, show the success card
+        if (formState.propertyDataSource === 'RentCast' && formState.squareFootage) {
+          return (
+            <div>
+              <h2 className="font-display text-2xl md:text-3xl font-bold text-[#2A54A1] mb-6">
+                We found your home!
+              </h2>
+              <div className="bg-[#2A54A1]/5 border-2 border-[#2A54A1]/20 rounded-xl p-6 mb-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <CheckCircle className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-body font-medium text-[#2A54A1] mb-3">
+                      {formState.propertyAddress}
+                    </p>
+                    <div className="grid grid-cols-3 gap-4 text-sm">
+                      <div>
+                        <p className="font-body text-[#2A54A1]/60">Square Feet</p>
+                        <p className="font-body font-semibold text-[#2A54A1]">
+                          {formState.exactSquareFootage?.toLocaleString()}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="font-body text-[#2A54A1]/60">Lot Size</p>
+                        <p className="font-body font-semibold text-[#2A54A1]">
+                          {formState.exactLotSize?.toLocaleString()} sq ft
+                        </p>
+                      </div>
+                      <div>
+                        <p className="font-body text-[#2A54A1]/60">Stories</p>
+                        <p className="font-body font-semibold text-[#2A54A1]">
+                          {formState.exactStories}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleClearPropertyLookup}
+                className="font-body text-sm text-[#2A54A1]/60 hover:text-[#2A54A1] transition-colors underline"
+              >
+                Look up a different address
+              </button>
+            </div>
+          );
+        }
 
-      case 'stories':
+        // Show the lookup form or manual entry
         return (
           <div>
             <h2 className="font-display text-2xl md:text-3xl font-bold text-[#2A54A1] mb-2">
-              How many stories is your home?
+              Tell us about your home
             </h2>
-            <p className="font-body text-sm text-[#2A54A1]/60 mb-6">Do not include basement/subterranean</p>
-            <SingleSelect
-              options={STORY_OPTIONS}
-              value={formState.stories}
-              onChange={(v) => handleSingleSelect('stories', v)}
-            />
-          </div>
-        );
+            <p className="font-body text-sm text-[#2A54A1]/60 mb-6">
+              Enter your address and we&apos;ll look up your home details automatically
+            </p>
 
-      case 'lotSize':
-        return (
-          <div>
-            <h2 className="font-display text-2xl md:text-3xl font-bold text-[#2A54A1] mb-6">
-              What&apos;s your lot size?
-            </h2>
-            <SingleSelect
-              options={LOT_OPTIONS}
-              value={formState.lotSize}
-              onChange={(v) => handleSingleSelect('lotSize', v)}
-            />
+            {/* Address lookup section */}
+            {!showManualEntry && (
+              <div className="mb-6">
+                <div className="flex gap-3">
+                  <div className="flex-1 relative">
+                    <Home className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-[#2A54A1]/40" />
+                    <input
+                      type="text"
+                      value={propertyLookupAddress}
+                      onChange={(e) => setPropertyLookupAddress(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handlePropertyLookup();
+                        }
+                      }}
+                      placeholder="123 Main St, Pasadena, CA 91101"
+                      className="w-full pl-11 pr-4 py-3.5 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none transition-colors"
+                      disabled={isLookingUpProperty}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handlePropertyLookup}
+                    disabled={isLookingUpProperty || !propertyLookupAddress.trim()}
+                    className="px-5 py-3.5 rounded-xl bg-[#2A54A1] text-white font-body font-medium flex items-center gap-2 hover:bg-[#2A54A1]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLookingUpProperty ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Looking up...
+                      </>
+                    ) : (
+                      <>
+                        <Search className="w-4 h-4" />
+                        Look Up
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {propertyLookupError && (
+                  <p className="font-body text-sm text-amber-600 mt-3">{propertyLookupError}</p>
+                )}
+
+                <button
+                  type="button"
+                  onClick={handleManualEntryClick}
+                  className="font-body text-sm text-[#2A54A1]/60 hover:text-[#2A54A1] transition-colors underline mt-4"
+                >
+                  Enter details manually instead
+                </button>
+              </div>
+            )}
+
+            {/* Manual entry fallback */}
+            {showManualEntry && (
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-body font-medium text-[#2A54A1] mb-3">Square Footage</h3>
+                  <SingleSelect
+                    options={SQFT_OPTIONS}
+                    value={formState.squareFootage}
+                    onChange={(v) => dispatch({ type: 'SET_FIELD', field: 'squareFootage', value: v })}
+                  />
+                </div>
+
+                <div>
+                  <h3 className="font-body font-medium text-[#2A54A1] mb-3">
+                    Stories <span className="text-[#2A54A1]/60 font-normal">(not including basement)</span>
+                  </h3>
+                  <SingleSelect
+                    options={STORY_OPTIONS}
+                    value={formState.stories}
+                    onChange={(v) => dispatch({ type: 'SET_FIELD', field: 'stories', value: v })}
+                  />
+                </div>
+
+                <div>
+                  <h3 className="font-body font-medium text-[#2A54A1] mb-3">Lot Size</h3>
+                  <SingleSelect
+                    options={LOT_OPTIONS}
+                    value={formState.lotSize}
+                    onChange={(v) => dispatch({ type: 'SET_FIELD', field: 'lotSize', value: v })}
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowManualEntry(false);
+                    setPropertyLookupError('');
+                  }}
+                  className="font-body text-sm text-[#2A54A1]/60 hover:text-[#2A54A1] transition-colors underline"
+                >
+                  Try address lookup instead
+                </button>
+              </div>
+            )}
           </div>
         );
 
