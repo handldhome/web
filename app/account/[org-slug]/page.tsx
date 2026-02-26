@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 type Tab = 'home' | 'services' | 'plan' | 'account';
@@ -23,6 +22,7 @@ interface CustomerProfile {
   lot_size: number | null;
   stories: number | null;
   year_built: number | null;
+  handld_pro_customer_id: string | null;
 }
 
 interface Organization {
@@ -39,17 +39,68 @@ interface Organization {
   } | null;
 }
 
+interface Job {
+  id: string;
+  scheduled_date: string;
+  scheduled_time_start: string | null;
+  scheduled_time_end: string | null;
+  actual_start_time: string | null;
+  actual_end_time: string | null;
+  status: string;
+  price: number | null;
+  is_recurring: boolean;
+  technician_notes: string | null;
+  photos: string[];
+  service: {
+    id: string;
+    name: string;
+    category: string;
+  } | null;
+  assigned_technician: {
+    id: string;
+    first_name: string | null;
+    last_name: string | null;
+  } | null;
+}
+
+interface Invoice {
+  id: string;
+  billing_period_start: string | null;
+  billing_period_end: string | null;
+  subtotal: number;
+  tax: number;
+  total: number;
+  status: string;
+  invoice_type: string;
+  due_date: string | null;
+  paid_at: string | null;
+  created_at: string;
+}
+
+interface CustomerData {
+  customerId: string | null;
+  upcomingJobs: Job[];
+  recentJobs: Job[];
+  allJobs: Job[];
+  invoices: Invoice[];
+  recurringServices: any[];
+}
+
 export default function PortalPage({ params }: { params: Promise<{ 'org-slug': string }> }) {
   const [activeTab, setActiveTab] = useState<Tab>('home');
   const [loading, setLoading] = useState(true);
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [profile, setProfile] = useState<CustomerProfile | null>(null);
   const [hasMultipleAccounts, setHasMultipleAccounts] = useState(false);
+  const [customerData, setCustomerData] = useState<CustomerData | null>(null);
+  const [dataLoading, setDataLoading] = useState(false);
+  const [orgSlug, setOrgSlug] = useState<string>('');
   const router = useRouter();
 
   useEffect(() => {
     async function loadData() {
-      const { 'org-slug': orgSlug } = await params;
+      const { 'org-slug': slug } = await params;
+      setOrgSlug(slug);
       const supabase = createClient();
 
       const { data: { user } } = await supabase.auth.getUser();
@@ -58,11 +109,18 @@ export default function PortalPage({ params }: { params: Promise<{ 'org-slug': s
         return;
       }
 
+      // Try to auto-link customer on first load
+      try {
+        await fetch('/api/account/link-customer', { method: 'POST' });
+      } catch (e) {
+        console.error('Failed to link customer:', e);
+      }
+
       // Fetch organization
       const { data: org } = await supabase
         .from('organizations')
         .select('id, name, slug, contact_email, contact_phone, settings')
-        .eq('slug', orgSlug)
+        .eq('slug', slug)
         .eq('is_active', true)
         .single();
 
@@ -98,15 +156,63 @@ export default function PortalPage({ params }: { params: Promise<{ 'org-slug': s
 
       setHasMultipleAccounts((count || 0) > 1);
       setLoading(false);
+
+      // Fetch customer data (jobs, invoices)
+      fetchCustomerData(slug);
     }
 
     loadData();
   }, [params, router]);
 
+  const fetchCustomerData = async (slug: string) => {
+    setDataLoading(true);
+    try {
+      const res = await fetch(`/api/account/${slug}/data`);
+      if (res.ok) {
+        const data = await res.json();
+        setCustomerData(data);
+      }
+    } catch (e) {
+      console.error('Failed to fetch customer data:', e);
+    }
+    setDataLoading(false);
+  };
+
   const handleSignOut = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push('/');
+  };
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  };
+
+  const formatTime = (timeStr: string | null) => {
+    if (!timeStr) return '';
+    const [hours, minutes] = timeStr.split(':');
+    const h = parseInt(hours);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const h12 = h % 12 || 12;
+    return `${h12}:${minutes} ${ampm}`;
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'scheduled': return 'bg-blue-100 text-blue-700';
+      case 'in_progress': return 'bg-yellow-100 text-yellow-700';
+      case 'completed': return 'bg-green-100 text-green-700';
+      case 'paid': return 'bg-green-100 text-green-700';
+      case 'sent': return 'bg-blue-100 text-blue-700';
+      case 'overdue': return 'bg-red-100 text-red-700';
+      case 'draft': return 'bg-gray-100 text-gray-700';
+      default: return 'bg-gray-100 text-gray-700';
+    }
   };
 
   if (loading) {
@@ -170,39 +276,86 @@ export default function PortalPage({ params }: { params: Promise<{ 'org-slug': s
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <button className="bg-white rounded-2xl border border-[#e5e5e5] p-4 flex flex-col items-start gap-2 hover:bg-[#faf8f5] transition">
+              <a href={`mailto:${organization.contact_email || 'concierge@handldhome.com'}`} className="bg-white rounded-2xl border border-[#e5e5e5] p-4 flex flex-col items-start gap-2 hover:bg-[#faf8f5] transition">
                 <div className="w-10 h-10 rounded-xl bg-[#FEF3E8] flex items-center justify-center">
                   <svg className="w-5 h-5 text-[#F4A442]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <span className="font-body font-medium text-[#1a1a1a] text-sm">Message us</span>
-              </button>
+                <span className="font-body font-medium text-[#1a1a1a] text-sm">Email us</span>
+              </a>
 
-              <button className="bg-white rounded-2xl border border-[#e5e5e5] p-4 flex flex-col items-start gap-2 hover:bg-[#faf8f5] transition">
+              <a href={`tel:${organization.contact_phone || '6262987128'}`} className="bg-white rounded-2xl border border-[#e5e5e5] p-4 flex flex-col items-start gap-2 hover:bg-[#faf8f5] transition">
                 <div className="w-10 h-10 rounded-xl bg-[#E8F5E9] flex items-center justify-center">
                   <svg className="w-5 h-5 text-[#4CAF50]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
                 </div>
                 <span className="font-body font-medium text-[#1a1a1a] text-sm">Call us</span>
-              </button>
+              </a>
             </div>
 
             {/* Upcoming */}
             <div>
               <h2 className="font-body font-semibold text-[#1a1a1a] mb-3">Upcoming</h2>
-              <div className="bg-white rounded-2xl border border-[#e5e5e5] p-4">
-                <p className="font-body text-[#666] text-sm">No upcoming services scheduled.</p>
-                <button className="mt-3 font-body text-[#2A54A1] text-sm font-medium">Book your first service →</button>
+              <div className="bg-white rounded-2xl border border-[#e5e5e5] overflow-hidden">
+                {dataLoading ? (
+                  <div className="p-4 flex items-center justify-center">
+                    <div className="animate-spin h-5 w-5 border-2 border-[#2A54A1] border-t-transparent rounded-full" />
+                  </div>
+                ) : customerData?.upcomingJobs && customerData.upcomingJobs.length > 0 ? (
+                  <div className="divide-y divide-[#e5e5e5]">
+                    {customerData.upcomingJobs.slice(0, 3).map((job) => (
+                      <div key={job.id} className="px-4 py-3 flex items-center justify-between">
+                        <div>
+                          <p className="font-body font-medium text-[#1a1a1a]">{job.service?.name || 'Service'}</p>
+                          <p className="font-body text-sm text-[#666]">
+                            {formatDate(job.scheduled_date)}
+                            {job.scheduled_time_start && ` at ${formatTime(job.scheduled_time_start)}`}
+                          </p>
+                        </div>
+                        <span className={`font-body text-xs px-2 py-1 rounded-full ${getStatusColor(job.status)}`}>
+                          {job.status.replace('_', ' ')}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4">
+                    <p className="font-body text-[#666] text-sm">No upcoming services scheduled.</p>
+                    <button className="mt-3 font-body text-[#2A54A1] text-sm font-medium">Book your first service →</button>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Recent Activity */}
             <div>
               <h2 className="font-body font-semibold text-[#1a1a1a] mb-3">Recent activity</h2>
-              <div className="bg-white rounded-2xl border border-[#e5e5e5] p-4">
-                <p className="font-body text-[#666] text-sm">No recent activity.</p>
+              <div className="bg-white rounded-2xl border border-[#e5e5e5] overflow-hidden">
+                {dataLoading ? (
+                  <div className="p-4 flex items-center justify-center">
+                    <div className="animate-spin h-5 w-5 border-2 border-[#2A54A1] border-t-transparent rounded-full" />
+                  </div>
+                ) : customerData?.recentJobs && customerData.recentJobs.length > 0 ? (
+                  <div className="divide-y divide-[#e5e5e5]">
+                    {customerData.recentJobs.slice(0, 3).map((job) => (
+                      <div key={job.id} className="px-4 py-3 flex items-center justify-between">
+                        <div>
+                          <p className="font-body font-medium text-[#1a1a1a]">{job.service?.name || 'Service'}</p>
+                          <p className="font-body text-sm text-[#666]">{formatDate(job.scheduled_date)}</p>
+                        </div>
+                        <span className={`font-body text-xs px-2 py-1 rounded-full ${getStatusColor(job.status)}`}>
+                          Completed
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4">
+                    <p className="font-body text-[#666] text-sm">No recent activity.</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -210,21 +363,87 @@ export default function PortalPage({ params }: { params: Promise<{ 'org-slug': s
 
         {activeTab === 'services' && (
           <div className="space-y-6">
-            {/* Service History Section */}
+            {/* Past Appointments */}
             <div>
-              <h2 className="font-body font-semibold text-[#666] text-sm mb-3 uppercase tracking-wide">History</h2>
-              <div className="bg-white rounded-2xl border border-[#e5e5e5] overflow-hidden divide-y divide-[#e5e5e5]">
-                <ListItem icon="calendar" iconBg="#E8F0FE" iconColor="#4285F4" title="Appointments" />
-                <ListItem icon="document" iconBg="#E8F5E9" iconColor="#4CAF50" title="Service reports" />
+              <h2 className="font-body font-semibold text-[#666] text-sm mb-3 uppercase tracking-wide">Past Appointments</h2>
+              <div className="bg-white rounded-2xl border border-[#e5e5e5] overflow-hidden">
+                {dataLoading ? (
+                  <div className="p-4 flex items-center justify-center">
+                    <div className="animate-spin h-5 w-5 border-2 border-[#2A54A1] border-t-transparent rounded-full" />
+                  </div>
+                ) : customerData?.allJobs && customerData.allJobs.filter(j => j.status === 'completed').length > 0 ? (
+                  <div className="divide-y divide-[#e5e5e5]">
+                    {customerData.allJobs.filter(j => j.status === 'completed').slice(0, 10).map((job) => (
+                      <div key={job.id} className="px-4 py-3 flex items-center justify-between hover:bg-[#faf8f5] transition">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-[#E8F5E9] flex items-center justify-center">
+                            <svg className="w-5 h-5 text-[#4CAF50]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="font-body font-medium text-[#1a1a1a]">{job.service?.name || 'Service'}</p>
+                            <p className="font-body text-sm text-[#666]">{formatDate(job.scheduled_date)}</p>
+                          </div>
+                        </div>
+                        {job.price && (
+                          <span className="font-body text-sm text-[#666]">{formatCurrency(job.price)}</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4">
+                    <p className="font-body text-[#666] text-sm">No past appointments.</p>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Billing Section */}
+            {/* Invoices */}
             <div>
-              <h2 className="font-body font-semibold text-[#666] text-sm mb-3 uppercase tracking-wide">Billing</h2>
-              <div className="bg-white rounded-2xl border border-[#e5e5e5] overflow-hidden divide-y divide-[#e5e5e5]">
-                <ListItem icon="estimate" iconBg="#FEF3E8" iconColor="#F4A442" title="Estimates" />
-                <ListItem icon="invoice" iconBg="#E8F5E9" iconColor="#4CAF50" title="Invoices" />
+              <h2 className="font-body font-semibold text-[#666] text-sm mb-3 uppercase tracking-wide">Invoices</h2>
+              <div className="bg-white rounded-2xl border border-[#e5e5e5] overflow-hidden">
+                {dataLoading ? (
+                  <div className="p-4 flex items-center justify-center">
+                    <div className="animate-spin h-5 w-5 border-2 border-[#2A54A1] border-t-transparent rounded-full" />
+                  </div>
+                ) : customerData?.invoices && customerData.invoices.length > 0 ? (
+                  <div className="divide-y divide-[#e5e5e5]">
+                    {customerData.invoices.map((invoice) => (
+                      <div key={invoice.id} className="px-4 py-3 flex items-center justify-between hover:bg-[#faf8f5] transition">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                            invoice.status === 'paid' ? 'bg-[#E8F5E9]' :
+                            invoice.status === 'overdue' ? 'bg-[#FEE8E8]' : 'bg-[#E8F0FE]'
+                          }`}>
+                            <svg className={`w-5 h-5 ${
+                              invoice.status === 'paid' ? 'text-[#4CAF50]' :
+                              invoice.status === 'overdue' ? 'text-[#E53935]' : 'text-[#4285F4]'
+                            }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="font-body font-medium text-[#1a1a1a]">{formatCurrency(invoice.total)}</p>
+                            <p className="font-body text-sm text-[#666]">
+                              {invoice.billing_period_start && invoice.billing_period_end
+                                ? `${formatDate(invoice.billing_period_start)} - ${formatDate(invoice.billing_period_end)}`
+                                : formatDate(invoice.created_at)}
+                            </p>
+                          </div>
+                        </div>
+                        <span className={`font-body text-xs px-2 py-1 rounded-full ${getStatusColor(invoice.status)}`}>
+                          {invoice.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4">
+                    <p className="font-body text-[#666] text-sm">No invoices.</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -232,37 +451,81 @@ export default function PortalPage({ params }: { params: Promise<{ 'org-slug': s
 
         {activeTab === 'plan' && (
           <div className="space-y-6">
+            {/* Scheduled Services */}
             <div>
               <h2 className="font-body font-semibold text-[#666] text-sm mb-3 uppercase tracking-wide">Scheduled</h2>
-              <div className="bg-white rounded-2xl border border-[#e5e5e5] p-4">
-                <p className="font-body text-[#666] text-sm">No scheduled services.</p>
+              <div className="bg-white rounded-2xl border border-[#e5e5e5] overflow-hidden">
+                {dataLoading ? (
+                  <div className="p-4 flex items-center justify-center">
+                    <div className="animate-spin h-5 w-5 border-2 border-[#2A54A1] border-t-transparent rounded-full" />
+                  </div>
+                ) : customerData?.upcomingJobs && customerData.upcomingJobs.length > 0 ? (
+                  <div className="divide-y divide-[#e5e5e5]">
+                    {customerData.upcomingJobs.map((job) => (
+                      <div key={job.id} className="px-4 py-3 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-[#E8F0FE] flex items-center justify-center">
+                            <svg className="w-5 h-5 text-[#4285F4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="font-body font-medium text-[#1a1a1a]">{job.service?.name || 'Service'}</p>
+                            <p className="font-body text-sm text-[#666]">
+                              {formatDate(job.scheduled_date)}
+                              {job.scheduled_time_start && ` at ${formatTime(job.scheduled_time_start)}`}
+                            </p>
+                          </div>
+                        </div>
+                        {job.is_recurring && (
+                          <span className="font-body text-xs px-2 py-1 rounded-full bg-[#E8F0FE] text-[#4285F4]">
+                            Recurring
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4">
+                    <p className="font-body text-[#666] text-sm">No scheduled services.</p>
+                  </div>
+                )}
               </div>
             </div>
 
+            {/* Recurring Services */}
             <div>
-              <h2 className="font-body font-semibold text-[#666] text-sm mb-3 uppercase tracking-wide">Recommended</h2>
-              <div className="bg-white rounded-2xl border border-[#e5e5e5] overflow-hidden divide-y divide-[#e5e5e5]">
-                <ListItem
-                  icon="gutter"
-                  iconBg="#FEE8E8"
-                  iconColor="#E53935"
-                  title="Gutter Cleaning"
-                  subtitle="Recommended every 6 months"
-                />
-                <ListItem
-                  icon="window"
-                  iconBg="#E8F0FE"
-                  iconColor="#4285F4"
-                  title="Window Washing"
-                  subtitle="Recommended every 3 months"
-                />
-                <ListItem
-                  icon="pressure"
-                  iconBg="#F3E8FE"
-                  iconColor="#9C27B0"
-                  title="Pressure Washing"
-                  subtitle="Recommended annually"
-                />
+              <h2 className="font-body font-semibold text-[#666] text-sm mb-3 uppercase tracking-wide">Your Plan</h2>
+              <div className="bg-white rounded-2xl border border-[#e5e5e5] overflow-hidden">
+                {customerData?.recurringServices && customerData.recurringServices.length > 0 ? (
+                  <div className="divide-y divide-[#e5e5e5]">
+                    {customerData.recurringServices.map((item: any, idx: number) => (
+                      <div key={idx} className="px-4 py-3 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-[#F3E8FE] flex items-center justify-center">
+                            <svg className="w-5 h-5 text-[#9C27B0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                          </div>
+                          <div>
+                            <p className="font-body font-medium text-[#1a1a1a]">{item.service?.name || 'Service'}</p>
+                            <p className="font-body text-sm text-[#666]">
+                              {item.recurrence_rule?.frequency || 'Recurring'}
+                            </p>
+                          </div>
+                        </div>
+                        <svg className="w-5 h-5 text-[#999]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4">
+                    <p className="font-body text-[#666] text-sm">No recurring services set up.</p>
+                    <button className="mt-3 font-body text-[#2A54A1] text-sm font-medium">Set up a recurring plan →</button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -317,28 +580,28 @@ export default function PortalPage({ params }: { params: Promise<{ 'org-slug': s
             <div>
               <h2 className="font-body font-semibold text-[#666] text-sm mb-3 uppercase tracking-wide">Support</h2>
               <div className="bg-white rounded-2xl border border-[#e5e5e5] overflow-hidden divide-y divide-[#e5e5e5]">
-                <button className="w-full px-4 py-3 flex items-center justify-between hover:bg-[#faf8f5] transition">
+                <a href={`mailto:${organization.contact_email || 'concierge@handldhome.com'}`} className="w-full px-4 py-3 flex items-center justify-between hover:bg-[#faf8f5] transition">
                   <div className="flex items-center gap-3">
                     <svg className="w-5 h-5 text-[#666]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                     <div className="text-left">
-                      <p className="font-body font-medium text-[#1a1a1a]">Chat with us</p>
-                      <p className="font-body text-sm text-[#666]">Available 8am to 6pm PST</p>
+                      <p className="font-body font-medium text-[#1a1a1a]">Email us</p>
+                      <p className="font-body text-sm text-[#666]">{organization.contact_email || 'concierge@handldhome.com'}</p>
                     </div>
                   </div>
                   <svg className="w-5 h-5 text-[#999]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
-                </button>
+                </a>
                 <a href={`tel:${organization.contact_phone || '6262987128'}`} className="w-full px-4 py-3 flex items-center justify-between hover:bg-[#faf8f5] transition">
                   <div className="flex items-center gap-3">
                     <svg className="w-5 h-5 text-[#666]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
                     <div className="text-left">
-                      <p className="font-body font-medium text-[#1a1a1a]">Phone call</p>
-                      <p className="font-body text-sm text-[#666]">Available 8am to 6pm PST</p>
+                      <p className="font-body font-medium text-[#1a1a1a]">Call us</p>
+                      <p className="font-body text-sm text-[#666]">(626) 298-7128</p>
                     </div>
                   </div>
                   <svg className="w-5 h-5 text-[#999]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -379,30 +642,10 @@ export default function PortalPage({ params }: { params: Promise<{ 'org-slug': s
 
       {/* Bottom Tab Bar */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#e5e5e5] px-6 py-2 flex items-center justify-around">
-        <TabButton
-          active={activeTab === 'home'}
-          onClick={() => setActiveTab('home')}
-          icon="home"
-          label="Home"
-        />
-        <TabButton
-          active={activeTab === 'services'}
-          onClick={() => setActiveTab('services')}
-          icon="services"
-          label="Services"
-        />
-        <TabButton
-          active={activeTab === 'plan'}
-          onClick={() => setActiveTab('plan')}
-          icon="plan"
-          label="Plan"
-        />
-        <TabButton
-          active={activeTab === 'account'}
-          onClick={() => setActiveTab('account')}
-          icon="account"
-          label="Account"
-        />
+        <TabButton active={activeTab === 'home'} onClick={() => setActiveTab('home')} icon="home" label="Home" />
+        <TabButton active={activeTab === 'services'} onClick={() => setActiveTab('services')} icon="services" label="Services" />
+        <TabButton active={activeTab === 'plan'} onClick={() => setActiveTab('plan')} icon="plan" label="Plan" />
+        <TabButton active={activeTab === 'account'} onClick={() => setActiveTab('account')} icon="account" label="Account" />
       </nav>
     </div>
   );
@@ -434,48 +677,6 @@ function TabButton({ active, onClick, icon, label }: { active: boolean; onClick:
         </svg>
       )}
       <span className={`font-body text-xs ${active ? 'text-[#2A54A1] font-medium' : 'text-[#999]'}`}>{label}</span>
-    </button>
-  );
-}
-
-function ListItem({ icon, iconBg, iconColor, title, subtitle }: { icon: string; iconBg: string; iconColor: string; title: string; subtitle?: string }) {
-  const getIcon = () => {
-    switch (icon) {
-      case 'calendar':
-        return <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />;
-      case 'document':
-        return <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />;
-      case 'estimate':
-        return <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />;
-      case 'invoice':
-        return <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />;
-      case 'gutter':
-        return <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />;
-      case 'window':
-        return <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 12h16M12 4v16" />;
-      case 'pressure':
-        return <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />;
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <button className="w-full px-4 py-3 flex items-center justify-between hover:bg-[#faf8f5] transition">
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: iconBg }}>
-          <svg className="w-5 h-5" style={{ color: iconColor }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            {getIcon()}
-          </svg>
-        </div>
-        <div className="text-left">
-          <p className="font-body font-medium text-[#1a1a1a]">{title}</p>
-          {subtitle && <p className="font-body text-sm text-[#666]">{subtitle}</p>}
-        </div>
-      </div>
-      <svg className="w-5 h-5 text-[#999]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-      </svg>
     </button>
   );
 }
