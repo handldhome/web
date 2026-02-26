@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { User } from "lucide-react";
 
 export default function Navbar() {
   return (
@@ -20,7 +21,7 @@ export default function Navbar() {
         </Link>
 
         {/* Links */}
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-6">
           <Link className="text-navy text-sm font-medium hover:opacity-70" href="/services">
             Services
           </Link>
@@ -28,6 +29,14 @@ export default function Navbar() {
           <a className="text-navy text-sm font-medium hover:opacity-70" href="#how">
             How It Works
           </a>
+
+          <Link
+            href="/account"
+            className="text-navy text-sm font-medium hover:opacity-70 flex items-center gap-1.5"
+          >
+            <User className="w-4 h-4" />
+            My Account
+          </Link>
 
           <a
             href="https://handldhome.typeform.com/to/lEaYy0ka"
