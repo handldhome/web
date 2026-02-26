@@ -81,23 +81,30 @@ export default async function AccountPage() {
   };
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen bg-[#FFFFF2]">
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap');
+        .font-display { font-family: 'Libre Baskerville', serif; }
+        .font-body { font-family: 'DM Sans', sans-serif; }
+        .shadow-retro { box-shadow: 8px 8px 0px rgba(42, 84, 161, 0.15); }
+      `}</style>
+
       {/* Header */}
-      <header className="bg-white border-b border-gray-100">
+      <header className="bg-white border-b-2 border-[#2A54A1]/10">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/">
             <Image
               src="/logo.png"
               alt="Handld Home Services"
-              width={120}
-              height={40}
-              className="h-auto"
+              width={160}
+              height={80}
+              className="h-14 w-auto"
             />
           </Link>
           <form action={handleSignOut}>
             <button
               type="submit"
-              className="text-sm text-gray-600 hover:text-navy transition"
+              className="font-body text-sm text-[#2A54A1]/70 hover:text-[#2A54A1] transition"
             >
               Sign Out
             </button>
@@ -108,29 +115,29 @@ export default async function AccountPage() {
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-12">
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-serif text-navy mb-2">
+          <h1 className="font-display text-3xl md:text-4xl font-bold text-[#2A54A1] mb-2">
             Welcome back, {firstName}!
           </h1>
-          <p className="text-gray-600">
+          <p className="font-body text-[#2A54A1]/70">
             Select an account to view your services
           </p>
         </div>
 
         {customerProfiles.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-soft p-8 text-center max-w-md mx-auto">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="bg-white rounded-2xl shadow-retro border-2 border-[#2A54A1]/10 p-8 text-center max-w-md mx-auto">
+            <div className="w-16 h-16 bg-[#FBF9F0] rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-8 h-8 text-[#2A54A1]/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h2 className="text-xl font-serif text-navy mb-3">No accounts found</h2>
-            <p className="text-gray-600 mb-6">
-              We couldn&apos;t find any service accounts linked to your email.
+            <h2 className="font-display text-xl font-bold text-[#2A54A1] mb-3">No accounts found</h2>
+            <p className="font-body text-[#2A54A1]/70 mb-6">
+              We couldn&apos;t find any service accounts linked to your phone number or email.
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="font-body text-sm text-[#2A54A1]/60">
               If you believe this is an error, please contact us at{' '}
-              <a href="mailto:support@handldhome.com" className="text-brandBlue hover:underline">
-                support@handldhome.com
+              <a href="mailto:concierge@handldhome.com" className="text-[#2A54A1] hover:underline">
+                concierge@handldhome.com
               </a>
             </p>
           </div>
@@ -147,7 +154,7 @@ export default async function AccountPage() {
                 <Link
                   key={profile.id}
                   href={`/account/${org.slug}`}
-                  className="bg-white rounded-2xl shadow-soft p-6 hover:shadow-md transition group"
+                  className="bg-white rounded-2xl shadow-retro border-2 border-[#2A54A1]/10 p-6 hover:shadow-lg transition group"
                 >
                   <div className="flex items-start gap-4">
                     {org.settings?.branding?.logo_url ? (
@@ -158,26 +165,26 @@ export default async function AccountPage() {
                       />
                     ) : (
                       <div
-                        className="w-12 h-12 rounded-lg flex items-center justify-center text-white font-bold text-lg"
+                        className="w-12 h-12 rounded-lg flex items-center justify-center text-white font-display font-bold text-lg"
                         style={{ backgroundColor: brandColor }}
                       >
                         {org.name.charAt(0)}
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-navy group-hover:text-brandBlue transition">
+                      <h3 className="font-display font-bold text-[#2A54A1] group-hover:text-[#1e3d7a] transition">
                         {org.name}
                       </h3>
-                      <p className="text-sm text-gray-500 truncate">
+                      <p className="font-body text-sm text-[#2A54A1]/60 truncate">
                         {address}
                       </p>
                       {org.type === 'handld_home' && (
-                        <span className="inline-block mt-2 text-xs bg-lightblue text-brandBlue px-2 py-0.5 rounded-full">
+                        <span className="inline-block mt-2 font-body text-xs bg-[#2A54A1]/10 text-[#2A54A1] px-2 py-0.5 rounded-full">
                           Handld Home
                         </span>
                       )}
                     </div>
-                    <svg className="w-5 h-5 text-gray-300 group-hover:text-brandBlue transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-[#2A54A1]/30 group-hover:text-[#2A54A1] transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </div>
