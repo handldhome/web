@@ -130,6 +130,7 @@ export default function Page() {
           <div className="flex gap-6 md:gap-8 items-center font-body font-medium">
             <a href="#services" className="text-[#2A54A1] hover:opacity-70 transition-opacity text-sm md:text-base">Services</a>
             <a href="#how-it-works" className="text-[#2A54A1] hover:opacity-70 transition-opacity text-sm md:text-base">How It Works</a>
+            <a href="/account" className="text-[#2A54A1] hover:opacity-70 transition-opacity text-sm md:text-base">My Account</a>
             <button onClick={handleCTA} className="cta-button text-white px-4 md:px-6 py-2 md:py-2.5 rounded-full font-semibold text-sm md:text-base">Get Quote</button>
           </div>
         </div>
