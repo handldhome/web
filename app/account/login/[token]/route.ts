@@ -105,7 +105,8 @@ export async function GET(
     if (createError.message.includes('already exists')) {
       // Look up existing user by email
       const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
-      const existingUser = existingUsers?.users?.find(
+      const users = existingUsers?.users as Array<{ id: string; email?: string; phone?: string }> | undefined;
+      const existingUser = users?.find(
         u => u.email === email || (phone && u.phone === `+1${phone}`)
       );
 
