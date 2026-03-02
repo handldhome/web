@@ -142,6 +142,13 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
   const [propertyLookupError, setPropertyLookupError] = useState('');
   const [showManualEntry, setShowManualEntry] = useState(false);
 
+  // Property data confirmation/editing state
+  const [propertyDataConfirmed, setPropertyDataConfirmed] = useState(false);
+  const [isEditingPropertyData, setIsEditingPropertyData] = useState(false);
+  const [editSquareFootage, setEditSquareFootage] = useState('');
+  const [editLotSize, setEditLotSize] = useState('');
+  const [editStories, setEditStories] = useState('');
+
   // Lock body scroll when open
   useEffect(() => {
     if (isOpen) {
@@ -224,15 +231,16 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
       case 'electrical':
         return formState.electricalIssues.length > 0;
       case 'propertyLookup':
-        // Valid if we have all three property values (from lookup or manual entry)
-        return (
-          formState.squareFootage !== '' &&
+        // Valid if we have all three property values AND user has confirmed (or manual entry)
+        const hasPropertyData = formState.squareFootage !== '' &&
           formState.stories !== '' &&
-          formState.lotSize !== ''
-        );
+          formState.lotSize !== '';
+        const isFromLookup = formState.propertyDataSource === 'RentCast' || formState.propertyDataSource === 'RentCast (Corrected)';
+        // If from lookup, must be confirmed. If manual entry, just need the data.
+        return hasPropertyData && (propertyDataConfirmed || !isFromLookup);
       case 'contact':
         // If property lookup was successful, we already have the address - don't require it again
-        const addressRequired = formState.propertyDataSource !== 'RentCast';
+        const addressRequired = !formState.propertyDataSource?.startsWith('RentCast');
         return (
           formState.name.trim() !== '' &&
           formState.email.trim() !== '' &&
@@ -242,7 +250,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
       default:
         return true;
     }
-  }, [currentStep, formState]);
+  }, [currentStep, formState, propertyDataConfirmed]);
 
   const handleClose = useCallback(() => {
     if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
@@ -391,11 +399,52 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
     setLookupZip('');
     setPropertyLookupError('');
     setShowManualEntry(false);
+    setPropertyDataConfirmed(false);
+    setIsEditingPropertyData(false);
+    setEditSquareFootage('');
+    setEditLotSize('');
+    setEditStories('');
   };
 
   const handleManualEntryClick = () => {
     setShowManualEntry(true);
     dispatch({ type: 'SET_FIELD', field: 'propertyDataSource', value: 'Manual Entry' });
+  };
+
+  const handleConfirmPropertyData = () => {
+    setPropertyDataConfirmed(true);
+  };
+
+  const handleEditPropertyData = () => {
+    setIsEditingPropertyData(true);
+    setEditSquareFootage(formState.exactSquareFootage?.toString() || '');
+    setEditLotSize(formState.exactLotSize?.toString() || '');
+    setEditStories(formState.exactStories?.toString() || '');
+  };
+
+  const handleSaveEditedPropertyData = () => {
+    const sqft = parseInt(editSquareFootage, 10);
+    const lot = parseInt(editLotSize, 10);
+    const stories = parseInt(editStories, 10);
+
+    if (sqft > 0 && lot > 0 && stories > 0) {
+      dispatch({
+        type: 'SET_PROPERTY_DATA',
+        data: {
+          squareFootage: sqft,
+          lotSize: lot,
+          stories: stories,
+          formattedAddress: formState.propertyAddress,
+          city: formState.city,
+          state: formState.state,
+          zipCode: formState.zipCode,
+        },
+      });
+      // Mark as corrected by customer
+      dispatch({ type: 'SET_FIELD', field: 'propertyDataSource', value: 'RentCast (Corrected)' });
+      setIsEditingPropertyData(false);
+      setPropertyDataConfirmed(true);
+    }
   };
 
   const renderStep = () => {
@@ -556,49 +605,191 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
         );
 
       case 'propertyLookup':
-        // If we already have property data from lookup, show the success card
-        if (formState.propertyDataSource === 'RentCast' && formState.squareFootage) {
-          return (
-            <div>
-              <h2 className="font-display text-2xl md:text-3xl font-bold text-[#2A54A1] mb-6">
-                We found your home!
-              </h2>
-              <div className="bg-[#2A54A1]/5 border-2 border-[#2A54A1]/20 rounded-xl p-6 mb-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                    <CheckCircle className="w-6 h-6 text-white" />
+        // If we already have property data from lookup, show confirmation/edit flow
+        if (formState.propertyDataSource?.startsWith('RentCast') && formState.squareFootage) {
+          // Editing mode - show editable inputs
+          if (isEditingPropertyData) {
+            return (
+              <div>
+                <h2 className="font-display text-2xl md:text-3xl font-bold text-[#2A54A1] mb-2">
+                  Update your home details
+                </h2>
+                <p className="font-body text-sm text-[#2A54A1]/60 mb-6">
+                  Enter the correct values for your home
+                </p>
+                <div className="bg-[#2A54A1]/5 border-2 border-[#2A54A1]/20 rounded-xl p-6 mb-6">
+                  <p className="font-body font-medium text-[#2A54A1] mb-4">
+                    {formState.propertyAddress}
+                  </p>
+                  <div className="grid gap-4">
+                    <div>
+                      <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">
+                        Square Footage
+                      </label>
+                      <input
+                        type="number"
+                        value={editSquareFootage}
+                        onChange={(e) => setEditSquareFootage(e.target.value)}
+                        placeholder="e.g., 2500"
+                        className="w-full p-3 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">
+                        Lot Size (sq ft)
+                      </label>
+                      <input
+                        type="number"
+                        value={editLotSize}
+                        onChange={(e) => setEditLotSize(e.target.value)}
+                        placeholder="e.g., 7500"
+                        className="w-full p-3 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">
+                        Stories
+                      </label>
+                      <input
+                        type="number"
+                        value={editStories}
+                        onChange={(e) => setEditStories(e.target.value)}
+                        placeholder="e.g., 2"
+                        min="1"
+                        max="4"
+                        className="w-full p-3 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none"
+                      />
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="font-body font-medium text-[#2A54A1] mb-3">
-                      {formState.propertyAddress}
-                    </p>
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <p className="font-body text-[#2A54A1]/60">Square Feet</p>
-                        <p className="font-body font-semibold text-[#2A54A1]">
-                          {formState.exactSquareFootage?.toLocaleString()}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="font-body text-[#2A54A1]/60">Lot Size</p>
-                        <p className="font-body font-semibold text-[#2A54A1]">
-                          {formState.exactLotSize?.toLocaleString()} sq ft
-                        </p>
-                      </div>
-                      <div>
-                        <p className="font-body text-[#2A54A1]/60">Stories</p>
-                        <p className="font-body font-semibold text-[#2A54A1]">
-                          {formState.exactStories}
-                        </p>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingPropertyData(false)}
+                    className="flex-1 py-3 rounded-xl border-2 border-[#2A54A1]/20 font-body font-medium text-[#2A54A1] hover:bg-[#2A54A1]/5 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveEditedPropertyData}
+                    disabled={!editSquareFootage || !editLotSize || !editStories}
+                    className="flex-1 py-3 rounded-xl bg-[#2A54A1] text-white font-body font-medium hover:bg-[#2A54A1]/90 transition-colors disabled:opacity-50"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </div>
+            );
+          }
+
+          // Confirmed - show success state
+          if (propertyDataConfirmed) {
+            return (
+              <div>
+                <h2 className="font-display text-2xl md:text-3xl font-bold text-[#2A54A1] mb-6">
+                  Perfect, we&apos;ve got your home details!
+                </h2>
+                <div className="bg-green-50 border-2 border-green-200 rounded-xl p-6 mb-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                      <CheckCircle className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-body font-medium text-[#2A54A1] mb-3">
+                        {formState.propertyAddress}
+                      </p>
+                      <div className="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <p className="font-body text-[#2A54A1]/60">Square Feet</p>
+                          <p className="font-body font-semibold text-[#2A54A1]">
+                            {formState.exactSquareFootage?.toLocaleString()}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="font-body text-[#2A54A1]/60">Lot Size</p>
+                          <p className="font-body font-semibold text-[#2A54A1]">
+                            {formState.exactLotSize?.toLocaleString()} sq ft
+                          </p>
+                        </div>
+                        <div>
+                          <p className="font-body text-[#2A54A1]/60">Stories</p>
+                          <p className="font-body font-semibold text-[#2A54A1]">
+                            {formState.exactStories}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={handleClearPropertyLookup}
+                  className="font-body text-sm text-[#2A54A1]/60 hover:text-[#2A54A1] transition-colors underline"
+                >
+                  Look up a different address
+                </button>
+              </div>
+            );
+          }
+
+          // Not confirmed yet - show data with confirmation buttons
+          return (
+            <div>
+              <h2 className="font-display text-2xl md:text-3xl font-bold text-[#2A54A1] mb-2">
+                We found your home!
+              </h2>
+              <p className="font-body text-sm text-[#2A54A1]/60 mb-6">
+                Please confirm these details are correct
+              </p>
+              <div className="bg-[#2A54A1]/5 border-2 border-[#2A54A1]/20 rounded-xl p-6 mb-6">
+                <p className="font-body font-medium text-[#2A54A1] mb-4">
+                  {formState.propertyAddress}
+                </p>
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <p className="font-body text-[#2A54A1]/60">Square Feet</p>
+                    <p className="font-body font-semibold text-[#2A54A1] text-lg">
+                      {formState.exactSquareFootage?.toLocaleString()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-body text-[#2A54A1]/60">Lot Size</p>
+                    <p className="font-body font-semibold text-[#2A54A1] text-lg">
+                      {formState.exactLotSize?.toLocaleString()} sq ft
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-body text-[#2A54A1]/60">Stories</p>
+                    <p className="font-body font-semibold text-[#2A54A1] text-lg">
+                      {formState.exactStories}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <p className="font-body font-medium text-[#2A54A1] mb-4 text-center">
+                Does this look correct?
+              </p>
+              <div className="flex gap-3 mb-4">
+                <button
+                  type="button"
+                  onClick={handleEditPropertyData}
+                  className="flex-1 py-3 rounded-xl border-2 border-[#2A54A1]/20 font-body font-medium text-[#2A54A1] hover:bg-[#2A54A1]/5 transition-colors"
+                >
+                  No, let me edit
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmPropertyData}
+                  className="flex-1 py-3 rounded-xl bg-[#2A54A1] text-white font-body font-medium hover:bg-[#2A54A1]/90 transition-colors"
+                >
+                  Yes, this is correct
+                </button>
               </div>
               <button
                 type="button"
                 onClick={handleClearPropertyLookup}
-                className="font-body text-sm text-[#2A54A1]/60 hover:text-[#2A54A1] transition-colors underline"
+                className="font-body text-sm text-[#2A54A1]/60 hover:text-[#2A54A1] transition-colors underline w-full text-center"
               >
                 Look up a different address
               </button>
