@@ -7,6 +7,24 @@ import { useRouter } from 'next/navigation';
 
 type Tab = 'home' | 'services' | 'plan' | 'account';
 
+type BookingStep = 'select' | 'confirm' | 'success' | null;
+
+const SERVICES_LIST = [
+  { name: 'Gutter Cleaning', icon: '🏠', description: 'Full gutter cleaning & flush' },
+  { name: 'Window Washing - Exterior', icon: '🪟', description: 'All exterior windows' },
+  { name: 'Window Washing - Interior & Exterior', icon: '✨', description: 'Inside and out' },
+  { name: 'Pressure Washing - Home Exterior', icon: '🏡', description: 'Siding, stucco & more' },
+  { name: 'Pressure Washing - Driveway & Patio', icon: '🧹', description: 'Concrete & stone surfaces' },
+  { name: 'Holiday Lights Install & Take Down', icon: '🎄', description: 'Professional install & removal' },
+  { name: 'Outdoor Furniture Cleaning', icon: '🪑', description: 'Patio furniture refresh' },
+  { name: 'Handyman', icon: '🔧', description: 'General repairs & fixes' },
+  { name: 'Plumbing Repairs', icon: '🔧', description: 'Faucets, toilets, drains & more' },
+  { name: 'Electrical Repairs', icon: '⚡', description: 'Outlets, switches, fixtures & more' },
+  { name: 'Home TuneUp', icon: '🔍', description: '30-point preventative inspection' },
+  { name: 'Trash Bin Cleaning', icon: '🗑️', description: 'Sanitize & deodorize bins' },
+  { name: 'Pest Control', icon: '🐜', description: 'Treatment & prevention' },
+];
+
 interface CustomerProfile {
   id: string;
   first_name: string | null;
@@ -96,6 +114,12 @@ export default function PortalPage({ params }: { params: Promise<{ 'org-slug': s
   const [dataLoading, setDataLoading] = useState(false);
   const [orgSlug, setOrgSlug] = useState<string>('');
   const router = useRouter();
+
+  // Book a Service state
+  const [bookingStep, setBookingStep] = useState<BookingStep>(null);
+  const [selectedService, setSelectedService] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bookingError, setBookingError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -215,6 +239,52 @@ export default function PortalPage({ params }: { params: Promise<{ 'org-slug': s
     }
   };
 
+  const handleBookService = () => {
+    setBookingStep('select');
+    setSelectedService(null);
+    setBookingError(null);
+  };
+
+  const handleSelectService = (serviceName: string) => {
+    setSelectedService(serviceName);
+    setBookingStep('confirm');
+  };
+
+  const handleConfirmBooking = async () => {
+    if (!selectedService || !profile) return;
+
+    setIsSubmitting(true);
+    setBookingError(null);
+
+    try {
+      const res = await fetch('/api/create-quote-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          service: selectedService,
+          profileId: profile.id,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to submit request');
+      }
+
+      setBookingStep('success');
+    } catch (err) {
+      setBookingError(err instanceof Error ? err.message : 'Something went wrong');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const closeBookingDialog = () => {
+    setBookingStep(null);
+    setSelectedService(null);
+    setBookingError(null);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FAF8F5] flex items-center justify-center">
@@ -260,7 +330,10 @@ export default function PortalPage({ params }: { params: Promise<{ 'org-slug': s
           <div className="space-y-6">
             {/* Quick Actions */}
             <div className="bg-white rounded-2xl border border-[#e5e5e5] overflow-hidden">
-              <button className="w-full px-4 py-4 flex items-center justify-between hover:bg-[#faf8f5] transition">
+              <button
+                onClick={handleBookService}
+                className="w-full px-4 py-4 flex items-center justify-between hover:bg-[#faf8f5] transition"
+              >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-[#E8F0FE] flex items-center justify-center">
                     <svg className="w-5 h-5 text-[#4285F4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -323,7 +396,12 @@ export default function PortalPage({ params }: { params: Promise<{ 'org-slug': s
                 ) : (
                   <div className="p-4">
                     <p className="font-body text-[#666] text-sm">No upcoming services scheduled.</p>
-                    <button className="mt-3 font-body text-[#2A54A1] text-sm font-medium">Book your first service →</button>
+                    <button
+                      onClick={handleBookService}
+                      className="mt-3 font-body text-[#2A54A1] text-sm font-medium"
+                    >
+                      Book your first service →
+                    </button>
                   </div>
                 )}
               </div>
@@ -647,6 +725,149 @@ export default function PortalPage({ params }: { params: Promise<{ 'org-slug': s
         <TabButton active={activeTab === 'plan'} onClick={() => setActiveTab('plan')} icon="plan" label="Plan" />
         <TabButton active={activeTab === 'account'} onClick={() => setActiveTab('account')} icon="account" label="Account" />
       </nav>
+
+      {/* Book a Service Dialog */}
+      {bookingStep && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" onClick={closeBookingDialog} />
+          <div className="relative bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[85vh] overflow-hidden">
+            {/* Dialog Header */}
+            <div className="sticky top-0 bg-white border-b border-[#e5e5e5] px-5 py-4 flex items-center justify-between">
+              <h2 className="font-display text-lg font-bold text-[#1a1a1a]">
+                {bookingStep === 'select' && 'Book a Service'}
+                {bookingStep === 'confirm' && 'Confirm Request'}
+                {bookingStep === 'success' && 'Request Submitted'}
+              </h2>
+              <button onClick={closeBookingDialog} className="p-2 -mr-2 hover:bg-gray-100 rounded-full">
+                <svg className="w-5 h-5 text-[#666]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Dialog Content */}
+            <div className="overflow-y-auto max-h-[calc(85vh-140px)] p-5">
+              {bookingStep === 'select' && (
+                <div className="grid grid-cols-2 gap-3">
+                  {SERVICES_LIST.map((service) => (
+                    <button
+                      key={service.name}
+                      onClick={() => handleSelectService(service.name)}
+                      className="bg-white border border-[#e5e5e5] rounded-xl p-4 text-left hover:border-[#2A54A1] hover:shadow-md transition group"
+                    >
+                      <div className="text-2xl mb-2">{service.icon}</div>
+                      <p className="font-body font-medium text-[#1a1a1a] text-sm group-hover:text-[#2A54A1]">
+                        {service.name}
+                      </p>
+                      <p className="font-body text-xs text-[#666] mt-1">{service.description}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {bookingStep === 'confirm' && selectedService && (
+                <div className="space-y-6">
+                  <div className="bg-[#F8F9FA] rounded-xl p-4">
+                    <p className="font-body font-semibold text-[#1a1a1a] mb-3">
+                      {SERVICES_LIST.find(s => s.name === selectedService)?.icon} {selectedService}
+                    </p>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-start gap-2">
+                        <span className="text-[#666]">📍</span>
+                        <span className="font-body text-[#1a1a1a]">{address}</span>
+                      </div>
+                      {profile.square_footage && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-[#666]">📐</span>
+                          <span className="font-body text-[#1a1a1a]">
+                            {profile.square_footage.toLocaleString()} sq ft
+                            {profile.stories && ` · ${profile.stories} ${profile.stories === 1 ? 'story' : 'stories'}`}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <p className="font-body text-[#666] text-sm">
+                    We'll prepare a quote based on your home details and text it to you within a few minutes.
+                  </p>
+
+                  {bookingError && (
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                      <p className="font-body text-red-700 text-sm">{bookingError}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {bookingStep === 'success' && (
+                <div className="text-center py-6">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <h3 className="font-display text-xl font-bold text-[#1a1a1a] mb-2">Quote Requested!</h3>
+                  <p className="font-body text-[#666] mb-4">
+                    Your <strong>{selectedService}</strong> quote is being prepared.
+                  </p>
+                  {profile?.phone && (
+                    <p className="font-body text-sm text-[#666]">
+                      You'll receive a text at <strong>{profile.phone}</strong> within a few minutes with a link to view your quote.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Dialog Footer */}
+            <div className="sticky bottom-0 bg-white border-t border-[#e5e5e5] px-5 py-4">
+              {bookingStep === 'select' && (
+                <button
+                  onClick={closeBookingDialog}
+                  className="w-full py-3 font-body font-medium text-[#666] hover:text-[#1a1a1a]"
+                >
+                  Cancel
+                </button>
+              )}
+
+              {bookingStep === 'confirm' && (
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setBookingStep('select')}
+                    className="flex-1 py-3 font-body font-medium text-[#666] border border-[#e5e5e5] rounded-xl hover:bg-[#faf8f5]"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleConfirmBooking}
+                    disabled={isSubmitting}
+                    className="flex-1 py-3 font-body font-medium text-white bg-[#2A54A1] rounded-xl hover:bg-[#1e3d7a] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                        Submitting...
+                      </>
+                    ) : (
+                      'Get My Quote'
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {bookingStep === 'success' && (
+                <button
+                  onClick={closeBookingDialog}
+                  className="w-full py-3 font-body font-medium text-white bg-[#2A54A1] rounded-xl hover:bg-[#1e3d7a]"
+                >
+                  Back to Dashboard
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
