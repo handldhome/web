@@ -149,15 +149,18 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
   const [editLotSize, setEditLotSize] = useState('');
   const [editStories, setEditStories] = useState('');
 
-  // Lock body scroll when open
+  // Lock body scroll and hide chat widget when open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      document.body.classList.add('quote-modal-open');
     } else {
       document.body.style.overflow = '';
+      document.body.classList.remove('quote-modal-open');
     }
     return () => {
       document.body.style.overflow = '';
+      document.body.classList.remove('quote-modal-open');
     };
   }, [isOpen]);
 
