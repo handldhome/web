@@ -986,7 +986,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
                 />
               </div>
               {/* Only show address fields if property lookup wasn't successful */}
-              {formState.propertyDataSource !== 'RentCast' && (
+              {!formState.propertyDataSource?.startsWith('RentCast') && (
                 <>
                   <div>
                     <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">Service Address *</label>
