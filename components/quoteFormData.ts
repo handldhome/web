@@ -22,7 +22,7 @@ export interface QuoteFormState {
   exactLotSize: number | null;
   exactStories: number | null;
   propertyAddress: string;
-  propertyDataSource: 'RentCast' | 'Manual Entry' | '';
+  propertyDataSource: 'RentCast' | 'RentCast (Corrected)' | 'Manual Entry' | '';
 }
 
 export type FormAction =
