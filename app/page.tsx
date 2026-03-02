@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Check } from 'lucide-react';
+import { Check, Menu, X } from 'lucide-react';
 import QuoteModal from '@/components/QuoteModal';
 
 export default function Page() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [showChecklist, setShowChecklist] = useState(false);
   const [showQuoteModal, setShowQuoteModal] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const tuneUpChecklist = [
     "Smoke Detector Function & Age",
@@ -125,15 +126,58 @@ export default function Page() {
       `}</style>
 
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#FFFFF2] border-b-2 border-[#2A54A1]/20">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
-          <Image src="/logo.png" alt="Handld Home" width={160} height={80} className="h-16 md:h-20 w-auto" />
-          <div className="flex gap-6 md:gap-8 items-center font-body font-medium">
-            <a href="#services" className="text-[#2A54A1] hover:opacity-70 transition-opacity text-sm md:text-base">Services</a>
-            <a href="#how-it-works" className="text-[#2A54A1] hover:opacity-70 transition-opacity text-sm md:text-base">How It Works</a>
-            <a href="/account" className="text-[#2A54A1] hover:opacity-70 transition-opacity text-sm md:text-base">My Account</a>
-            <button onClick={handleCTA} className="cta-button text-white px-4 md:px-6 py-2 md:py-2.5 rounded-full font-semibold text-sm md:text-base">Get Quote</button>
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4 flex justify-between items-center">
+          <Image src="/logo.png" alt="Handld Home" width={160} height={80} className="h-12 md:h-20 w-auto" />
+
+          {/* Desktop nav */}
+          <div className="hidden md:flex gap-8 items-center font-body font-medium">
+            <a href="#services" className="text-[#2A54A1] hover:opacity-70 transition-opacity">Services</a>
+            <a href="#how-it-works" className="text-[#2A54A1] hover:opacity-70 transition-opacity">How It Works</a>
+            <a href="/account" className="text-[#2A54A1] hover:opacity-70 transition-opacity">My Account</a>
+            <button onClick={handleCTA} className="cta-button text-white px-6 py-2.5 rounded-full font-semibold">Get Quote</button>
+          </div>
+
+          {/* Mobile: Get Quote + Hamburger */}
+          <div className="flex md:hidden items-center gap-3">
+            <button onClick={handleCTA} className="cta-button text-white px-4 py-2 rounded-full font-semibold text-sm font-body">Get Quote</button>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 text-[#2A54A1]"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile menu dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-[#FFFFF2] border-t border-[#2A54A1]/10 px-4 py-4">
+            <div className="flex flex-col gap-4 font-body font-medium">
+              <a
+                href="#services"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-[#2A54A1] hover:opacity-70 transition-opacity py-2"
+              >
+                Services
+              </a>
+              <a
+                href="#how-it-works"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-[#2A54A1] hover:opacity-70 transition-opacity py-2"
+              >
+                How It Works
+              </a>
+              <a
+                href="/account"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-[#2A54A1] hover:opacity-70 transition-opacity py-2"
+              >
+                My Account
+              </a>
+            </div>
+          </div>
+        )}
       </nav>
 
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
