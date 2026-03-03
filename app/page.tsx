@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Check, Menu, X } from 'lucide-react';
+import { Check, Menu, X, Users, Clock, Shield, CreditCard, MapPin } from 'lucide-react';
 import QuoteModal from '@/components/QuoteModal';
 
 export default function Page() {
@@ -46,33 +46,41 @@ export default function Page() {
   ];
 
   const services = [
-    { title: "Gutter Cleaning", description: "Avoid costly water damage by keeping your gutters clear and flowing. We remove debris to protect your roof and foundation.", price: "$90", img: "/services/gutter.jpg" },
+    { title: "Handyman", description: "From minor repairs to odd jobs around the house, our skilled handymen tackle it all with expertise and care.", price: "$75", img: "/services/handyman.jpg" },
     { title: "Plumbing Repairs", description: "Licensed professionals to fix leaks, clogs, and other plumbing issues quickly and reliably.", price: "$105", img: "/services/plumbing.jpg" },
-    { title: "Pressure Washing", description: "Restore your home's curb appeal. From driveways to patios, we blast away dirt, grime, and years of buildup.", price: "$65", img: "/services/pressure.jpg" },
-    { title: "Handyman", description: "From minor repairs to odd jobs around the house, our skilled handymen can tackle it all with expertise and care.", price: "$75", img: "/services/handyman.jpg" },
-    { title: "Window Washing", description: "Crystal-clear views and natural light. We clean inside and out, leaving every pane spotless and streak-free.", price: "$175", img: "/services/window.jpg" },
     { title: "Electrical Repairs", description: "Licensed electricians for outlets, switches, and minor electrical work.", price: "$69", img: "/services/electrical.jpg" },
-    { title: "Trash Bin Cleaning", description: "Eliminate odors and bacteria from your trash bins. Deep-cleaning service that keeps these areas hygienic and fresh.", price: "$45", img: "/services/bin.jpg" },
+    { title: "Window Washing", description: "Crystal-clear views and natural light. We clean inside and out, leaving every pane spotless and streak-free.", price: "$175", img: "/services/window.jpg" },
+    { title: "Gutter Cleaning", description: "Avoid costly water damage by keeping your gutters clear and flowing. We remove debris to protect your roof and foundation.", price: "$90", img: "/services/gutter.jpg" },
+    { title: "Pressure Washing — Home Exterior", description: "Restore your home's curb appeal. We blast away dirt, grime, and years of buildup from siding and exteriors.", price: "$165", img: "/services/pressure.jpg" },
+    { title: "Pressure Washing — Driveways & Patios", description: "Transform your driveway and patio areas. Remove oil stains, mold, and weathering for a fresh, clean look.", price: "$65", img: "/services/pressure.jpg" },
+    /* TODO: Add image for HVAC Repair & Maintenance */
+    { title: "HVAC Repair & Maintenance", description: "Keep your heating and cooling systems running efficiently. Regular maintenance prevents costly breakdowns.", price: "$125", img: "/services/handyman.jpg" },
+    { title: "Pest Control", description: "Protect your home from unwanted guests. Safe, effective treatments for common household pests.", price: "$95", img: "/services/handyman.jpg" },
+    /* TODO: Add image for Landscaping & Gardening */
+    { title: "Landscaping & Gardening", description: "Keep your outdoor spaces beautiful. From lawn care to garden maintenance, we handle it all.", price: "$75", img: "/services/handyman.jpg" },
+    { title: "Holiday Lights Install & Take Down", description: "Professional installation and removal of holiday lighting. Make your home festive without the hassle.", price: "$200", img: "/services/holiday.jpg" },
+    { title: "Home Tune-Up", description: "Our comprehensive 31-point inspection catches safety hazards and prevents costly repairs before they happen.", price: "$350", img: "/Handyman Notes.jpg" },
     { title: "Outdoor Furniture Cleaning", description: "Restore your patio furniture to like-new condition. We clean and protect all types of outdoor furniture.", price: "$125", img: "/services/furniture.jpg" },
-    { title: "Holiday Light Install & Take Down", description: "Professional installation and removal of holiday lighting. Make your home festive without the hassle.", price: "$200", img: "/services/holiday.jpg" }
+    { title: "Trash Bin Cleaning", description: "Eliminate odors and bacteria from your trash bins. Deep-cleaning service that keeps these areas hygienic and fresh.", price: "$45", img: "/services/bin.jpg" }
   ];
 
   const testimonials = [
-    { text: "I didn't realize how much stress those 'to-dos' were causing until they were gone. Handld feels like a personal assistant for my house. Everything just…gets done!", author: "Keith, San Marino" },
-    { text: "Finally one company that shows up on time, does great work, and doesn't make me chase them.", author: "Claire, South Pasadena" },
-    { text: "I never thought I'd say this about a gutter cleaning, but the whole experience was genuinely enjoyable. Super professional and thoughtful. Feels like a concierge for my home.", author: "Maureen, Pasadena" },
-    { text: "The pricing is transparent, the service is reliable, and I actually enjoy opening my calendar knowing Handld has everything scheduled for me.", author: "David, La Cañada" },
-    { text: "As a busy professional, Handld has been a game-changer. I don't have to think about home maintenance anymore - it just happens.", author: "Jennifer, Glendale" },
-    { text: "The quality of work is consistently excellent, and their team is always respectful and professional. Worth every penny.", author: "Michael, Pasadena" }
+    { text: "I didn't realize how much stress those 'to-dos' were causing until they were gone. Handld feels like a personal assistant for my house. Everything just…gets done!", author: "Keith, Los Angeles" },
+    { text: "Finally one company that shows up on time, does great work, and doesn't make me chase them.", author: "Claire, Los Angeles" },
+    { text: "I never thought I'd say this about a gutter cleaning, but the whole experience was genuinely enjoyable. Super professional and thoughtful. Feels like a concierge for my home.", author: "Maureen, Los Angeles" },
+    { text: "The pricing is transparent, the service is reliable, and I actually enjoy opening my calendar knowing Handld has everything scheduled for me.", author: "David, Los Angeles" },
+    { text: "As a busy professional, Handld has been a game-changer. I don't have to think about home maintenance anymore - it just happens.", author: "Jennifer, Los Angeles" },
+    { text: "The quality of work is consistently excellent, and their team is always respectful and professional. Worth every penny.", author: "Michael, Los Angeles" }
   ];
 
   const faqs = [
-    { question: "What is Handld?", answer: "Handld is your one-stop home services partner - a local, membership-based company that takes care of the maintenance tasks that often fall through the cracks. From window and gutter cleaning to pressure washing and handyman services, we make it easy to keep your home in top shape all year long." },
-    { question: "Do I have to sign up for a membership?", answer: "Not at all. You can book any of our services à la carte, whenever you need them. But if you're looking for savings, priority scheduling, and white-glove service, our membership program is a great value." },
-    { question: "How does pricing work?", answer: "We use a simple, transparent pricing model based on a few key home attributes - like square footage, lot size, number of stories, and service complexity. You'll receive a detailed quote before anything is scheduled, with no surprises." },
-    { question: "What areas do you service?", answer: "We currently serve Pasadena, La Cañada, San Marino, Glendale, & South Pasadena. Not sure if you're in our zone? Just reach out and we'll let you know." },
-    { question: "Is there a cancellation policy?", answer: "We get it - things change. You can reschedule or cancel appointments up to 24 hours in advance. No fees, no problem." },
-    { question: "Will I get reminders before service?", answer: "Yes. We'll send you appointment reminders by text or email, depending on your communication preferences. You'll also get a heads-up when your technician is en route." }
+    { question: "What is Handld?", answer: "Handld is your one-stop home maintenance team. We handle 14+ services — from gutter cleaning to plumbing to pest control — so you don't have to juggle multiple vendors. We're a local company serving Los Angeles with experienced, full-time professionals who treat your home like their own." },
+    { question: "Do I have to commit to anything?", answer: "No commitments, no subscriptions. You pay only for the services you request, after they're completed. Book one service or bundle several — it's completely up to you. Cancel anytime, no fees." },
+    { question: "How does pricing work?", answer: "We use a simple, transparent pricing model based on your home's attributes — square footage, lot size, and number of stories. You get a flat-rate quote in under a minute, without needing an in-person walkthrough. No surprises, no waiting days for an estimate. Bundle 3+ services and save 30%." },
+    { question: "What areas do you service?", answer: "We currently serve Los Angeles. Not sure if you're in our zone? Just reach out and we'll let you know." },
+    { question: "Is there a cancellation policy?", answer: "We get it — things change. You can reschedule or cancel appointments up to 24 hours in advance. No fees, no problem." },
+    { question: "Will I get reminders before service?", answer: "Yes. We'll send you appointment reminders by text or email, depending on your preferences. You'll also get a heads-up when your technician is en route. Plus, you can view all your upcoming and past appointments in your customer portal." },
+    { question: "Who are your service providers?", answer: "Every Handld technician is a W-2 employee (not a subcontractor) with 10+ years of experience in their specific trade. They're background-checked, insured, and trained to treat your home with care. No random strangers — the same trusted team, every time." }
   ];
 
   useEffect(() => {
@@ -180,6 +188,7 @@ export default function Page() {
         )}
       </nav>
 
+      {/* HERO SECTION */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
           <source src="/hero.mp4" type="video/mp4" />
@@ -187,10 +196,10 @@ export default function Page() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#2A54A1]/60 to-[#2A54A1]/40" />
         <div className="relative z-10 text-center text-[#FFFFF2] max-w-5xl mx-auto px-4 md:px-6">
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-4 md:mb-6 leading-tight">
-            Home Maintenance Isn't Your Job. It's Ours.
+            Home maintenance, handled.
           </h1>
           <p className="font-body text-lg md:text-2xl mb-8 md:mb-10 text-[#FFFFF2]/95">
-            One quote, one provider, an entire year of home upkeep handled in under 5 minutes!
+            One team for everything your home needs. Plan your whole year of maintenance or book a single service — in under a minute.
           </p>
           <button onClick={handleCTA} className="cta-button text-white px-8 md:px-12 py-4 md:py-5 rounded-full text-base md:text-lg font-body font-bold">
             Get My Custom Quote
@@ -198,10 +207,159 @@ export default function Page() {
         </div>
       </section>
 
+      {/* THE PROBLEM / EMPATHY SECTION */}
+      <section className="py-12 md:py-16 bg-[#FFFFF2]">
+        <div className="max-w-4xl mx-auto px-4 md:px-6 text-center">
+          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-6 text-[#2A54A1]">
+            You've got a list. You just haven't gotten around to it.
+          </h2>
+          <div className="font-body text-base md:text-lg text-[#2A54A1]/80 leading-relaxed space-y-4 max-w-3xl mx-auto">
+            <p>
+              The gutters that need cleaning. The leaky faucet you've been meaning to fix. The window washing you keep pushing to "next weekend." Sound familiar?
+            </p>
+            <p>
+              Finding someone you trust is exhausting. Waiting days for a quote is frustrating. Coordinating multiple vendors for different jobs? Forget it. And remembering what needs to be done and when — that's a full-time job in itself.
+            </p>
+            <p className="font-semibold text-[#2A54A1]">
+              We built Handld to take all of that off your plate.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* WHY HANDLD IS DIFFERENT SECTION */}
+      <section className="py-12 md:py-16 bg-[#FBF9F0]">
+        <div className="max-w-6xl mx-auto px-4 md:px-6">
+          <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-center text-[#2A54A1]">
+            Why homeowners switch to Handld
+          </h2>
+          <p className="font-body text-base md:text-lg text-[#2A54A1]/70 text-center mb-10 max-w-2xl mx-auto">
+            Not your typical home services company
+          </p>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="bg-white p-6 rounded-xl shadow-retro border-2 border-[#2A54A1]/10">
+              <div className="w-12 h-12 bg-[#2A54A1]/10 rounded-full flex items-center justify-center mb-4">
+                <Users className="w-6 h-6 text-[#2A54A1]" />
+              </div>
+              <h3 className="font-display text-lg md:text-xl font-bold mb-2 text-[#2A54A1]">One team, one contact</h3>
+              <p className="font-body text-sm text-[#2A54A1]/80">Stop juggling five vendors. One call to us covers everything from gutters to plumbing to pest control.</p>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow-retro border-2 border-[#2A54A1]/10">
+              <div className="w-12 h-12 bg-[#2A54A1]/10 rounded-full flex items-center justify-center mb-4">
+                <Clock className="w-6 h-6 text-[#2A54A1]" />
+              </div>
+              <h3 className="font-display text-lg md:text-xl font-bold mb-2 text-[#2A54A1]">Flat, upfront pricing</h3>
+              <p className="font-body text-sm text-[#2A54A1]/80">No walkthroughs. No waiting. Get an instant quote based on your home's size and layout — in under a minute, not days.</p>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow-retro border-2 border-[#2A54A1]/10">
+              <div className="w-12 h-12 bg-[#2A54A1]/10 rounded-full flex items-center justify-center mb-4">
+                <Shield className="w-6 h-6 text-[#2A54A1]" />
+              </div>
+              <h3 className="font-display text-lg md:text-xl font-bold mb-2 text-[#2A54A1]">Experienced W-2 employees</h3>
+              <p className="font-body text-sm text-[#2A54A1]/80">Every technician has 10+ years in their trade and works directly for Handld. No random subcontractors showing up at your door.</p>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow-retro border-2 border-[#2A54A1]/10">
+              <div className="w-12 h-12 bg-[#2A54A1]/10 rounded-full flex items-center justify-center mb-4">
+                <CreditCard className="w-6 h-6 text-[#2A54A1]" />
+              </div>
+              <h3 className="font-display text-lg md:text-xl font-bold mb-2 text-[#2A54A1]">No commitments</h3>
+              <p className="font-body text-sm text-[#2A54A1]/80">Pay only for the services you request, after they're completed. Cancel anytime, no fees. It's that simple.</p>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow-retro border-2 border-[#2A54A1]/10">
+              <div className="w-12 h-12 bg-[#2A54A1]/10 rounded-full flex items-center justify-center mb-4">
+                <MapPin className="w-6 h-6 text-[#2A54A1]" />
+              </div>
+              <h3 className="font-display text-lg md:text-xl font-bold mb-2 text-[#2A54A1]">Local to your neighborhood</h3>
+              <p className="font-body text-sm text-[#2A54A1]/80">We live and work in LA. Your crew knows your neighborhood, your home styles, your trees.</p>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow-retro border-2 border-[#2A54A1]/10 flex flex-col justify-center">
+              <p className="font-body text-base text-[#2A54A1] italic">"Peace of mind knowing things are handled — without me having to manage it."</p>
+              <p className="font-body text-sm text-[#2A54A1]/60 mt-2">— What our customers tell us</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS SECTION */}
+      <section id="how-it-works" className="py-8 md:py-12 bg-[#FFFFF2]">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-center text-[#2A54A1]">How It Works</h2>
+          <p className="font-body text-base md:text-lg text-[#2A54A1]/70 text-center mb-10">Get a quote in under a minute. Not 5 days.</p>
+
+          <div className="max-w-5xl mx-auto">
+            <div className="relative">
+              <div className="ml-0 mb-6 step-card">
+                <div className="bg-gradient-to-br from-white to-[#FBF9F0] p-6 md:p-8 rounded-2xl shadow-retro border-2 border-[#2A54A1]/10 relative overflow-hidden">
+                  <div className="absolute -right-8 -top-8 text-[200px] font-display font-bold text-[#2A54A1]/5">01</div>
+                  <div className="relative z-10">
+                    <div className="bg-[#2A54A1] px-3 py-1 rounded-full inline-block mb-3">
+                      <span className="font-display text-xs font-bold text-[#FFFFF2]">Step 1</span>
+                    </div>
+                    <h3 className="font-display text-xl md:text-2xl font-bold mb-2 text-[#2A54A1]">Tell us about your home</h3>
+                    <p className="font-body text-sm md:text-base text-[#2A54A1]">Answer a few quick questions about your home — it takes under a minute. Choose to plan out your whole year of maintenance or just book a single service.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="ml-8 md:ml-16 mb-6 step-card">
+                <div className="bg-gradient-to-br from-white to-[#FBF9F0] p-6 md:p-8 rounded-2xl shadow-retro border-2 border-[#2A54A1]/10 relative overflow-hidden">
+                  <div className="absolute -right-8 -top-8 text-[200px] font-display font-bold text-[#2A54A1]/5">02</div>
+                  <div className="relative z-10">
+                    <div className="bg-[#2A54A1] px-3 py-1 rounded-full inline-block mb-3">
+                      <span className="font-display text-xs font-bold text-[#FFFFF2]">Step 2</span>
+                    </div>
+                    <h3 className="font-display text-xl md:text-2xl font-bold mb-2 text-[#2A54A1]">Review your instant quote</h3>
+                    <p className="font-body text-sm md:text-base text-[#2A54A1]">Get a flat-rate quote instantly — not in days. Pick the services and schedule that work for you. No walkthroughs, no waiting around.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="ml-16 md:ml-32 mb-6 step-card">
+                <div className="bg-gradient-to-br from-white to-[#FBF9F0] p-6 md:p-8 rounded-2xl shadow-retro border-2 border-[#2A54A1]/10 relative overflow-hidden">
+                  <div className="absolute -right-8 -top-8 text-[200px] font-display font-bold text-[#2A54A1]/5">03</div>
+                  <div className="relative z-10">
+                    <div className="bg-[#2A54A1] px-3 py-1 rounded-full inline-block mb-3">
+                      <span className="font-display text-xs font-bold text-[#FFFFF2]">Step 3</span>
+                    </div>
+                    <h3 className="font-display text-xl md:text-2xl font-bold mb-2 text-[#2A54A1]">We handle the rest</h3>
+                    <p className="font-body text-sm md:text-base text-[#2A54A1]">We take care of scheduling, reminders, and coordination. You don't have to think about it — your home maintenance just happens.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="ml-24 md:ml-48 step-card">
+                <div className="bg-gradient-to-br from-[#2A54A1] to-[#1e3d7a] p-6 md:p-8 rounded-2xl shadow-2xl border-2 border-[#2A54A1]/20 relative overflow-hidden">
+                  <div className="flex items-center justify-center md:justify-start gap-4">
+                    <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-full flex items-center justify-center shadow-xl p-3 relative">
+                      <Image src="/logo.png" alt="Handld" fill className="object-contain p-2" sizes="80px" />
+                    </div>
+                    <div className="text-[#FFFFF2]">
+                      <h3 className="font-display text-xl md:text-2xl font-bold mb-1">Enjoy your weekends</h3>
+                      <p className="font-body text-sm md:text-base text-[#FFFFF2]/90">Your home is taken care of. Your time is yours again.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-8">
+            <button onClick={handleCTA} className="cta-button text-white px-8 md:px-10 py-3 md:py-4 rounded-full text-base md:text-lg font-body font-bold">Get Started Today</button>
+          </div>
+        </div>
+      </section>
+
+      {/* SERVICES SECTION */}
       <section id="services" className="py-8 md:py-12 overflow-hidden bg-[#FBF9F0]">
         <div className="max-w-7xl mx-auto px-4 md:px-6 mb-6 md:mb-8 text-center">
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-2 text-[#2A54A1]">Our Services</h2>
-          <p className="font-body text-base md:text-lg text-[#2A54A1]">Let us take care of the jobs you don't have time for</p>
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-2 text-[#2A54A1]">Everything your home needs. One team.</h2>
+          <p className="font-body text-base md:text-lg text-[#2A54A1]">From gutters to gardens, we've got it covered</p>
         </div>
         <div className="relative">
           <div className="flex gap-6 px-6 pb-6 animate-scroll" style={{ width: 'fit-content' }}>
@@ -227,73 +385,33 @@ export default function Page() {
         </div>
       </section>
 
-      <section id="how-it-works" className="py-8 md:py-12 bg-[#FFFFF2]">
-        <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-10 text-center text-[#2A54A1]">How It Works</h2>
-          
-          <div className="max-w-5xl mx-auto">
-            <div className="relative">
-              <div className="ml-0 mb-6 step-card">
-                <div className="bg-gradient-to-br from-white to-[#FBF9F0] p-6 md:p-8 rounded-2xl shadow-retro border-2 border-[#2A54A1]/10 relative overflow-hidden">
-                  <div className="absolute -right-8 -top-8 text-[200px] font-display font-bold text-[#2A54A1]/5">01</div>
-                  <div className="relative z-10">
-                    <div className="bg-[#2A54A1] px-3 py-1 rounded-full inline-block mb-3">
-                      <span className="font-display text-xs font-bold text-[#FFFFF2]">Step 1</span>
-                    </div>
-                    <h3 className="font-display text-xl md:text-2xl font-bold mb-2 text-[#2A54A1]">Tell us about your home</h3>
-                    <p className="font-body text-sm md:text-base text-[#2A54A1]">Fill out a quick 2-minute questionnaire to help us understand your needs and preferences.</p>
-                  </div>
+      {/* BUNDLD & SAVE SECTION */}
+      <section className="py-8 md:py-12 bg-[#2A54A1] text-[#FFFFF2] relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-[#FFFFF2]/10 to-transparent" />
+        </div>
+        <div className="max-w-6xl mx-auto px-4 md:px-6 relative z-10">
+          <div className="grid md:grid-cols-2 gap-6 items-center">
+            <div>
+              <h2 className="font-display text-4xl md:text-5xl font-bold mb-3">The more you bundle, the more you save</h2>
+              <p className="font-body text-lg md:text-xl mb-6">Pick 3 or more services and save 30%. No commitment required — just smart savings for taking care of more at once.</p>
+              <div className="bg-[#FFFFF2]/10 backdrop-blur-sm rounded-2xl p-5 md:p-6 mb-6 border-2 border-[#FFFFF2]/20">
+                <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
+                  <Check className="w-8 h-8" />
+                  <span className="font-display text-3xl font-bold">30% Bundle Discount</span>
                 </div>
+                <p className="font-body text-base">Whether you want to plan your whole year or just need a few things done, Handld works on your terms. Not sure where to start? Check out our pre-packaged bundles.</p>
               </div>
-
-              <div className="ml-8 md:ml-16 mb-6 step-card">
-                <div className="bg-gradient-to-br from-white to-[#FBF9F0] p-6 md:p-8 rounded-2xl shadow-retro border-2 border-[#2A54A1]/10 relative overflow-hidden">
-                  <div className="absolute -right-8 -top-8 text-[200px] font-display font-bold text-[#2A54A1]/5">02</div>
-                  <div className="relative z-10">
-                    <div className="bg-[#2A54A1] px-3 py-1 rounded-full inline-block mb-3">
-                      <span className="font-display text-xs font-bold text-[#FFFFF2]">Step 2</span>
-                    </div>
-                    <h3 className="font-display text-xl md:text-2xl font-bold mb-2 text-[#2A54A1]">Review & approve your quote</h3>
-                    <p className="font-body text-sm md:text-base text-[#2A54A1]">Select your preferred services and timing that works perfectly for your schedule.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="ml-16 md:ml-32 mb-6 step-card">
-                <div className="bg-gradient-to-br from-white to-[#FBF9F0] p-6 md:p-8 rounded-2xl shadow-retro border-2 border-[#2A54A1]/10 relative overflow-hidden">
-                  <div className="absolute -right-8 -top-8 text-[200px] font-display font-bold text-[#2A54A1]/5">03</div>
-                  <div className="relative z-10">
-                    <div className="bg-[#2A54A1] px-3 py-1 rounded-full inline-block mb-3">
-                      <span className="font-display text-xs font-bold text-[#FFFFF2]">Step 3</span>
-                    </div>
-                    <h3 className="font-display text-xl md:text-2xl font-bold mb-2 text-[#2A54A1]">We'll schedule your year</h3>
-                    <p className="font-body text-sm md:text-base text-[#2A54A1]">We handle the maintenance, reminders, and coordinate everything for you.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="ml-24 md:ml-48 step-card">
-                <div className="bg-gradient-to-br from-[#2A54A1] to-[#1e3d7a] p-6 md:p-8 rounded-2xl shadow-2xl border-2 border-[#2A54A1]/20 relative overflow-hidden">
-                  <div className="flex items-center justify-center md:justify-start gap-4">
-                    <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-full flex items-center justify-center shadow-xl p-3 relative">
-                      <Image src="/logo.png" alt="Handld" fill className="object-contain p-2" sizes="80px" />
-                    </div>
-                    <div className="text-[#FFFFF2]">
-                      <h3 className="font-display text-xl md:text-2xl font-bold mb-1">Enjoy your free time!</h3>
-                      <p className="font-body text-sm md:text-base text-[#FFFFF2]/90">Relax while we maintain your home perfectly.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <button onClick={handleCTA} className="bg-[#FFFFF2] text-[#2A54A1] px-8 md:px-10 py-3 rounded-full text-base md:text-lg font-body font-bold hover:bg-white transition-all transform hover:scale-105 shadow-lg">Build My Bundle</button>
             </div>
-          </div>
-
-          <div className="text-center mt-8">
-            <button onClick={handleCTA} className="cta-button text-white px-8 md:px-10 py-3 md:py-4 rounded-full text-base md:text-lg font-body font-bold">Get Started Today</button>
+            <div className="rounded-xl overflow-hidden shadow-2xl border-4 border-[#FFFFF2]/20 relative h-64 md:h-80">
+              <Image src="/bundle-photo.jpg" alt="Bundle Services" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
+            </div>
           </div>
         </div>
       </section>
 
+      {/* HOME TUNE-UP SECTION */}
       <section className="py-12 md:py-16 bg-[#FBF9F0]">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="grid md:grid-cols-3 gap-6 md:gap-8 items-center">
@@ -305,11 +423,11 @@ export default function Page() {
             {/* Description - Middle */}
             <div className="order-2 md:order-2">
               <div className="bg-[#2A54A1] px-4 py-1.5 rounded-full inline-block mb-4">
-                <span className="font-body text-sm font-semibold text-[#FFFFF2]">New Service</span>
+                <span className="font-body text-sm font-semibold text-[#FFFFF2]">Featured Service</span>
               </div>
               <h2 className="font-display text-3xl md:text-4xl font-bold mb-4 text-[#2A54A1]">Home Tune-Up</h2>
               <p className="font-body text-sm md:text-base text-[#2A54A1] mb-5 leading-relaxed">
-                Small issues become big problems. A 4-hour block with an experienced handyman to complete our 31-point inspection and maintenance checklist—catching safety hazards and preventing costly repairs before they happen. You'll receive a photo report with easy booking or trusted vendor referrals for anything that needs attention.
+                Small issues become big problems. Our comprehensive 31-point inspection catches safety hazards and prevents costly repairs before they happen. You'll receive a detailed photo report with easy booking or trusted vendor referrals for anything that needs attention.
               </p>
               <div className="flex flex-col gap-3">
                 <button onClick={handleCTA} className="cta-button text-white px-6 py-3 rounded-full text-sm font-body font-bold">
@@ -333,7 +451,7 @@ export default function Page() {
                   </div>
                   <div>
                     <h3 className="font-display text-lg font-bold text-[#2A54A1]">4-Hour Service Block</h3>
-                    <p className="font-body text-xs text-[#2A54A1]/70">Comprehensive home inspection</p>
+                    <p className="font-body text-xs text-[#2A54A1]/70">31-point inspection + repairs</p>
                   </div>
                 </div>
                 <div className="space-y-2 mb-4">
@@ -370,32 +488,8 @@ export default function Page() {
         </div>
       </section>
 
-      <section className="py-8 md:py-12 bg-[#2A54A1] text-[#FFFFF2] relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-[#FFFFF2]/10 to-transparent" />
-        </div>
-        <div className="max-w-6xl mx-auto px-4 md:px-6 relative z-10">
-          <div className="grid md:grid-cols-2 gap-6 items-center">
-            <div>
-              <h2 className="font-display text-4xl md:text-5xl font-bold mb-3">Bundld & Save</h2>
-              <p className="font-body text-lg md:text-xl mb-6">Commit to 3 or more services and save 30% on your membership</p>
-              <div className="bg-[#FFFFF2]/10 backdrop-blur-sm rounded-2xl p-5 md:p-6 mb-6 border-2 border-[#FFFFF2]/20">
-                <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
-                  <Check className="w-8 h-8" />
-                  <span className="font-display text-3xl font-bold">30% Discount</span>
-                </div>
-                <p className="font-body text-base">The more services you bundle, the more you save. It's that simple.</p>
-              </div>
-              <button onClick={handleCTA} className="bg-[#FFFFF2] text-[#2A54A1] px-8 md:px-10 py-3 rounded-full text-base md:text-lg font-body font-bold hover:bg-white transition-all transform hover:scale-105 shadow-lg">Build My Bundle</button>
-            </div>
-            <div className="rounded-xl overflow-hidden shadow-2xl border-4 border-[#FFFFF2]/20 relative h-64 md:h-80">
-              <Image src="/bundle-photo.jpg" alt="Bundle Services" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-8 md:py-12 bg-[#FBF9F0]">
+      {/* TESTIMONIAL SECTION */}
+      <section className="py-8 md:py-12 bg-[#FFFFF2]">
         <div className="max-w-5xl mx-auto px-4 md:px-6">
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-8 text-center text-[#2A54A1]">What Our Clients Say</h2>
           <div className="bg-white rounded-2xl p-6 md:p-10 min-h-[180px] flex flex-col justify-center shadow-retro border-2 border-[#2A54A1]/10">
@@ -407,18 +501,16 @@ export default function Page() {
               <button key={idx} onClick={() => setCurrentTestimonial(idx)} className={`h-2.5 rounded-full transition-all ${idx === currentTestimonial ? 'bg-[#2A54A1] w-8' : 'bg-[#2A54A1]/30 w-2.5'}`} />
             ))}
           </div>
-          <div className="text-center mt-6">
-            <button onClick={handleCTA} className="cta-button text-white px-8 md:px-10 py-3 rounded-full text-base md:text-lg font-body font-bold">Join Our Happy Customers</button>
-          </div>
         </div>
       </section>
 
-      <section className="py-8 md:py-12 bg-[#FFFFF2]">
+      {/* FAQ SECTION */}
+      <section className="py-8 md:py-12 bg-[#FBF9F0]">
         <div className="max-w-4xl mx-auto px-4 md:px-6">
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-8 text-center text-[#2A54A1]">Frequently Asked Questions</h2>
           <div className="space-y-3">
             {faqs.map((faq, idx) => (
-              <details key={idx} className="bg-[#FBF9F0] rounded-xl p-4 md:p-5 shadow-sm border-2 border-[#2A54A1]/10 group">
+              <details key={idx} className="bg-white rounded-xl p-4 md:p-5 shadow-sm border-2 border-[#2A54A1]/10 group">
                 <summary className="font-display text-base md:text-lg font-semibold cursor-pointer text-[#2A54A1] hover:text-[#1e3d7a] list-none flex items-center justify-between">
                   {faq.question}
                   <span className="text-2xl group-open:rotate-45 transition-transform text-[#2A54A1]">+</span>
@@ -433,43 +525,16 @@ export default function Page() {
         </div>
       </section>
 
-      <section id="about" className="py-8 md:py-12 bg-[#FBF9F0]">
-        <div className="max-w-6xl mx-auto px-4 md:px-6">
-          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-center text-[#2A54A1]">About Handld Home</h2>
-          <div className="grid md:grid-cols-2 gap-6 md:gap-8 items-center">
-            <div className="bg-white rounded-xl p-6 border-2 border-[#2A54A1]/10 shadow-lg">
-              <div className="bg-gray-200 rounded-lg h-56 mb-5 relative overflow-hidden">
-                <Image src="/about-photo.jpg" alt="Handld Team" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
-              </div>
-              <p className="font-body text-base text-[#2A54A1] leading-relaxed mb-3">At Handld Home, we believe in simplifying the way you care for your home. From proactive seasonal upkeep to responsive repairs, our membership is built to give you time back and peace of mind, year-round.</p>
-              <p className="font-body text-base text-[#2A54A1] leading-relaxed">We're a local company serving Pasadena, La Cañada, San Marino, Glendale, and South Pasadena with experienced professionals, natural products, and top-tier equipment.</p>
-            </div>
-            <div className="grid gap-4">
-              <div className="bg-white p-5 md:p-6 rounded-xl shadow-retro border-2 border-[#2A54A1]/10">
-                <h3 className="font-display text-lg md:text-xl font-bold mb-1 text-[#2A54A1]">Experienced Pros</h3>
-                <p className="font-body text-sm text-[#2A54A1]">Skilled, vetted experts you can trust</p>
-              </div>
-              <div className="bg-white p-5 md:p-6 rounded-xl shadow-retro border-2 border-[#2A54A1]/10">
-                <h3 className="font-display text-lg md:text-xl font-bold mb-1 text-[#2A54A1]">Natural Products</h3>
-                <p className="font-body text-sm text-[#2A54A1]">Safe, non-toxic solutions for your home</p>
-              </div>
-              <div className="bg-white p-5 md:p-6 rounded-xl shadow-retro border-2 border-[#2A54A1]/10">
-                <h3 className="font-display text-lg md:text-xl font-bold mb-1 text-[#2A54A1]">Top-Tier Equipment</h3>
-                <p className="font-body text-sm text-[#2A54A1]">We use the best tools for better results</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
+      {/* FINAL CTA SECTION */}
       <section className="py-10 md:py-12 bg-[#2A54A1] text-[#FFFFF2]">
         <div className="max-w-4xl mx-auto px-4 md:px-6 text-center">
-          <h2 className="font-display text-4xl md:text-5xl font-bold mb-3">Ready to Get Started?</h2>
-          <p className="font-body text-lg md:text-xl mb-6">Get your custom quote in under 5 minutes</p>
+          <h2 className="font-display text-4xl md:text-5xl font-bold mb-3">Your home has a to-do list. Let us handle it.</h2>
+          <p className="font-body text-lg md:text-xl mb-6">Get your custom quote in under a minute</p>
           <button onClick={handleCTA} className="bg-[#FFFFF2] text-[#2A54A1] px-10 md:px-12 py-3 md:py-4 rounded-full text-base md:text-lg font-body font-bold hover:bg-white transition-all transform hover:scale-105 shadow-lg">Get My Custom Quote</button>
         </div>
       </section>
 
+      {/* FOOTER */}
       <footer className="bg-[#1e3d7a] text-[#FFFFF2] py-10">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8 mb-8">
@@ -483,9 +548,8 @@ export default function Page() {
               <p className="font-body text-[#FFFFF2]/80">(626) 298-7128</p>
             </div>
             <div>
-              <h4 className="font-display font-bold mb-4 text-[#FFFFF2]">Service Areas</h4>
-              <p className="font-body text-[#FFFFF2]/80">Pasadena • La Cañada • San Marino</p>
-              <p className="font-body text-[#FFFFF2]/80">Glendale • South Pasadena</p>
+              <h4 className="font-display font-bold mb-4 text-[#FFFFF2]">Service Area</h4>
+              <p className="font-body text-[#FFFFF2]/80">Los Angeles</p>
             </div>
           </div>
           <div className="border-t border-[#FFFFF2]/20 pt-6 text-center">
@@ -511,7 +575,7 @@ export default function Page() {
               </button>
             </div>
             <div className="p-6 overflow-y-auto max-h-[calc(85vh-140px)]">
-              <p className="font-body text-sm text-[#2A54A1]/70 mb-4">4-Hour Visit Includes Full Inspection + Handyman Work</p>
+              <p className="font-body text-sm text-[#2A54A1]/70 mb-4">4-Hour Visit Includes Full 31-Point Inspection + Handyman Repairs</p>
               <div className="grid md:grid-cols-2 gap-x-6 gap-y-2">
                 {tuneUpChecklist.map((item, idx) => (
                   <div key={idx} className="flex items-start gap-2 py-2 border-b border-[#2A54A1]/10">
