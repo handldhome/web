@@ -10,7 +10,7 @@ export default function Page() {
   const searchParams = useSearchParams();
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [showChecklist, setShowChecklist] = useState(false);
-  const [showQuoteModal, setShowQuoteModal] = useState(searchParams.get('quote') === 'true');
+  const [showQuoteModal, setShowQuoteModal] = useState(searchParams?.get('quote') === 'true');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const tuneUpChecklist = [
