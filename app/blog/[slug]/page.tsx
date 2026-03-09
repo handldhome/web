@@ -17,6 +17,25 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   };
 }
 
+function renderInline(text: string) {
+  // Split on both bold (**...**) and links ([text](url))
+  const parts = text.split(/(\*\*.*?\*\*|\[.*?\]\(.*?\))/g);
+  return parts.map((part, j) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={j}>{part.slice(2, -2)}</strong>;
+    }
+    const linkMatch = part.match(/^\[(.*?)\]\((.*?)\)$/);
+    if (linkMatch) {
+      return (
+        <Link key={j} href={linkMatch[2]} className="text-[#2A54A1] underline decoration-[#2A54A1]/40 underline-offset-2 hover:decoration-[#2A54A1] font-semibold transition-colors">
+          {linkMatch[1]}
+        </Link>
+      );
+    }
+    return part;
+  });
+}
+
 function renderContent(blocks: string[]) {
   return blocks.map((block, i) => {
     if (block.startsWith('## ')) {
@@ -27,18 +46,9 @@ function renderContent(blocks: string[]) {
       );
     }
 
-    // Handle bold text within paragraphs
-    const parts = block.split(/(\*\*.*?\*\*)/g);
-    const rendered = parts.map((part, j) => {
-      if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={j}>{part.slice(2, -2)}</strong>;
-      }
-      return part;
-    });
-
     return (
       <p key={i} className="font-body text-base md:text-lg text-[#2A54A1]/85 leading-relaxed mb-4">
-        {rendered}
+        {renderInline(block)}
       </p>
     );
   });
