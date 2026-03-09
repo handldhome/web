@@ -1,14 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Check, Menu, X, Users, Clock, Shield, CreditCard, MapPin } from 'lucide-react';
 import QuoteModal from '@/components/QuoteModal';
 
 export default function Page() {
+  const searchParams = useSearchParams();
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [showChecklist, setShowChecklist] = useState(false);
-  const [showQuoteModal, setShowQuoteModal] = useState(false);
+  const [showQuoteModal, setShowQuoteModal] = useState(searchParams.get('quote') === 'true');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const tuneUpChecklist = [
