@@ -3,8 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Check, Menu, X, Users, Clock, Shield, CreditCard, MapPin } from 'lucide-react';
 import QuoteModal from '@/components/QuoteModal';
+import { blogPosts } from '@/lib/blogPosts';
 
 export default function Page() {
   const searchParams = useSearchParams();
@@ -143,6 +145,7 @@ export default function Page() {
           <div className="hidden md:flex gap-8 items-center font-body font-medium">
             <a href="#services" className="text-[#2A54A1] hover:opacity-70 transition-opacity">Services</a>
             <a href="#how-it-works" className="text-[#2A54A1] hover:opacity-70 transition-opacity">How It Works</a>
+            <Link href="/blog" className="text-[#2A54A1] hover:opacity-70 transition-opacity">Blog</Link>
             <a href="/account" className="text-[#2A54A1] hover:opacity-70 transition-opacity">My Account</a>
             <button onClick={handleCTA} className="cta-button text-white px-6 py-2.5 rounded-full font-semibold">Get Quote</button>
           </div>
@@ -178,6 +181,13 @@ export default function Page() {
               >
                 How It Works
               </a>
+              <Link
+                href="/blog"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-[#2A54A1] hover:opacity-70 transition-opacity py-2"
+              >
+                Blog
+              </Link>
               <a
                 href="/account"
                 onClick={() => setMobileMenuOpen(false)}
@@ -506,6 +516,40 @@ export default function Page() {
         </div>
       </section>
 
+      {/* BLOG SECTION */}
+      <section className="py-8 md:py-12 bg-[#FFFFF2]">
+        <div className="max-w-6xl mx-auto px-4 md:px-6">
+          <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-center text-[#2A54A1]">From the Blog</h2>
+          <p className="font-body text-base md:text-lg text-[#2A54A1]/70 text-center mb-10 max-w-2xl mx-auto">
+            Practical advice for Pasadena and SGV homeowners
+          </p>
+          <div className="grid md:grid-cols-3 gap-6">
+            {blogPosts.slice(0, 3).map((post) => (
+              <Link
+                key={post.slug}
+                href={`/blog/${post.slug}`}
+                className="bg-white rounded-xl overflow-hidden shadow-retro border-2 border-[#2A54A1]/10 hover:shadow-2xl hover:-translate-y-1 transition-all group p-6"
+              >
+                <h3 className="font-display text-lg md:text-xl font-bold mb-3 text-[#2A54A1] group-hover:text-[#1e3d7a] transition-colors leading-tight">
+                  {post.title}
+                </h3>
+                <p className="font-body text-sm text-[#2A54A1]/70 leading-relaxed mb-4">
+                  {post.subtitle}
+                </p>
+                <span className="font-body text-sm font-semibold text-[#2A54A1] group-hover:underline">
+                  Read more &rarr;
+                </span>
+              </Link>
+            ))}
+          </div>
+          <div className="text-center mt-8">
+            <Link href="/blog" className="border-2 border-[#2A54A1] text-[#2A54A1] px-8 md:px-10 py-3 rounded-full text-base md:text-lg font-body font-bold hover:bg-[#2A54A1] hover:text-[#FFFFF2] transition-all inline-block">
+              View All Articles
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* FAQ SECTION */}
       <section className="py-8 md:py-12 bg-[#FBF9F0]">
         <div className="max-w-4xl mx-auto px-4 md:px-6">
@@ -558,6 +602,7 @@ export default function Page() {
             <p className="font-body text-[#FFFFF2]/60 mb-2">&copy; 2024 Handld Home Services. All rights reserved.</p>
             <div className="flex justify-center gap-4">
               <a href="/contact" className="font-body text-[#FFFFF2]/80 hover:text-[#FFFFF2] transition-colors text-sm underline">Contact Us</a>
+              <Link href="/blog" className="font-body text-[#FFFFF2]/80 hover:text-[#FFFFF2] transition-colors text-sm underline">Blog</Link>
               <a href="/terms" className="font-body text-[#FFFFF2]/80 hover:text-[#FFFFF2] transition-colors text-sm underline">Terms &amp; Conditions</a>
               <a href="/privacy" className="font-body text-[#FFFFF2]/80 hover:text-[#FFFFF2] transition-colors text-sm underline">Privacy Policy</a>
             </div>
