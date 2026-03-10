@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { handldDb } from '@/lib/supabase/handld';
+import { getHandldDb } from '@/lib/supabase/handld';
 
 async function generateQuoteId(): Promise<string> {
   // Get the highest existing quote number
-  const { data } = await handldDb
+  const { data } = await getHandldDb()
     .from('quote_requests')
     .select('quote_id')
     .like('quote_id', 'HNDLD%')
@@ -40,7 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Upsert customer by email
-    const { data: customer, error: customerError } = await handldDb
+    const { data: customer, error: customerError } = await getHandldDb()
       .from('customers')
       .upsert(
         {
@@ -91,7 +91,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Insert quote request
-    const { data: quoteReq, error: quoteError } = await handldDb
+    const { data: quoteReq, error: quoteError } = await getHandldDb()
       .from('quote_requests')
       .insert(quoteRequest)
       .select('id')
@@ -112,7 +112,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         service_selected: true,
       }));
 
-      const { error: lineItemError } = await handldDb
+      const { error: lineItemError } = await getHandldDb()
         .from('quote_line_items')
         .insert(lineItems);
 

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { handldDb } from '@/lib/supabase/handld';
+import { getHandldDb } from '@/lib/supabase/handld';
 
 const SERVICES_LIST = [
   { name: 'Gutter Cleaning', icon: '🏠', description: 'Full gutter cleaning & flush' },
@@ -19,7 +19,7 @@ const SERVICES_LIST = [
 ];
 
 async function generateQuoteId(): Promise<string> {
-  const { data } = await handldDb
+  const { data } = await getHandldDb()
     .from('quote_requests')
     .select('quote_id')
     .like('quote_id', 'HNDLD%')
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
     }
 
     // Upsert customer in Handld Home database
-    const { data: customer, error: customerError } = await handldDb
+    const { data: customer, error: customerError } = await getHandldDb()
       .from('customers')
       .upsert(
         {
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
     }
 
     // Insert quote request into Handld Home database
-    const { data: quoteReq, error: quoteError } = await handldDb
+    const { data: quoteReq, error: quoteError } = await getHandldDb()
       .from('quote_requests')
       .insert(quoteRequest)
       .select('id')
@@ -129,7 +129,7 @@ export async function POST(request: Request) {
     }
 
     // Create line item (pricing trigger auto-calculates for RentCast customers)
-    const { error: lineItemError } = await handldDb
+    const { error: lineItemError } = await getHandldDb()
       .from('quote_line_items')
       .insert({
         quote_request_id: quoteReq.id,
