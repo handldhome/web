@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js'
 // Lazy-initialized to avoid build-time errors when env vars aren't available
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-let _handldDb: ReturnType<typeof createClient> | null = null
+let _handldDb: any = null
 
 export function getHandldDb() {
   if (!_handldDb) {

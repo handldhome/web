@@ -8,7 +8,7 @@ async function generateQuoteId(): Promise<string> {
     .select('quote_id')
     .like('quote_id', 'HNDLD%')
     .order('quote_id', { ascending: false })
-    .limit(1) as { data: { quote_id: string }[] | null };
+    .limit(1);
 
   let nextNum = 400; // Start at 400 if no records found
   if (data && data.length > 0) {
@@ -52,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         { onConflict: 'email' }
       )
       .select('id')
-      .single() as { data: { id: string } | null; error: any };
+      .single();
 
     if (customerError) {
       console.error('Customer upsert error:', customerError);
@@ -95,7 +95,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .from('quote_requests')
       .insert(quoteRequest)
       .select('id')
-      .single() as { data: { id: string } | null; error: any };
+      .single();
 
     if (quoteError) {
       console.error('Quote request insert error:', quoteError);
