@@ -18,13 +18,21 @@ const SERVICES_LIST = [
   { name: 'Pest Control', icon: '🐜', description: 'Treatment & prevention' },
 ];
 
-function generateQuoteId(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let id = 'HQ-';
-  for (let i = 0; i < 6; i++) {
-    id += chars[Math.floor(Math.random() * chars.length)];
+async function generateQuoteId(): Promise<string> {
+  const { data } = await handldDb
+    .from('quote_requests')
+    .select('quote_id')
+    .like('quote_id', 'HNDLD%')
+    .order('quote_id', { ascending: false })
+    .limit(1);
+
+  let nextNum = 400;
+  if (data && data.length > 0) {
+    const lastNum = parseInt(data[0].quote_id.replace('HNDLD', ''), 10);
+    if (!isNaN(lastNum)) nextNum = lastNum + 1;
   }
-  return id;
+
+  return 'HNDLD' + String(nextNum).padStart(4, '0');
 }
 
 export async function POST(request: Request) {
@@ -88,7 +96,7 @@ export async function POST(request: Request) {
 
     // Build quote request
     const quoteRequest: Record<string, unknown> = {
-      quote_id: generateQuoteId(),
+      quote_id: await generateQuoteId(),
       customer_id: customer.id,
       address,
       city: profile.city || undefined,
