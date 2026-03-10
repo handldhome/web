@@ -1,4 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { handldDb } from '@/lib/supabase/handld';
+
+function generateQuoteId(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let id = 'HQ-';
+  for (let i = 0; i < 6; i++) {
+    id += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return id;
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
@@ -8,93 +18,119 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const pat = process.env.AIRTABLE_PAT;
-    const baseId = process.env.AIRTABLE_BASE_ID;
-
-    if (!pat || !baseId) {
-      return res.status(500).json({
-        error: 'Server configuration error: missing API credentials',
-      });
-    }
-
     const body = req.body;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const fields: Record<string, any> = {};
-
-    // Split name into first/last — "Customer Name" is a formula field in Airtable
+    // Split name into first/last
     const nameParts = (body.name || '').trim().split(/\s+/);
     const firstName = nameParts[0] || '';
     const lastName = nameParts.slice(1).join(' ') || '';
+    const email = (body.email || '').trim().toLowerCase();
 
-    // String fields
-    const stringFields: [string, string | undefined][] = [
-      ['First Name', firstName],
-      ['Last Name', lastName],
-      ['Customer Phone', body.phone],
-      ['Email', body.email],
-      ['Address', body.address],
-      ['Address line 2', body.addressLine2],
-      ['City', body.city],
-      ['State', body.state],
-      ['Zip Code', body.zipCode],
-      ['Square Footage', body.squareFootage],
-      ['Stories', body.stories],
-      ['Lot Size', body.lotSize],
-      ['Bundle Type', body.bundleChoice],
-      ['Handyman Projects', body.handymanProjects],
-      // New property lookup fields
-      ['Property Address', body.propertyAddress],
-      ['Property Data Source', body.propertyDataSource],
-    ];
-
-    for (const [key, value] of stringFields) {
-      if (value && value.trim() !== '') {
-        fields[key] = value;
-      }
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
     }
 
-    // Number fields for exact property values (from RentCast)
+    // Upsert customer by email
+    const { data: customer, error: customerError } = await handldDb
+      .from('customers')
+      .upsert(
+        {
+          email,
+          first_name: firstName || undefined,
+          last_name: lastName || undefined,
+          phone: body.phone || undefined,
+        },
+        { onConflict: 'email' }
+      )
+      .select('id')
+      .single();
+
+    if (customerError) {
+      console.error('Customer upsert error:', customerError);
+      return res.status(500).json({ error: `Database error: ${customerError.message}` });
+    }
+
+    // Build quote request record
+    const quoteRequest: Record<string, unknown> = {
+      quote_id: generateQuoteId(),
+      customer_id: customer.id,
+      address: body.address || undefined,
+      address_line_2: body.addressLine2 || undefined,
+      city: body.city || undefined,
+      state: body.state || undefined,
+      zip_code: body.zipCode || undefined,
+      square_footage: body.squareFootage || undefined,
+      stories: body.stories || undefined,
+      lot_size: body.lotSize || undefined,
+      bundle_type: body.bundleChoice || undefined,
+      handyman_projects: body.handymanProjects || undefined,
+      property_data_source: body.propertyDataSource || 'Manual',
+      selected_services: body.selectedServices || [],
+      plumbing_detail: body.plumbingIssues?.join(', ') || undefined,
+      electrical_detail: body.electricalIssues?.join(', ') || undefined,
+    };
+
+    // Exact property values from RentCast
     if (typeof body.exactSquareFootage === 'number' && body.exactSquareFootage > 0) {
-      fields['Exact Square Footage'] = body.exactSquareFootage;
+      quoteRequest.exact_square_footage = body.exactSquareFootage;
     }
     if (typeof body.exactLotSize === 'number' && body.exactLotSize > 0) {
-      fields['Exact Lot Size'] = body.exactLotSize;
+      quoteRequest.exact_lot_size = body.exactLotSize;
     }
     if (typeof body.exactStories === 'number' && body.exactStories > 0) {
-      fields['Exact Stories'] = body.exactStories;
+      quoteRequest.exact_stories = body.exactStories;
     }
 
-    // Multi-select fields — Airtable expects arrays, not comma-separated strings
+    // Insert quote request
+    const { data: quoteReq, error: quoteError } = await handldDb
+      .from('quote_requests')
+      .insert(quoteRequest)
+      .select('id')
+      .single();
+
+    if (quoteError) {
+      console.error('Quote request insert error:', quoteError);
+      return res.status(500).json({ error: `Database error: ${quoteError.message}` });
+    }
+
+    // Create quote line items for each selected service
+    // The pricing trigger will auto-calculate prices for RentCast customers
     if (body.selectedServices?.length) {
-      fields['Selected Services'] = body.selectedServices;
-    }
-    if (body.plumbingIssues?.length) {
-      fields['Plumbing Detail'] = body.plumbingIssues;
-    }
-    if (body.electricalIssues?.length) {
-      fields['Electrical Detail'] = body.electricalIssues;
-    }
+      const lineItems = body.selectedServices.map((service: string) => ({
+        quote_request_id: quoteReq.id,
+        service,
+        name: service,
+        service_selected: true,
+      }));
 
-    const airtableResponse = await fetch(
-      `https://api.airtable.com/v0/${baseId}/Quote%20Requests`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${pat}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          records: [{ fields }],
-        }),
+      const { error: lineItemError } = await handldDb
+        .from('quote_line_items')
+        .insert(lineItems);
+
+      if (lineItemError) {
+        console.error('Line items insert error:', lineItemError);
+        // Quote was created, just log the line item error
       }
-    );
+    }
 
-    if (!airtableResponse.ok) {
-      const error = await airtableResponse.json();
-      console.error('Airtable error:', JSON.stringify(error, null, 2));
-      const detail = error?.error?.message || error?.error?.type || 'Unknown Airtable error';
-      return res.status(500).json({ error: `Airtable: ${detail}` });
+    // Fire Zapier webhook to text customer their quote link via Heymarket
+    const quoteLink = `https://handld-quote-viewer.vercel.app/q/${quoteRequest.quote_id}`;
+    const webhookUrl = process.env.ZAPIER_QUOTE_WEBHOOK_URL;
+    if (webhookUrl && body.phone) {
+      try {
+        await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            first_name: firstName,
+            phone: body.phone,
+            quote_link: quoteLink,
+          }),
+        });
+      } catch (webhookErr) {
+        console.error('Zapier webhook error:', webhookErr);
+        // Don't fail the quote submission if the text fails
+      }
     }
 
     return res.status(200).json({ success: true });

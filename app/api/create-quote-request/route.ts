@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { handldDb } from '@/lib/supabase/handld';
 
 const SERVICES_LIST = [
   { name: 'Gutter Cleaning', icon: '🏠', description: 'Full gutter cleaning & flush' },
@@ -17,33 +18,20 @@ const SERVICES_LIST = [
   { name: 'Pest Control', icon: '🐜', description: 'Treatment & prevention' },
 ];
 
-function mapSqftToBucket(sqft: number | null): string | null {
-  if (!sqft) return null;
-  if (sqft < 1600) return 'Less than 1,600 sq. feet';
-  if (sqft < 2500) return '1,600-2,500 sq. feet';
-  if (sqft < 4500) return '2,500-4,500 sq. feet';
-  return '4,500+ sq. feet';
-}
-
-function mapLotToBucket(lot: number | null): string | null {
-  if (!lot) return null;
-  if (lot < 5000) return 'Less than 5,000 sq. feet';
-  if (lot < 10000) return '5,000-10,000 sq. feet';
-  if (lot < 20000) return '10,000-20,000 sq. feet';
-  return 'Greater than 20,000 sq. feet';
-}
-
-function mapStoriesToBucket(stories: number | null): string | null {
-  if (!stories) return null;
-  if (stories <= 1) return 'One';
-  return 'Two';
+function generateQuoteId(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let id = 'HQ-';
+  for (let i = 0; i < 6; i++) {
+    id += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return id;
 }
 
 export async function POST(request: Request) {
   try {
     const supabase = await createClient();
 
-    // Verify authenticated user
+    // Verify authenticated user (on Handld Pro Supabase)
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -58,7 +46,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid service' }, { status: 400 });
     }
 
-    // Get customer profile
+    // Get customer profile (from Handld Pro Supabase)
     const { data: profile, error: profileError } = await supabase
       .from('customer_profiles')
       .select('*')
@@ -70,60 +58,80 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
-    // Create Airtable record
-    const pat = process.env.AIRTABLE_PAT;
-    const baseId = process.env.AIRTABLE_BASE_ID;
+    const email = (profile.email || '').trim().toLowerCase();
+    if (!email) {
+      return NextResponse.json({ error: 'Profile missing email' }, { status: 400 });
+    }
 
-    if (!pat || !baseId) {
-      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 });
+    // Upsert customer in Handld Home database
+    const { data: customer, error: customerError } = await handldDb
+      .from('customers')
+      .upsert(
+        {
+          email,
+          first_name: profile.first_name || undefined,
+          last_name: profile.last_name || undefined,
+          phone: profile.phone || undefined,
+        },
+        { onConflict: 'email' }
+      )
+      .select('id')
+      .single();
+
+    if (customerError) {
+      console.error('Customer upsert error:', customerError);
+      return NextResponse.json({ error: 'Failed to create customer record' }, { status: 500 });
     }
 
     const address = profile.formatted_address ||
       [profile.address_line1, profile.city, profile.state, profile.zip_code].filter(Boolean).join(', ');
 
-    const fields: Record<string, unknown> = {
-      'First Name': profile.first_name || '',
-      'Last Name': profile.last_name || '',
-      'Email': profile.email,
-      'Customer Phone': profile.phone || '',
-      'Address': address,
-      'Selected Services': [service],
-      'Source': 'Customer Portal',
-      'Property Data Source': profile.property_data_source || 'Manual',
+    // Build quote request
+    const quoteRequest: Record<string, unknown> = {
+      quote_id: generateQuoteId(),
+      customer_id: customer.id,
+      address,
+      city: profile.city || undefined,
+      state: profile.state || undefined,
+      zip_code: profile.zip_code || undefined,
+      selected_services: [service],
+      property_data_source: profile.property_data_source || 'Manual',
     };
 
-    // Add bucket values
     if (profile.square_footage) {
-      fields['Square Footage'] = mapSqftToBucket(profile.square_footage);
-      fields['Exact Square Footage'] = profile.square_footage;
+      quoteRequest.exact_square_footage = profile.square_footage;
     }
     if (profile.lot_size) {
-      fields['Lot Size'] = mapLotToBucket(profile.lot_size);
-      fields['Exact Lot Size'] = profile.lot_size;
+      quoteRequest.exact_lot_size = profile.lot_size;
     }
     if (profile.stories) {
-      fields['Stories'] = mapStoriesToBucket(profile.stories);
-      fields['Exact Stories'] = profile.stories;
+      quoteRequest.exact_stories = profile.stories;
     }
 
-    const airtableResponse = await fetch(
-      `https://api.airtable.com/v0/${baseId}/Quote%20Requests`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${pat}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          records: [{ fields }],
-        }),
-      }
-    );
+    // Insert quote request into Handld Home database
+    const { data: quoteReq, error: quoteError } = await handldDb
+      .from('quote_requests')
+      .insert(quoteRequest)
+      .select('id')
+      .single();
 
-    if (!airtableResponse.ok) {
-      const error = await airtableResponse.json();
-      console.error('Airtable error:', JSON.stringify(error, null, 2));
+    if (quoteError) {
+      console.error('Quote request insert error:', quoteError);
       return NextResponse.json({ error: 'Failed to create quote request' }, { status: 500 });
+    }
+
+    // Create line item (pricing trigger auto-calculates for RentCast customers)
+    const { error: lineItemError } = await handldDb
+      .from('quote_line_items')
+      .insert({
+        quote_request_id: quoteReq.id,
+        service,
+        name: service,
+        service_selected: true,
+      });
+
+    if (lineItemError) {
+      console.error('Line item insert error:', lineItemError);
     }
 
     return NextResponse.json({
