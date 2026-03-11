@@ -60,10 +60,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Build quote request record
+    // propertyAddress is set by RentCast lookup, address is manual entry
+    const resolvedAddress = body.propertyAddress || body.address || undefined;
+
     const quoteRequest: Record<string, unknown> = {
       quote_id: await generateQuoteId(),
       customer_id: customer.id,
-      address: body.address || undefined,
+      address: resolvedAddress,
       address_line_2: body.addressLine2 || undefined,
       city: body.city || undefined,
       state: body.state || undefined,
