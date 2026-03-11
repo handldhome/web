@@ -32,6 +32,7 @@ export type FormAction =
   | { type: 'TOGGLE_MULTI'; field: 'selectedServices' | 'plumbingIssues' | 'electricalIssues'; value: string }
   | { type: 'CLEAR_ARRAY'; field: 'plumbingIssues' | 'electricalIssues' }
   | { type: 'CLEAR_PROPERTY_LOOKUP' }
+  | { type: 'SET_PREFILL'; data: Partial<QuoteFormState> }
   | { type: 'RESET' };
 
 export interface PropertyLookupData {
@@ -116,6 +117,8 @@ export function formReducer(state: QuoteFormState, action: FormAction): QuoteFor
         propertyAddress: '',
         propertyDataSource: '',
       };
+    case 'SET_PREFILL':
+      return { ...state, ...action.data };
     case 'RESET':
       return initialFormState;
   }

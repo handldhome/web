@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useReducer, useMemo, useState, useEffect, useCallback, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, ChevronLeft, Loader2, CheckCircle, Home, Search } from 'lucide-react';
 import {
@@ -148,6 +149,57 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
   const [editSquareFootage, setEditSquareFootage] = useState('');
   const [editLotSize, setEditLotSize] = useState('');
   const [editStories, setEditStories] = useState('');
+
+  // Pre-fill from URL params (e.g. from Health Check report CTA)
+  const searchParams = useSearchParams();
+  const [prefilled, setPrefilled] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen || prefilled) return;
+
+    const service = searchParams?.get('service');
+    const name = searchParams?.get('name');
+    const phone = searchParams?.get('phone');
+    const address = searchParams?.get('address');
+
+    if (service || name || phone || address) {
+      const prefillData: Partial<typeof initialFormState> = {};
+
+      // Pre-fill contact info
+      if (name) prefillData.name = name;
+      if (phone) prefillData.phone = phone;
+      if (address) prefillData.address = address;
+
+      // Pre-fill service selection
+      if (service) {
+        // Match service name to SERVICE_OPTIONS
+        const matchedService = SERVICE_OPTIONS.find(
+          s => s.toLowerCase() === service.toLowerCase()
+        );
+        if (matchedService) {
+          prefillData.serviceType = 'Single Service';
+          prefillData.wantBundle = 'No';
+          prefillData.selectedServices = [matchedService];
+        }
+      }
+
+      dispatch({ type: 'SET_PREFILL', data: prefillData });
+
+      // Skip ahead to property lookup step (services + contact already filled)
+      // Find the index of propertyLookup in visible steps after state update
+      setTimeout(() => {
+        // Jump past welcome, serviceType, wantBundle, services → to propertyLookup
+        // The visibleSteps will recompute, so we need to find the right index
+        setStepIndex(0); // Start at welcome, user clicks Next to proceed
+        // Actually skip directly to property lookup since we have service + contact
+        const stepsAfterPrefill = ['welcome', 'serviceType', 'wantBundle', 'services', 'propertyLookup'];
+        const propertyIdx = stepsAfterPrefill.indexOf('propertyLookup');
+        setStepIndex(propertyIdx);
+      }, 100);
+
+      setPrefilled(true);
+    }
+  }, [isOpen, searchParams, prefilled]);
 
   // Lock body scroll and hide chat widget when open
   useEffect(() => {
