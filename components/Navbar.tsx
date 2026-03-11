@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { User } from "lucide-react";
+import { User, Database } from "lucide-react";
 
 export default function Navbar() {
   return (
@@ -37,6 +37,16 @@ export default function Navbar() {
             <User className="w-4 h-4" />
             My Account
           </Link>
+
+          <a
+            href="https://database.handldhome.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full bg-emerald-600 text-white text-sm font-semibold px-4 py-1.5 shadow-sm hover:bg-emerald-700 transition flex items-center gap-1.5"
+          >
+            <Database className="w-4 h-4" />
+            Database
+          </a>
 
           <a
             href="https://handldhome.typeform.com/to/lEaYy0ka"
