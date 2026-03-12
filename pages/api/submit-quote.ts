@@ -137,8 +137,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .from('jobs')
         .insert({
           service: 'Home Health Check',
-          name: (body.name || '').trim(),
-          email,
+          name: 'Home Health Check',
           status: 'Planned',
           other_notes: `Quote ID: ${quoteRequest.quote_id}`,
           quote_request_id: quoteReq.id,
@@ -170,7 +169,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    return res.status(200).json({ success: true });
+    return res.status(200).json({ success: true, serviceType: body.serviceType || null });
   } catch (err) {
     console.error('Quote submission error:', err);
     return res.status(500).json({
