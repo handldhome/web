@@ -133,12 +133,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // For Free Home Health Check, create a job directly in the scheduling system
     const isFreeHealthCheck = body.serviceType === 'Free Home Health Check';
     if (isFreeHealthCheck) {
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() + 2);
+      const targetDateStr = targetDate.toISOString().split('T')[0];
+
       const { error: jobError } = await getHandldDb()
         .from('jobs')
         .insert({
           service: 'Home Health Check',
           name: 'Home Health Check',
           status: 'Planned',
+          target_date: targetDateStr,
+          expected_time_to_complete: 45,
           other_notes: `Quote ID: ${quoteRequest.quote_id}`,
           quote_request_id: quoteReq.id,
         });
