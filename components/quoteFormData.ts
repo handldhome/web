@@ -124,7 +124,7 @@ export function formReducer(state: QuoteFormState, action: FormAction): QuoteFor
   }
 }
 
-export const SERVICE_TYPE_OPTIONS = ['Annual Plan', 'Home TuneUp', 'Single Service'];
+export const SERVICE_TYPE_OPTIONS = ['Single Service', 'Annual Plan', 'Free Home Health Check'];
 
 export const BUNDLE_OPTIONS = [
   { name: 'Try Us Out', savings: 'Savings up to $700' },
@@ -144,10 +144,18 @@ export const SERVICE_OPTIONS = [
   'Gutter Cleaning',
   'Pressure Washing - Home Exterior',
   'Pressure Washing - Driveway & Patio',
+  'HVAC Repair & Maintenance',
+  'Gardening & Landscaping',
   'Pest Control',
   'Trash Bin Cleaning',
   'Outdoor Furniture Cleaning',
   'Holiday Lights Install & Take Down',
+];
+
+export const PARTNER_SERVICES = [
+  'HVAC Repair & Maintenance',
+  'Gardening & Landscaping',
+  'Pest Control',
 ];
 
 export const PLUMBING_OPTIONS = [

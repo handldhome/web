@@ -10,6 +10,7 @@ import {
   SERVICE_TYPE_OPTIONS,
   BUNDLE_OPTIONS,
   SERVICE_OPTIONS,
+  PARTNER_SERVICES,
   PLUMBING_OPTIONS,
   ELECTRICAL_OPTIONS,
   SQFT_OPTIONS,
@@ -227,24 +228,30 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
   const visibleSteps = useMemo<StepId[]>(() => {
     const steps: StepId[] = ['welcome', 'serviceType'];
 
-    const isHomeTuneUp = formState.serviceType === 'Home TuneUp';
+    const isFreeHealthCheck = formState.serviceType === 'Free Home Health Check';
 
-    if (!isHomeTuneUp) {
-      steps.push('wantBundle');
+    if (!isFreeHealthCheck) {
+      // Annual Plan shows bundle options
+      if (formState.serviceType === 'Annual Plan') {
+        steps.push('wantBundle');
 
-      const wantsBundle = formState.wantBundle.startsWith('Yes');
+        const wantsBundle = formState.wantBundle.startsWith('Yes');
 
-      if (wantsBundle) {
-        steps.push('bundleChoice');
-      }
+        if (wantsBundle) {
+          steps.push('bundleChoice');
+        }
 
-      // Show services unless they picked a specific named bundle
-      const pickedSpecificBundle =
-        wantsBundle &&
-        formState.bundleChoice !== '' &&
-        formState.bundleChoice !== 'Build Your Own Bundle';
+        // Show services unless they picked a specific named bundle
+        const pickedSpecificBundle =
+          wantsBundle &&
+          formState.bundleChoice !== '' &&
+          formState.bundleChoice !== 'Build Your Own Bundle';
 
-      if (!pickedSpecificBundle) {
+        if (!pickedSpecificBundle) {
+          steps.push('services');
+        }
+      } else {
+        // Single Service goes straight to service selection
         steps.push('services');
       }
 
@@ -603,11 +610,42 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
               Which services are you interested in?
             </h2>
             <p className="font-body text-sm text-[#2A54A1]/60 mb-6">Select ALL you&apos;d like pricing for</p>
-            <MultiSelect
-              options={SERVICE_OPTIONS}
-              selected={formState.selectedServices}
-              onToggle={(v) => dispatch({ type: 'TOGGLE_MULTI', field: 'selectedServices', value: v })}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {SERVICE_OPTIONS.map((opt) => {
+                const isSelected = formState.selectedServices.includes(opt);
+                const isPartner = PARTNER_SERVICES.includes(opt);
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => dispatch({ type: 'TOGGLE_MULTI', field: 'selectedServices', value: opt })}
+                    className={`w-full text-left p-3.5 rounded-xl border-2 transition-all ${
+                      isSelected
+                        ? 'border-[#2A54A1] bg-[#2A54A1]/10'
+                        : 'border-[#2A54A1]/15 bg-white hover:border-[#2A54A1]/40'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-5 h-5 rounded flex items-center justify-center flex-shrink-0 border-2 ${
+                          isSelected ? 'border-[#2A54A1] bg-[#2A54A1]' : 'border-[#2A54A1]/30'
+                        }`}
+                      >
+                        {isSelected && (
+                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </div>
+                      <span className="font-body text-sm font-medium text-[#2A54A1]">
+                        {opt}{isPartner ? '*' : ''}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="font-body text-xs text-[#2A54A1]/50 mt-4">*These services are handled by trusted partners</p>
           </div>
         );
 
