@@ -1154,7 +1154,9 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
               Thank you for trusting us with your home!
             </h2>
             <p className="font-body text-[#2A54A1]/70 mb-8 max-w-md mx-auto">
-              Your custom quote is on the way! Check your text for a link in the next 2 minutes.
+              {formState.serviceType === 'Free Home Health Check'
+                ? "We'll notify you via text once your Home Health Check has been scheduled."
+                : 'Your custom quote is on the way! Check your text for a link in the next 2 minutes.'}
             </p>
             <button
               onClick={handleClose}

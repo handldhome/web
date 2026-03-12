@@ -77,7 +77,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       bundle_type: body.bundleChoice || undefined,
       handyman_projects: body.handymanProjects || undefined,
       property_data_source: body.propertyDataSource || 'Manual',
-      selected_services: body.selectedServices || [],
+      selected_services: body.serviceType === 'Free Home Health Check'
+        ? ['Home Health Check']
+        : (body.selectedServices || []),
       plumbing_detail: body.plumbingIssues?.join(', ') || undefined,
       electrical_detail: body.electricalIssues?.join(', ') || undefined,
     };
@@ -107,8 +109,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Create quote line items for each selected service
     // The pricing trigger will auto-calculate prices for RentCast customers
-    if (body.selectedServices?.length) {
-      const lineItems = body.selectedServices.map((service: string) => ({
+    const resolvedServices = body.serviceType === 'Free Home Health Check'
+      ? ['Home Health Check']
+      : (body.selectedServices || []);
+    if (resolvedServices.length) {
+      const lineItems = resolvedServices.map((service: string) => ({
         quote_request_id: quoteReq.id,
         service,
         name: service,
@@ -125,10 +130,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
+    // For Free Home Health Check, create a job directly in the scheduling system
+    const isFreeHealthCheck = body.serviceType === 'Free Home Health Check';
+    if (isFreeHealthCheck) {
+      const { error: jobError } = await getHandldDb()
+        .from('jobs')
+        .insert({
+          service: 'Home Health Check',
+          name: (body.name || '').trim(),
+          email,
+          status: 'Planned',
+          other_notes: `Quote ID: ${quoteRequest.quote_id}`,
+          quote_request_id: quoteReq.id,
+        });
+
+      if (jobError) {
+        console.error('Job creation error:', jobError);
+        // Don't fail the submission if job creation fails
+      }
+    }
+
     // Fire Zapier webhook to text customer their quote link via Heymarket
     const quoteLink = `https://handld-quote-viewer.vercel.app/q/${quoteRequest.quote_id}`;
     const webhookUrl = process.env.ZAPIER_QUOTE_WEBHOOK_URL;
-    if (webhookUrl && body.phone) {
+    if (webhookUrl && body.phone && !isFreeHealthCheck) {
       try {
         await fetch(webhookUrl, {
           method: 'POST',
