@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Check, Menu, X, Users, Clock, Shield, CreditCard, MapPin } from 'lucide-react';
+import { Check, Menu, X, Users, Clock, Shield, CreditCard, MapPin, Tag, BadgeCheck, ArrowRight } from 'lucide-react';
 import QuoteModal from '@/components/QuoteModal';
 import { blogPosts } from '@/lib/blogPosts';
 
@@ -50,22 +50,22 @@ export default function Page() {
   ];
 
   const services = [
-    { title: "Handyman", description: "From minor repairs to odd jobs around the house, our skilled handymen tackle it all with expertise and care.", price: "$75", img: "/services/handyman.jpg" },
-    { title: "Plumbing Repairs", description: "Licensed professionals to fix leaks, clogs, and other plumbing issues quickly and reliably.", price: "$105", img: "/services/plumbing.jpg" },
-    { title: "Electrical Repairs", description: "Licensed electricians for outlets, switches, and minor electrical work.", price: "$69", img: "/services/electrical.jpg" },
-    { title: "Window Washing", description: "Crystal-clear views and natural light. We clean inside and out, leaving every pane spotless and streak-free.", price: "$175", img: "/services/window.jpg" },
-    { title: "Gutter Cleaning", description: "Avoid costly water damage by keeping your gutters clear and flowing. We remove debris to protect your roof and foundation.", price: "$90", img: "/services/gutter.jpg" },
-    { title: "Pressure Washing — Home Exterior", description: "Restore your home's curb appeal. We blast away dirt, grime, and years of buildup from siding and exteriors.", price: "$165", img: "/services/pressure.jpg" },
-    { title: "Pressure Washing — Driveways & Patios", description: "Transform your driveway and patio areas. Remove oil stains, mold, and weathering for a fresh, clean look.", price: "$65", img: "/services/pressure.jpg" },
+    { title: "Handyman", description: "That thing you've been meaning to fix for months? It's been quietly bugging you. A skilled handyman, a known price, and it's finally off your list.", price: "$75", img: "/services/handyman.jpg" },
+    { title: "Plumbing Repairs", description: "That dripping faucet has lived in your head long enough. A licensed plumber. A known price. Done.", price: "$105", img: "/services/plumbing.jpg" },
+    { title: "Electrical Repairs", description: "Flickering lights, a dead outlet, a switch that's never worked right — these things nag at you. We fix them cleanly, safely, and at a price you knew before we walked in the door.", price: "$69", img: "/services/electrical.jpg" },
+    { title: "Window Washing", description: "Your windows are the first thing guests notice and the last thing you get around to. After we're done, every room feels brighter — and you'll wonder why you waited.", price: "$175", img: "/services/window.jpg" },
+    { title: "Gutter Cleaning", description: "One good rain and clogged gutters become a real problem. Get it done now, stop thinking about it, and head into the season without it on your list.", price: "$90", img: "/services/gutter.jpg" },
+    { title: "Pressure Washing — Home Exterior", description: "Your driveway and exterior tell the neighborhood a story about your home. Make it a good one.", price: "$165", img: "/services/pressure.jpg" },
+    { title: "Pressure Washing — Driveways & Patios", description: "Oil stains, mold, and years of weathering — you walk past it every day and it quietly bothers you. One visit and it looks brand new.", price: "$65", img: "/services/pressure.jpg" },
     /* TODO: Add image for HVAC Repair & Maintenance */
-    { title: "HVAC Repair & Maintenance", description: "Keep your heating and cooling systems running efficiently. Regular maintenance prevents costly breakdowns.", price: "$125", img: "/services/handyman.jpg" },
-    { title: "Pest Control", description: "Protect your home from unwanted guests. Safe, effective treatments for common household pests.", price: "$95", img: "/services/handyman.jpg" },
+    { title: "HVAC Repair & Maintenance", description: "Your AC shouldn't be something you worry about on the hottest day of the year. Regular maintenance means it just works — quietly, efficiently, and without the emergency call.", price: "$125", img: "/services/handyman.jpg" },
+    { title: "Pest Control", description: "That scratching in the wall, the ants in the kitchen — you shouldn't have to share your home. Safe, effective treatments that give you your space back.", price: "$95", img: "/services/handyman.jpg" },
     /* TODO: Add image for Landscaping & Gardening */
-    { title: "Landscaping & Gardening", description: "Keep your outdoor spaces beautiful. From lawn care to garden maintenance, we handle it all.", price: "$75", img: "/services/handyman.jpg" },
-    { title: "Holiday Lights Install & Take Down", description: "Professional installation and removal of holiday lighting. Make your home festive without the hassle.", price: "$200", img: "/services/holiday.jpg" },
-    { title: "Home Tune-Up", description: "Our comprehensive 31-point inspection catches safety hazards and prevents costly repairs before they happen.", price: "$350", img: "/Handyman Notes.jpg" },
-    { title: "Outdoor Furniture Cleaning", description: "Restore your patio furniture to like-new condition. We clean and protect all types of outdoor furniture.", price: "$125", img: "/services/furniture.jpg" },
-    { title: "Trash Bin Cleaning", description: "Eliminate odors and bacteria from your trash bins. Deep-cleaning service that keeps these areas hygienic and fresh.", price: "$45", img: "/services/bin.jpg" }
+    { title: "Landscaping & Gardening", description: "You want a yard you're proud of, not one that stresses you out every weekend. We keep it looking great so you can actually enjoy it.", price: "$75", img: "/services/handyman.jpg" },
+    { title: "Holiday Lights Install & Take Down", description: "Skip the ladder, the tangled strands, and the wasted Saturday. Professional lights up, professional lights down — you just enjoy the season.", price: "$200", img: "/services/holiday.jpg" },
+    { title: "Home Tune-Up", description: "30 things checked, documented, and either fixed or flagged — so you know exactly where your home stands. And if we find something? You can schedule the fix with a single click. No calls, no quotes, no chasing anyone down.", price: "$350", img: "/Handyman Notes.jpg" },
+    { title: "Outdoor Furniture Cleaning", description: "Your patio should be an extension of your home, not something you apologize for. We clean and restore it so you actually want to sit outside again.", price: "$125", img: "/services/furniture.jpg" },
+    { title: "Trash Bin Cleaning", description: "You know that smell every time you open the garage? Gone. Deep-cleaned, sanitized, and one less gross thing you have to think about.", price: "$45", img: "/services/bin.jpg" }
   ];
 
   const testimonials = [
@@ -81,10 +81,10 @@ export default function Page() {
     { question: "What is Handld?", answer: "Handld is your one-stop home maintenance team. We handle 14+ services — from gutter cleaning to plumbing to pest control — so you don't have to juggle multiple vendors. We're a local company serving Los Angeles with experienced, full-time professionals who treat your home like their own." },
     { question: "Do I have to commit to anything?", answer: "No commitments, no subscriptions. You pay only for the services you request, after they're completed. Book one service or bundle several — it's completely up to you. Cancel anytime, no fees." },
     { question: "How does pricing work?", answer: "We use a simple, transparent pricing model based on your home's attributes — square footage, lot size, and number of stories. You get a flat-rate quote in under a minute, without needing an in-person walkthrough. No surprises, no waiting days for an estimate. Bundle 3+ services and save 30%." },
-    { question: "What areas do you service?", answer: "We currently serve Los Angeles. Not sure if you're in our zone? Just reach out and we'll let you know." },
+    { question: "What areas do you service?", answer: "We currently serve Los Angeles County. Not sure if you're in our zone? Just reach out and we'll let you know." },
     { question: "Is there a cancellation policy?", answer: "We get it — things change. You can reschedule or cancel appointments up to 24 hours in advance. No fees, no problem." },
     { question: "Will I get reminders before service?", answer: "Yes. We'll send you appointment reminders by text or email, depending on your preferences. You'll also get a heads-up when your technician is en route. Plus, you can view all your upcoming and past appointments in your customer portal." },
-    { question: "Who are your service providers?", answer: "Every Handld technician is a W-2 employee (not a subcontractor) with 10+ years of experience in their specific trade. They're background-checked, insured, and trained to treat your home with care. No random strangers — the same trusted team, every time." }
+    { question: "Who are your service providers?", answer: "Every Handld technician is a W-2 employee — background-checked, trained by us, and covered by our insurance. When we send someone to your home, we're sending someone we'd trust in our own. That's not how most home services work. It's how we think it should." }
   ];
 
   useEffect(() => {
@@ -208,14 +208,40 @@ export default function Page() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#2A54A1]/60 to-[#2A54A1]/40" />
         <div className="relative z-10 text-center text-[#FFFFF2] max-w-5xl mx-auto px-4 md:px-6">
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-4 md:mb-6 leading-tight">
-            Home maintenance, handled.
+            Your home should feel like a refuge, not a to-do list.
           </h1>
           <p className="font-body text-lg md:text-2xl mb-8 md:mb-10 text-[#FFFFF2]/95">
-            One team for everything your home needs. Plan your whole year of maintenance or book a single service — in under a minute.
+            Handle a full year of home maintenance in 5 minutes — get an instant quote and book online, right now.
           </p>
           <button onClick={handleCTA} className="cta-button text-white px-8 md:px-12 py-4 md:py-5 rounded-full text-base md:text-lg font-body font-bold">
             Get My Custom Quote
           </button>
+        </div>
+      </section>
+
+      {/* TRUST BAR */}
+      <section className="py-5 md:py-6 bg-[#FBF9F0] border-y border-[#2A54A1]/10">
+        <div className="max-w-6xl mx-auto px-4 md:px-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
+            <div className="flex items-center gap-3 justify-center md:justify-start">
+              <div className="w-10 h-10 bg-[#2A54A1]/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <Tag className="w-5 h-5 text-[#2A54A1]" />
+              </div>
+              <p className="font-body text-sm text-[#2A54A1]">Instant pricing. Know your exact cost in under 2 minutes.</p>
+            </div>
+            <div className="flex items-center gap-3 justify-center md:justify-start">
+              <div className="w-10 h-10 bg-[#2A54A1]/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <BadgeCheck className="w-5 h-5 text-[#2A54A1]" />
+              </div>
+              <p className="font-body text-sm text-[#2A54A1]">W-2 employees — vetted, trained, insured. Not gig workers.</p>
+            </div>
+            <div className="flex items-center gap-3 justify-center md:justify-start">
+              <div className="w-10 h-10 bg-[#2A54A1]/10 rounded-full flex items-center justify-center flex-shrink-0">
+                <MapPin className="w-5 h-5 text-[#2A54A1]" />
+              </div>
+              <p className="font-body text-sm text-[#2A54A1]">Proudly serving Los Angeles County</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -271,7 +297,7 @@ export default function Page() {
                 <Shield className="w-6 h-6 text-[#2A54A1]" />
               </div>
               <h3 className="font-display text-lg md:text-xl font-bold mb-2 text-[#2A54A1]">Experienced W-2 employees</h3>
-              <p className="font-body text-sm text-[#2A54A1]/80">Every technician has 10+ years in their trade and works directly for Handld. No random subcontractors showing up at your door.</p>
+              <p className="font-body text-sm text-[#2A54A1]/80">Every Handld technician is a W-2 employee — background-checked, trained by us, and covered by our insurance. When we send someone to your home, we're sending someone we'd trust in our own. That's not how most home services work. It's how we think it should.</p>
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow-retro border-2 border-[#2A54A1]/10">
@@ -371,7 +397,8 @@ export default function Page() {
       <section id="services" className="py-8 md:py-12 overflow-hidden bg-[#FBF9F0]">
         <div className="max-w-7xl mx-auto px-4 md:px-6 mb-6 md:mb-8 text-center">
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-2 text-[#2A54A1]">Everything your home needs. One team.</h2>
-          <p className="font-body text-base md:text-lg text-[#2A54A1]">From gutters to gardens, we've got it covered</p>
+          <p className="font-body text-base md:text-lg text-[#2A54A1] mb-3">From gutters to gardens, we've got it covered</p>
+          <p className="font-body text-sm md:text-base text-[#2A54A1]/80 max-w-2xl mx-auto">Every service is flat-rate priced. Get an exact quote in under 2 minutes — no callbacks, no estimates, no surprises on your invoice.</p>
         </div>
         <div className="relative">
           <div className="flex gap-6 px-6 pb-6 animate-scroll" style={{ width: 'fit-content' }}>
@@ -426,6 +453,16 @@ export default function Page() {
       {/* HOME TUNE-UP SECTION */}
       <section className="py-12 md:py-16 bg-[#FBF9F0]">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
+          {/* Seasonal Spring Banner */}
+          <div className="mb-6 md:mb-8 bg-gradient-to-r from-[#FFF8E7] to-[#FFEFD5] border border-[#E8C875] rounded-xl px-5 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="font-body text-sm md:text-base text-[#2A54A1] font-medium text-center sm:text-left">
+              Spring is the most popular time for a Home TuneUp in Los Angeles. Availability fills quickly — check open slots near you
+            </p>
+            <button onClick={handleCTA} className="flex items-center gap-1.5 font-body text-sm font-bold text-[#2A54A1] hover:underline whitespace-nowrap flex-shrink-0">
+              Book now <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+
           <div className="grid md:grid-cols-3 gap-6 md:gap-8 items-center">
             {/* Photo - Left */}
             <div className="rounded-2xl overflow-hidden shadow-retro border-2 border-[#2A54A1]/10 order-1 md:order-1 relative h-64 md:h-80">
@@ -438,8 +475,11 @@ export default function Page() {
                 <span className="font-body text-sm font-semibold text-[#FFFFF2]">Featured Service</span>
               </div>
               <h2 className="font-display text-3xl md:text-4xl font-bold mb-4 text-[#2A54A1]">Home Tune-Up</h2>
-              <p className="font-body text-sm md:text-base text-[#2A54A1] mb-5 leading-relaxed">
-                Small issues become big problems. Our comprehensive 31-point inspection catches safety hazards and prevents costly repairs before they happen. You'll receive a detailed photo report with easy booking or trusted vendor referrals for anything that needs attention.
+              <p className="font-body text-sm md:text-base text-[#2A54A1] mb-3 leading-relaxed">
+                30 things checked, documented, and either fixed or flagged — so you know exactly where your home stands. You'll receive a detailed photo report, and if we find something, you can schedule the fix with a single click. No calls, no quotes, no chasing anyone down.
+              </p>
+              <p className="font-body text-xs md:text-sm text-[#2A54A1]/70 mb-5 leading-relaxed italic">
+                Los Angeles homeowners who do an annual TuneUp catch an average of 6–8 maintenance items before they become costly repairs. Most schedule theirs in the spring, right after the rainy season clears.
               </p>
               <div className="flex flex-col gap-3">
                 <button onClick={handleCTA} className="cta-button text-white px-6 py-3 rounded-full text-sm font-body font-bold">
@@ -521,7 +561,7 @@ export default function Page() {
         <div className="max-w-6xl mx-auto px-4 md:px-6">
           <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-center text-[#2A54A1]">From the Blog</h2>
           <p className="font-body text-base md:text-lg text-[#2A54A1]/70 text-center mb-10 max-w-2xl mx-auto">
-            Practical advice for Pasadena and SGV homeowners
+            Practical advice for Los Angeles County homeowners
           </p>
           <div className="grid md:grid-cols-3 gap-6">
             {blogPosts.slice(0, 3).map((post) => (
