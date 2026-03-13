@@ -186,16 +186,10 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
 
       dispatch({ type: 'SET_PREFILL', data: prefillData });
 
-      // Skip ahead to property lookup step (services + contact already filled)
-      // Find the index of propertyLookup in visible steps after state update
+      // Skip to the services step (Question 2) so user sees their service checked
+      // For Single Service: steps are ['welcome', 'serviceType', 'services', ...]
       setTimeout(() => {
-        // Jump past welcome, serviceType, wantBundle, services → to propertyLookup
-        // The visibleSteps will recompute, so we need to find the right index
-        setStepIndex(0); // Start at welcome, user clicks Next to proceed
-        // Actually skip directly to property lookup since we have service + contact
-        const stepsAfterPrefill = ['welcome', 'serviceType', 'wantBundle', 'services', 'propertyLookup'];
-        const propertyIdx = stepsAfterPrefill.indexOf('propertyLookup');
-        setStepIndex(propertyIdx);
+        setStepIndex(2); // services step index for Single Service flow
       }, 100);
 
       setPrefilled(true);
