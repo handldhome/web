@@ -208,7 +208,7 @@ export default function Page() {
         <div className="absolute inset-0 bg-gradient-to-b from-[#2A54A1]/60 to-[#2A54A1]/40" />
         <div className="relative z-10 text-center text-[#FFFFF2] max-w-5xl mx-auto px-4 md:px-6">
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-4 md:mb-6 leading-tight">
-            Your home should feel like a refuge, not a to-do list.
+            Come home to peace of mind, not a punch list.
           </h1>
           <p className="font-body text-lg md:text-2xl mb-8 md:mb-10 text-[#FFFFF2]/95">
             Handle a full year of home maintenance in 5 minutes — get an instant quote and book online, right now.
