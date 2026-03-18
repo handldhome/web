@@ -144,7 +144,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           name: 'Home Health Check',
           status: 'Planned',
           target_date: targetDateStr,
-          expected_time_to_complete: 45,
+          expected_time_to_complete: 0.75,
           other_notes: `Quote ID: ${quoteRequest.quote_id}`,
           quote_request_id: quoteReq.id,
         });
