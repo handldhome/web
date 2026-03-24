@@ -34,8 +34,27 @@ type StepId =
   | 'plumbing'
   | 'electrical'
   | 'propertyLookup'
+  | 'timePicker'
   | 'contact'
   | 'thanks';
+
+const SCHEDULING_API = process.env.NEXT_PUBLIC_SCHEDULING_API_URL || 'https://handld-scheduling-git-main-handldhome.vercel.app';
+
+interface AvailabilitySlot {
+  available: boolean;
+  spotsLeft: number;
+}
+
+interface AvailabilityDay {
+  date: string;
+  dayName: string;
+  monthDay: string;
+  slots: Record<string, AvailabilitySlot>;
+}
+
+interface AvailabilityMeta {
+  percentBooked: number;
+}
 
 function SingleSelect({
   options,
@@ -143,6 +162,11 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
   const [isLookingUpProperty, setIsLookingUpProperty] = useState(false);
   const [propertyLookupError, setPropertyLookupError] = useState('');
   const [showManualEntry, setShowManualEntry] = useState(false);
+
+  // Availability / time picker state
+  const [availabilityWindows, setAvailabilityWindows] = useState<AvailabilityDay[]>([]);
+  const [availabilityMeta, setAvailabilityMeta] = useState<AvailabilityMeta | null>(null);
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
 
   // Property data confirmation/editing state
   const [propertyDataConfirmed, setPropertyDataConfirmed] = useState(false);
@@ -254,11 +278,40 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
       if (formState.selectedServices.includes('Electrical Repairs')) steps.push('electrical');
     }
 
-    steps.push('propertyLookup', 'contact', 'thanks');
+    steps.push('propertyLookup', 'timePicker', 'contact', 'thanks');
     return steps;
   }, [formState.serviceType, formState.wantBundle, formState.bundleChoice, formState.selectedServices]);
 
   const currentStep = visibleSteps[Math.min(stepIndex, visibleSteps.length - 1)];
+
+  // Fetch availability when time picker step becomes active
+  useEffect(() => {
+    if (currentStep !== 'timePicker') return;
+    const services = formState.selectedServices.join(',');
+    setAvailabilityLoading(true);
+    fetch(`${SCHEDULING_API}/api/public/availability?services=${encodeURIComponent(services)}`)
+      .then(res => res.json())
+      .then(data => {
+        // Map the API response into our AvailabilityDay shape
+        const days: AvailabilityDay[] = (data.windows || []).map((w: Record<string, unknown>) => {
+          const dateStr = w.date as string;
+          const d = new Date(dateStr + 'T12:00:00');
+          return {
+            date: dateStr,
+            dayName: d.toLocaleDateString('en-US', { weekday: 'short' }),
+            monthDay: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            slots: w.slots as Record<string, AvailabilitySlot>,
+          };
+        });
+        setAvailabilityWindows(days);
+        setAvailabilityMeta(data.meta || null);
+      })
+      .catch(() => {
+        setAvailabilityWindows([]);
+        setAvailabilityMeta(null);
+      })
+      .finally(() => setAvailabilityLoading(false));
+  }, [currentStep, formState.selectedServices]);
 
   // Count question steps (exclude welcome and thanks)
   const questionSteps = visibleSteps.filter((s): s is StepId => s !== 'welcome' && s !== 'thanks');
@@ -294,6 +347,8 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
         const isFromLookup = formState.propertyDataSource === 'RentCast' || formState.propertyDataSource === 'RentCast (Corrected)';
         // If from lookup, must be confirmed. If manual entry, just need the data.
         return hasPropertyData && (propertyDataConfirmed || !isFromLookup);
+      case 'timePicker':
+        return true; // Always allow proceeding — user can skip or select
       case 'contact':
         // If property lookup was successful, we already have the address - don't require it again
         const addressRequired = !formState.propertyDataSource?.startsWith('RentCast');
@@ -1031,6 +1086,80 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
                   Try address lookup instead
                 </button>
               </div>
+            )}
+          </div>
+        );
+
+      case 'timePicker':
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-gray-900">When works best for you?</h3>
+            <p className="text-sm text-gray-500">Pick a morning or afternoon window. We&apos;ll confirm your exact arrival time.</p>
+
+            {availabilityLoading ? (
+              <div className="text-center py-8 text-gray-400">Loading available times...</div>
+            ) : (
+              <>
+                {availabilityMeta && availabilityMeta.percentBooked > 50 && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-2 text-sm text-amber-800 font-medium">
+                    {availabilityMeta.percentBooked}% of this week&apos;s windows are already booked
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {availabilityWindows.map(day => (
+                    <div key={day.date} className="border rounded-lg p-3 bg-white">
+                      <div className="text-xs font-semibold text-gray-500 uppercase">{day.dayName}</div>
+                      <div className="text-sm font-bold text-gray-900 mb-2">{day.monthDay}</div>
+                      <div className="flex flex-col gap-2">
+                        {['AM', 'PM'].map(period => {
+                          const slot = day.slots[period];
+                          if (!slot) return null;
+                          const isSelected = formState.preferredDate === day.date && formState.preferredTime === period;
+                          return (
+                            <button
+                              key={period}
+                              type="button"
+                              disabled={!slot.available}
+                              onClick={() => {
+                                dispatch({ type: 'SET_FIELD', field: 'preferredDate', value: day.date });
+                                dispatch({ type: 'SET_FIELD', field: 'preferredTime', value: period });
+                              }}
+                              className={`
+                                px-3 py-2 rounded-md text-sm font-semibold transition-all
+                                ${isSelected
+                                  ? 'bg-[#2A54A1] text-white ring-2 ring-[#2A54A1] ring-offset-1'
+                                  : slot.available
+                                    ? 'bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-[#2A54A1] border border-gray-200'
+                                    : 'bg-gray-100 text-gray-300 cursor-not-allowed'}
+                              `}
+                            >
+                              {period === 'AM' ? '\u2600 Morning' : '\uD83C\uDF24 Afternoon'}
+                              {slot.available && slot.spotsLeft <= 2 && (
+                                <span className="block text-xs font-normal mt-0.5 text-amber-600">
+                                  {slot.spotsLeft === 1 ? 'Last spot!' : `${slot.spotsLeft} left`}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    dispatch({ type: 'SET_FIELD', field: 'preferredDate', value: '' });
+                    dispatch({ type: 'SET_FIELD', field: 'preferredTime', value: '' });
+                    advanceStep();
+                  }}
+                  className="w-full text-center text-sm text-gray-400 hover:text-gray-600 py-2"
+                >
+                  Skip — I&apos;m flexible on timing
+                </button>
+              </>
             )}
           </div>
         );

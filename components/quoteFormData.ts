@@ -23,6 +23,9 @@ export interface QuoteFormState {
   exactStories: number | null;
   propertyAddress: string;
   propertyDataSource: 'RentCast' | 'RentCast (Corrected)' | 'Manual Entry' | '';
+  // Scheduling preference fields
+  preferredDate: string;
+  preferredTime: string;
 }
 
 export type FormAction =
@@ -70,6 +73,9 @@ export const initialFormState: QuoteFormState = {
   exactStories: null,
   propertyAddress: '',
   propertyDataSource: '',
+  // Scheduling preference fields
+  preferredDate: '',
+  preferredTime: '',
 };
 
 export function formReducer(state: QuoteFormState, action: FormAction): QuoteFormState {

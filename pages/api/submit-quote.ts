@@ -82,6 +82,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         : (body.selectedServices || []),
       plumbing_detail: body.plumbingIssues?.join(', ') || undefined,
       electrical_detail: body.electricalIssues?.join(', ') || undefined,
+      preferred_date: body.preferredDate || undefined,
+      preferred_time: body.preferredTime || undefined,
     };
 
     // Exact property values from RentCast
