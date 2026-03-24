@@ -289,7 +289,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
     if (currentStep !== 'timePicker') return;
     const services = formState.selectedServices.join(',');
     setAvailabilityLoading(true);
-    const url = `${SCHEDULING_API}/api/public/availability?services=${encodeURIComponent(services)}&startDays=2&maxDays=7`;
+    const url = `${SCHEDULING_API}/api/public/availability?services=${encodeURIComponent(services)}&startDays=2&maxDays=9`;
     console.log('[TimePicker] Fetching availability:', url);
     fetch(url)
       .then(async (res) => {
