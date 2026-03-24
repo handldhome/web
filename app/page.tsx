@@ -80,7 +80,7 @@ export default function Page() {
   const faqs = [
     { question: "What is Handld?", answer: "Handld is your one-stop home maintenance team. We handle 14+ services — from gutter cleaning to plumbing to pest control — so you don't have to juggle multiple vendors. We're a local company serving Los Angeles with experienced, full-time professionals who treat your home like their own." },
     { question: "Do I have to commit to anything?", answer: "No commitments, no subscriptions. You pay only for the services you request, after they're completed. Book one service or bundle several — it's completely up to you. Cancel anytime, no fees." },
-    { question: "How does pricing work?", answer: "We use a simple, transparent pricing model based on your home's attributes — square footage, lot size, and number of stories. You get a flat-rate quote in under a minute, without needing an in-person walkthrough. No surprises, no waiting days for an estimate. Bundle 3+ services and save 30%." },
+    { question: "How does pricing work?", answer: "We use a simple, transparent pricing model based on your home's attributes — square footage, lot size, and number of stories. You get a flat-rate quote in under a minute, without needing an in-person walkthrough. No surprises, no waiting days for an estimate." },
     { question: "What areas do you service?", answer: "We currently serve Los Angeles County. Not sure if you're in our zone? Just reach out and we'll let you know." },
     { question: "Is there a cancellation policy?", answer: "We get it — things change. You can reschedule or cancel appointments up to 24 hours in advance. No fees, no problem." },
     { question: "Will I get reminders before service?", answer: "Yes. We'll send you appointment reminders by text or email, depending on your preferences. You'll also get a heads-up when your technician is en route. Plus, you can view all your upcoming and past appointments in your customer portal." },
@@ -432,16 +432,16 @@ export default function Page() {
         <div className="max-w-6xl mx-auto px-4 md:px-6 relative z-10">
           <div className="grid md:grid-cols-2 gap-6 items-center">
             <div>
-              <h2 className="font-display text-4xl md:text-5xl font-bold mb-3">The more you bundle, the more you save</h2>
-              <p className="font-body text-lg md:text-xl mb-6">Pick 3 or more services and save 30%. No commitment required — just smart savings for taking care of more at once.</p>
+              <h2 className="font-display text-4xl md:text-5xl font-bold mb-3">Take care of more at once</h2>
+              <p className="font-body text-lg md:text-xl mb-6">Combine multiple services into one plan. No commitment required — just a smarter way to maintain your home.</p>
               <div className="bg-[#FFFFF2]/10 backdrop-blur-sm rounded-2xl p-5 md:p-6 mb-6 border-2 border-[#FFFFF2]/20">
                 <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
                   <Check className="w-8 h-8" />
-                  <span className="font-display text-3xl font-bold">30% Bundle Discount</span>
+                  <span className="font-display text-3xl font-bold">One Plan, One Team</span>
                 </div>
                 <p className="font-body text-base">Whether you want to plan your whole year or just need a few things done, Handld works on your terms. Not sure where to start? Check out our pre-packaged bundles.</p>
               </div>
-              <button onClick={handleCTA} className="bg-[#FFFFF2] text-[#2A54A1] px-8 md:px-10 py-3 rounded-full text-base md:text-lg font-body font-bold hover:bg-white transition-all transform hover:scale-105 shadow-lg">Build My Bundle</button>
+              <button onClick={handleCTA} className="bg-[#FFFFF2] text-[#2A54A1] px-8 md:px-10 py-3 rounded-full text-base md:text-lg font-body font-bold hover:bg-white transition-all transform hover:scale-105 shadow-lg">Build My Plan</button>
             </div>
             <div className="rounded-xl overflow-hidden shadow-2xl border-4 border-[#FFFFF2]/20 relative h-64 md:h-80">
               <Image src="/bundle-photo.jpg" alt="Bundle Services" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />

@@ -541,14 +541,14 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
         return (
           <div>
             <h2 className="font-display text-2xl md:text-3xl font-bold text-[#2A54A1] mb-6">
-              Want to make home maintenance easier...and save 30%?
+              Want to make home maintenance easier?
             </h2>
             <SingleSelect
-              options={['Yes — make it easy, bundle & save 30%', 'No']}
+              options={['Yes — make it easy with a bundle', 'No']}
               value={formState.wantBundle}
               onChange={(v) => handleSingleSelect('wantBundle', v)}
               descriptions={{
-                'Yes — make it easy, bundle & save 30%': 'Recommended',
+                'Yes — make it easy with a bundle': 'Recommended',
               }}
             />
           </div>

@@ -4,11 +4,10 @@ export default function BundldSave() {
       <h2 className="font-serif text-4xl text-navy mb-8">Bundld & Save</h2>
 
       <p className="text-navy/80 mb-10 max-w-2xl">
-        Save <span className="font-semibold text-brandBlue">30%</span> on all
-        services when you choose{" "}
-        <span className="font-semibold">3 or more unique services</span>.
-        Mix-and-match what your home needs—everything doesn’t need to be done at
-        once.
+        Combine{" "}
+        <span className="font-semibold">3 or more unique services</span>{" "}
+        into one plan. Mix-and-match what your home needs—everything doesn’t
+        need to be done at once.
       </p>
 
       <div className="grid md:grid-cols-3 gap-10">
@@ -19,8 +18,8 @@ export default function BundldSave() {
             1. Unique Services = Savings
           </h3>
           <p className="text-navy/70 leading-relaxed">
-            Gutters + windows + handyman = discount. Three gutter cleanings = no
-            discount. It’s that simple.
+            Gutters + windows + handyman = a bundled plan. Pick different
+            services to get the most out of your plan.
           </p>
         </div>
 

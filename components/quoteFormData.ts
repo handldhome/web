@@ -127,10 +127,10 @@ export function formReducer(state: QuoteFormState, action: FormAction): QuoteFor
 export const SERVICE_TYPE_OPTIONS = ['Single Service', 'Annual Plan', 'Free Home Health Check'];
 
 export const BUNDLE_OPTIONS = [
-  { name: 'Try Us Out', savings: 'Savings up to $700' },
-  { name: 'Home Refresh', savings: 'Savings up to $1,030' },
-  { name: 'Seasonal Spirit', savings: 'Savings up to $1,045' },
-  { name: 'The Handld Home', savings: 'Savings up to $2,075' },
+  { name: 'Try Us Out', savings: '' },
+  { name: 'Home Refresh', savings: '' },
+  { name: 'Seasonal Spirit', savings: '' },
+  { name: 'The Handld Home', savings: '' },
   { name: 'Build Your Own Bundle', savings: '' },
 ];
 

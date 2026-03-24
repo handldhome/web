@@ -21,7 +21,7 @@ const faqs = [
   },
   {
     q: "Can I customize my services?",
-    a: "Absolutely. You can choose any combination of services — and when you select 3 or more unique services, you automatically save 30% across the board.",
+    a: "Absolutely. You can choose any combination of services to fit your home's needs.",
   },
 ];
 
