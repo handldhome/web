@@ -289,7 +289,9 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
     if (currentStep !== 'timePicker') return;
     const services = formState.selectedServices.join(',');
     setAvailabilityLoading(true);
-    fetch(`${SCHEDULING_API}/api/public/availability?services=${encodeURIComponent(services)}`)
+    const url = `${SCHEDULING_API}/api/public/availability?services=${encodeURIComponent(services)}`;
+    console.log('[TimePicker] Fetching availability:', url);
+    fetch(url)
       .then(res => res.json())
       .then(data => {
         // Map the API response into our AvailabilityDay shape
@@ -1092,27 +1094,48 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
 
       case 'timePicker':
         return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">When works best for you?</h3>
-            <p className="text-sm text-gray-500">Pick a morning or afternoon window. We&apos;ll confirm your exact arrival time.</p>
+          <div>
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-[#2A54A1] mb-2">
+              When works best for you?
+            </h2>
+            <p className="font-body text-sm text-[#2A54A1]/60 mb-6">
+              Pick a morning or afternoon window. We&apos;ll confirm your exact arrival time.
+            </p>
 
             {availabilityLoading ? (
-              <div className="text-center py-8 text-gray-400">Loading available times...</div>
+              <div className="text-center py-12 text-[#2A54A1]/40 font-body">Loading available times...</div>
+            ) : availabilityWindows.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="font-body text-sm text-[#2A54A1]/60 mb-4">
+                  We&apos;re currently finalizing our schedule. We&apos;ll reach out to find a time that works for you.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    dispatch({ type: 'SET_FIELD', field: 'preferredDate', value: '' });
+                    dispatch({ type: 'SET_FIELD', field: 'preferredTime', value: '' });
+                    advanceStep();
+                  }}
+                  className="font-body text-sm font-semibold text-[#2A54A1] hover:text-[#2A54A1]/80 underline underline-offset-2"
+                >
+                  Continue without selecting a time
+                </button>
+              </div>
             ) : (
               <>
                 {availabilityMeta && availabilityMeta.percentBooked > 50 && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-2 text-sm text-amber-800 font-medium">
+                  <div className="bg-[#FFF7E6] border border-[#F59E0B]/30 rounded-xl px-4 py-2.5 text-sm text-[#92400E] font-body font-medium mb-4">
                     {availabilityMeta.percentBooked}% of this week&apos;s windows are already booked
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
                   {availabilityWindows.map(day => (
-                    <div key={day.date} className="border rounded-lg p-3 bg-white">
-                      <div className="text-xs font-semibold text-gray-500 uppercase">{day.dayName}</div>
-                      <div className="text-sm font-bold text-gray-900 mb-2">{day.monthDay}</div>
+                    <div key={day.date} className="rounded-xl border-2 border-[#2A54A1]/10 p-3 bg-white">
+                      <div className="font-body text-xs font-semibold text-[#2A54A1]/50 uppercase">{day.dayName}</div>
+                      <div className="font-body text-sm font-bold text-[#2A54A1] mb-2">{day.monthDay}</div>
                       <div className="flex flex-col gap-2">
-                        {['AM', 'PM'].map(period => {
+                        {(['AM', 'PM'] as const).map(period => {
                           const slot = day.slots[period];
                           if (!slot) return null;
                           const isSelected = formState.preferredDate === day.date && formState.preferredTime === period;
@@ -1126,17 +1149,24 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
                                 dispatch({ type: 'SET_FIELD', field: 'preferredTime', value: period });
                               }}
                               className={`
-                                px-3 py-2 rounded-md text-sm font-semibold transition-all
+                                w-full px-3 py-2.5 rounded-xl text-sm font-semibold font-body transition-all
                                 ${isSelected
-                                  ? 'bg-[#2A54A1] text-white ring-2 ring-[#2A54A1] ring-offset-1'
+                                  ? 'border-2 border-[#2A54A1] bg-[#2A54A1]/10 text-[#2A54A1]'
                                   : slot.available
-                                    ? 'bg-gray-50 text-gray-700 hover:bg-blue-50 hover:text-[#2A54A1] border border-gray-200'
-                                    : 'bg-gray-100 text-gray-300 cursor-not-allowed'}
+                                    ? 'border-2 border-[#2A54A1]/15 bg-white text-[#2A54A1]/70 hover:border-[#2A54A1]/40'
+                                    : 'border-2 border-[#2A54A1]/5 bg-[#2A54A1]/[0.03] text-[#2A54A1]/20 cursor-not-allowed'}
                               `}
                             >
-                              {period === 'AM' ? '\u2600 Morning' : '\uD83C\uDF24 Afternoon'}
+                              <span className="flex items-center justify-center gap-1.5">
+                                {isSelected && (
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                )}
+                                {period === 'AM' ? 'Morning' : 'Afternoon'}
+                              </span>
                               {slot.available && slot.spotsLeft <= 2 && (
-                                <span className="block text-xs font-normal mt-0.5 text-amber-600">
+                                <span className="block text-xs font-normal mt-0.5 text-[#F59E0B]">
                                   {slot.spotsLeft === 1 ? 'Last spot!' : `${slot.spotsLeft} left`}
                                 </span>
                               )}
@@ -1155,7 +1185,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
                     dispatch({ type: 'SET_FIELD', field: 'preferredTime', value: '' });
                     advanceStep();
                   }}
-                  className="w-full text-center text-sm text-gray-400 hover:text-gray-600 py-2"
+                  className="w-full text-center font-body text-sm text-[#2A54A1]/40 hover:text-[#2A54A1]/60 py-2"
                 >
                   Skip — I&apos;m flexible on timing
                 </button>
