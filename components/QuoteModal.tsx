@@ -292,9 +292,17 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
     const url = `${SCHEDULING_API}/api/public/availability?services=${encodeURIComponent(services)}`;
     console.log('[TimePicker] Fetching availability:', url);
     fetch(url)
-      .then(res => res.json())
+      .then(async (res) => {
+        console.log('[TimePicker] Response status:', res.status);
+        if (!res.ok) {
+          const text = await res.text();
+          console.error('[TimePicker] API error:', res.status, text);
+          throw new Error(`API returned ${res.status}`);
+        }
+        return res.json();
+      })
       .then(data => {
-        // Map the API response into our AvailabilityDay shape
+        console.log('[TimePicker] Got data:', data.windows?.length, 'windows');
         const days: AvailabilityDay[] = (data.windows || []).map((w: Record<string, unknown>) => {
           const dateStr = w.date as string;
           const d = new Date(dateStr + 'T12:00:00');
@@ -308,7 +316,8 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
         setAvailabilityWindows(days);
         setAvailabilityMeta(data.meta || null);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error('[TimePicker] Fetch error:', err);
         setAvailabilityWindows([]);
         setAvailabilityMeta(null);
       })
