@@ -38,7 +38,7 @@ type StepId =
   | 'contact'
   | 'thanks';
 
-const SCHEDULING_API = process.env.NEXT_PUBLIC_SCHEDULING_API_URL || 'https://handld-scheduling-git-main-handldhome.vercel.app';
+const SCHEDULING_API = process.env.NEXT_PUBLIC_SCHEDULING_API_URL || 'https://schedule.handldhome.com';
 
 interface AvailabilitySlot {
   available: boolean;
