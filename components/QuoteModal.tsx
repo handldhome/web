@@ -1103,13 +1103,25 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
 
       case 'timePicker': {
         const isFlexible = formState.preferredDate === '' && formState.preferredTime === 'flexible';
+
+        // Only show "Last spot!" on 2-3 slots max (the ones with fewest spots)
+        const scarcitySlots = new Set<string>();
+        if (availabilityWindows.length > 0) {
+          const allSlots = availabilityWindows.flatMap(day =>
+            (['AM', 'PM'] as const)
+              .filter(p => day.slots[p]?.available && day.slots[p]?.spotsLeft <= 2)
+              .map(p => ({ key: `${day.date}-${p}`, spots: day.slots[p]?.spotsLeft ?? 0 }))
+          ).sort((a, b) => a.spots - b.spots).slice(0, 3);
+          allSlots.forEach(s => scarcitySlots.add(s.key));
+        }
+
         return (
           <div>
             <h2 className="font-display text-2xl md:text-3xl font-bold text-[#2A54A1] mb-2">
               When works best for you?
             </h2>
             <p className="font-body text-sm text-[#2A54A1]/60 mb-6">
-              Pick a morning or afternoon window. We&apos;ll confirm your exact arrival time.
+              Select a preferred morning or afternoon window below.
             </p>
 
             {/* I'm flexible option — top-level choice */}
@@ -1120,7 +1132,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
                 dispatch({ type: 'SET_FIELD', field: 'preferredTime', value: 'flexible' });
               }}
               className={`
-                w-full text-left p-3.5 rounded-xl border-2 transition-all mb-4
+                w-full text-left p-3.5 rounded-xl border-2 transition-all mb-5
                 ${isFlexible
                   ? 'border-[#2A54A1] bg-[#2A54A1]/10'
                   : 'border-[#2A54A1]/15 bg-white hover:border-[#2A54A1]/40'}
@@ -1167,6 +1179,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
                           const slot = day.slots[period];
                           const isAvailable = slot?.available ?? false;
                           const isSelected = !isFlexible && formState.preferredDate === day.date && formState.preferredTime === period;
+                          const showScarcity = isAvailable && scarcitySlots.has(`${day.date}-${period}`);
                           return (
                             <button
                               key={period}
@@ -1196,10 +1209,8 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
                                   <span className="text-xs font-normal no-underline ml-1">Booked</span>
                                 )}
                               </span>
-                              {isAvailable && slot && slot.spotsLeft <= 2 && (
-                                <span className="block text-xs font-normal mt-0.5 text-[#F59E0B]">
-                                  {slot.spotsLeft === 1 ? 'Last spot!' : `${slot.spotsLeft} left`}
-                                </span>
+                              {showScarcity && (
+                                <span className="block text-xs font-normal mt-0.5 text-[#F59E0B]">Last spot!</span>
                               )}
                             </button>
                           );
@@ -1210,6 +1221,16 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
                 </div>
               </>
             )}
+
+            {/* What to expect */}
+            <div className="mt-5 p-4 bg-[#2A54A1]/[0.03] rounded-xl">
+              <p className="font-body text-xs font-semibold text-[#2A54A1]/70 mb-2">Here&apos;s what happens next:</p>
+              <ul className="font-body text-xs text-[#2A54A1]/50 space-y-1.5">
+                <li>We&apos;ll confirm your exact appointment time (e.g. 10:00 AM) via text</li>
+                <li>You can reschedule anytime by replying to that text</li>
+                <li>On the day of service, you&apos;ll get a text when your tech is on the way — and again when they arrive</li>
+              </ul>
+            </div>
           </div>
         );
       }
