@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-type Tab = 'home' | 'services' | 'plan' | 'account';
+type Tab = 'home' | 'services' | 'plan' | 'refer' | 'account';
 
 type BookingStep = 'select' | 'confirm' | 'success' | null;
 
@@ -115,6 +115,24 @@ export default function PortalPage({ params }: { params: Promise<{ 'org-slug': s
   const [orgSlug, setOrgSlug] = useState<string>('');
   const router = useRouter();
 
+  // Referral state
+  const [referralData, setReferralData] = useState<{
+    code: string;
+    referralLink: string;
+    referrals: Array<{
+      id: string;
+      status: string;
+      credit_amount: number;
+      referred_name: string;
+      referred_email: string;
+      created_at: string;
+      credited_at: string | null;
+    }>;
+    totalCredits: number;
+  } | null>(null);
+  const [referralLoading, setReferralLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+
   // Book a Service state
   const [bookingStep, setBookingStep] = useState<BookingStep>(null);
   const [selectedService, setSelectedService] = useState<string | null>(null);
@@ -200,6 +218,37 @@ export default function PortalPage({ params }: { params: Promise<{ 'org-slug': s
       console.error('Failed to fetch customer data:', e);
     }
     setDataLoading(false);
+  };
+
+  // Fetch referral data when refer tab is activated
+  useEffect(() => {
+    if (activeTab !== 'refer' || !orgSlug || referralData) return;
+    setReferralLoading(true);
+    fetch(`/api/account/${orgSlug}/referral`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => { if (data) setReferralData(data); })
+      .catch(e => console.error('Failed to fetch referral data:', e))
+      .finally(() => setReferralLoading(false));
+  }, [activeTab, orgSlug, referralData]);
+
+  const copyReferralLink = () => {
+    if (!referralData) return;
+    navigator.clipboard.writeText(referralData.referralLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const shareReferralLink = async () => {
+    if (!referralData) return;
+    if (navigator.share) {
+      await navigator.share({
+        title: 'Try Handld Home Services',
+        text: `I use Handld for my home maintenance and love it. Use my link to get started — and I'll get $50 credit when you book!`,
+        url: referralData.referralLink,
+      });
+    } else {
+      copyReferralLink();
+    }
   };
 
   const handleSignOut = async () => {
@@ -315,6 +364,7 @@ export default function PortalPage({ params }: { params: Promise<{ 'org-slug': s
           {activeTab === 'home' && 'Home'}
           {activeTab === 'services' && 'Services'}
           {activeTab === 'plan' && 'Plan'}
+          {activeTab === 'refer' && 'Refer & Rate'}
           {activeTab === 'account' && 'Account'}
         </h1>
         <button className="p-2">
@@ -609,6 +659,101 @@ export default function PortalPage({ params }: { params: Promise<{ 'org-slug': s
           </div>
         )}
 
+        {activeTab === 'refer' && (
+          <div className="space-y-4">
+            {referralLoading ? (
+              <div className="text-center py-12 text-[#666]">Loading...</div>
+            ) : referralData ? (
+              <>
+                {/* Referral Code Card */}
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-[#e5e5e5]">
+                  <h3 className="text-lg font-semibold text-[#1a1a1a] mb-1">Your Referral Link</h3>
+                  <p className="text-sm text-[#666] mb-4">
+                    Share this link with friends. When they book their first service, you get <span className="font-semibold text-[#1a1a1a]">$50 credit</span>.
+                  </p>
+                  <div className="flex items-center gap-2 mb-4">
+                    <input
+                      readOnly
+                      value={referralData.referralLink}
+                      className="flex-1 bg-[#f5f5f5] border border-[#e5e5e5] rounded-xl px-4 py-3 text-sm text-[#1a1a1a] font-mono"
+                    />
+                    <button
+                      onClick={copyReferralLink}
+                      className="bg-[#1a1a1a] text-white px-5 py-3 rounded-xl text-sm font-medium shrink-0"
+                    >
+                      {copied ? 'Copied!' : 'Copy'}
+                    </button>
+                  </div>
+                  <button
+                    onClick={shareReferralLink}
+                    className="w-full bg-[#f5f5f5] text-[#1a1a1a] py-3 rounded-xl text-sm font-medium border border-[#e5e5e5]"
+                  >
+                    Share with a Friend
+                  </button>
+                </div>
+
+                {/* Credits Summary */}
+                {referralData.totalCredits > 0 && (
+                  <div className="bg-green-50 rounded-2xl p-5 border border-green-200">
+                    <div className="text-2xl font-bold text-green-800">${referralData.totalCredits}</div>
+                    <div className="text-sm text-green-700">Total credits earned</div>
+                  </div>
+                )}
+
+                {/* Referral History */}
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-[#e5e5e5]">
+                  <h3 className="text-lg font-semibold text-[#1a1a1a] mb-4">Referral History</h3>
+                  {referralData.referrals.length === 0 ? (
+                    <p className="text-sm text-[#999] text-center py-6">
+                      No referrals yet. Share your link to get started!
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {referralData.referrals.map((ref) => (
+                        <div key={ref.id} className="flex items-center justify-between py-3 border-b border-[#f0f0f0] last:border-0">
+                          <div>
+                            <div className="text-sm font-medium text-[#1a1a1a]">{ref.referred_name}</div>
+                            <div className="text-xs text-[#999]">
+                              {new Date(ref.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </div>
+                          </div>
+                          <span className={`text-xs font-medium px-3 py-1 rounded-full ${
+                            ref.status === 'credited' ? 'bg-green-100 text-green-800' :
+                            ref.status === 'booked' ? 'bg-blue-100 text-blue-800' :
+                            ref.status === 'expired' ? 'bg-red-100 text-red-800' :
+                            'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {ref.status === 'credited' ? `$${ref.credit_amount} earned` :
+                             ref.status === 'booked' ? 'Booked — credit pending' :
+                             ref.status === 'expired' ? 'Expired' :
+                             'Pending'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Yelp Review */}
+                <div className="bg-white rounded-2xl p-6 shadow-sm border border-[#e5e5e5] text-center">
+                  <h3 className="text-lg font-semibold text-[#1a1a1a] mb-2">Enjoying Handld?</h3>
+                  <p className="text-sm text-[#666] mb-4">Leave us a review — it means the world to our team.</p>
+                  <a
+                    href="http://yelp.com/biz/handld-home-services-pasadena?utm_medium=badge_star_rating_reviews&utm_source=biz_review_badge"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block bg-[#d32323] text-white px-6 py-3 rounded-xl text-sm font-medium"
+                  >
+                    Review us on Yelp
+                  </a>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-12 text-[#999]">Unable to load referral data.</div>
+            )}
+          </div>
+        )}
+
         {activeTab === 'account' && (
           <div className="space-y-6">
             {/* People Section */}
@@ -723,6 +868,7 @@ export default function PortalPage({ params }: { params: Promise<{ 'org-slug': s
         <TabButton active={activeTab === 'home'} onClick={() => setActiveTab('home')} icon="home" label="Home" />
         <TabButton active={activeTab === 'services'} onClick={() => setActiveTab('services')} icon="services" label="Services" />
         <TabButton active={activeTab === 'plan'} onClick={() => setActiveTab('plan')} icon="plan" label="Plan" />
+        <TabButton active={activeTab === 'refer'} onClick={() => setActiveTab('refer')} icon="refer" label="Refer" />
         <TabButton active={activeTab === 'account'} onClick={() => setActiveTab('account')} icon="account" label="Account" />
       </nav>
 
@@ -890,6 +1036,11 @@ function TabButton({ active, onClick, icon, label }: { active: boolean; onClick:
       {icon === 'plan' && (
         <svg className="w-6 h-6" fill="none" stroke={color} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      )}
+      {icon === 'refer' && (
+        <svg className="w-6 h-6" fill="none" stroke={color} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
         </svg>
       )}
       {icon === 'account' && (

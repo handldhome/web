@@ -186,14 +186,16 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
     const name = searchParams?.get('name');
     const phone = searchParams?.get('phone');
     const address = searchParams?.get('address');
+    const ref = searchParams?.get('ref');
 
-    if (service || name || phone || address) {
+    if (service || name || phone || address || ref) {
       const prefillData: Partial<typeof initialFormState> = {};
 
       // Pre-fill contact info
       if (name) prefillData.name = name;
       if (phone) prefillData.phone = phone;
       if (address) prefillData.address = address;
+      if (ref) prefillData.referralCode = ref;
 
       // Pre-fill service selection
       if (service) {

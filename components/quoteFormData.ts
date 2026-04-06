@@ -26,6 +26,8 @@ export interface QuoteFormState {
   // Scheduling preference fields
   preferredDate: string;
   preferredTime: string;
+  // Referral tracking
+  referralCode: string;
 }
 
 export type FormAction =
@@ -76,6 +78,8 @@ export const initialFormState: QuoteFormState = {
   // Scheduling preference fields
   preferredDate: '',
   preferredTime: '',
+  // Referral tracking
+  referralCode: '',
 };
 
 export function formReducer(state: QuoteFormState, action: FormAction): QuoteFormState {

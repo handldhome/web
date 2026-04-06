@@ -1,6 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getHandldDb } from '@/lib/supabase/handld';
 
+function generateReferralCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no I/O/0/1 for clarity
+  let code = '';
+  for (let i = 0; i < 8; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return code;
+}
+
 async function generateQuoteId(): Promise<string> {
   // Get the highest existing quote number
   const { data } = await getHandldDb()
@@ -59,6 +68,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(500).json({ error: `Database error: ${customerError.message}` });
     }
 
+    // Generate a referral code for this customer if they don't have one
+    const { data: existingRefCode } = await getHandldDb()
+      .from('referral_codes')
+      .select('id, code')
+      .eq('customer_id', customer.id)
+      .single();
+
+    if (!existingRefCode) {
+      const code = generateReferralCode();
+      await getHandldDb()
+        .from('referral_codes')
+        .insert({ customer_id: customer.id, code });
+    }
+
     // Build quote request record
     // propertyAddress is set by RentCast lookup, address is manual entry
     const resolvedAddress = body.propertyAddress || body.address || undefined;
@@ -84,6 +107,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       electrical_detail: body.electricalIssues?.join(', ') || undefined,
       preferred_date: body.preferredDate || undefined,
       preferred_time: body.preferredTime || undefined,
+      referral_code: body.referralCode || undefined,
     };
 
     // Exact property values from RentCast
@@ -107,6 +131,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (quoteError) {
       console.error('Quote request insert error:', quoteError);
       return res.status(500).json({ error: `Database error: ${quoteError.message}` });
+    }
+
+    // Create referral record if a referral code was used
+    if (body.referralCode) {
+      try {
+        const refCode = body.referralCode.toUpperCase().trim();
+        const { data: referrerCode } = await getHandldDb()
+          .from('referral_codes')
+          .select('id, customer_id')
+          .eq('code', refCode)
+          .single();
+
+        if (referrerCode) {
+          // Self-referral guard: check referrer is not the same customer
+          if (referrerCode.customer_id !== customer.id) {
+            await getHandldDb()
+              .from('referrals')
+              .insert({
+                referrer_code_id: referrerCode.id,
+                referred_quote_request_id: quoteReq.id,
+                referred_customer_id: customer.id,
+                status: 'pending',
+              });
+          }
+        }
+      } catch (refErr) {
+        console.error('Referral tracking error:', refErr);
+        // Don't fail the quote submission if referral tracking fails
+      }
     }
 
     // Create quote line items for each selected service

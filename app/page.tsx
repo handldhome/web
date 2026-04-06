@@ -4,15 +4,18 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Check, Menu, X, Users, Clock, Shield, CreditCard, MapPin, Tag, BadgeCheck, ArrowRight } from 'lucide-react';
+import { Check, Menu, X, Users, Clock, Shield, CreditCard, MapPin, Tag, BadgeCheck, ArrowRight, Gift } from 'lucide-react';
 import QuoteModal from '@/components/QuoteModal';
+import YelpBadge from '@/components/YelpBadge';
 import { blogPosts } from '@/lib/blogPosts';
 
 export default function Page() {
   const searchParams = useSearchParams();
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
   const [showChecklist, setShowChecklist] = useState(false);
-  const [showQuoteModal, setShowQuoteModal] = useState(searchParams?.get('quote') === 'true');
+  const [showQuoteModal, setShowQuoteModal] = useState(
+    searchParams?.get('quote') === 'true' || !!searchParams?.get('ref')
+  );
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const tuneUpChecklist = [
@@ -54,7 +57,7 @@ export default function Page() {
     { title: "Plumbing Repairs", description: "That dripping faucet has lived in your head long enough. A licensed plumber. A known price. Done.", price: "$105", img: "/services/plumbing.jpg" },
     { title: "Electrical Repairs", description: "Flickering lights, a dead outlet, a switch that's never worked right — these things nag at you. We fix them cleanly, safely, and at a price you knew before we walked in the door.", price: "$69", img: "/services/electrical.jpg" },
     { title: "Window Washing", description: "Your windows are the first thing guests notice and the last thing you get around to. After we're done, every room feels brighter — and you'll wonder why you waited.", price: "$175", img: "/services/window.jpg" },
-    { title: "Gutter Cleaning", description: "One good rain and clogged gutters become a real problem. Get it done now, stop thinking about it, and head into the season without it on your list.", price: "$90", img: "/services/gutter.jpg" },
+    { title: "Gutter Cleaning", description: "We're not here to clean your gutters once and disappear. We're here to make sure they're never a problem — this season or next. One visit and it's off your mind.", price: "$90", img: "/services/gutter.jpg" },
     { title: "Pressure Washing — Home Exterior", description: "Your driveway and exterior tell the neighborhood a story about your home. Make it a good one.", price: "$165", img: "/services/pressure.jpg" },
     { title: "Pressure Washing — Driveways & Patios", description: "Oil stains, mold, and years of weathering — you walk past it every day and it quietly bothers you. One visit and it looks brand new.", price: "$65", img: "/services/pressure.jpg" },
     /* TODO: Add image for HVAC Repair & Maintenance */
@@ -78,13 +81,13 @@ export default function Page() {
   ];
 
   const faqs = [
-    { question: "What is Handld?", answer: "Handld is your one-stop home maintenance team. We handle 14+ services — from gutter cleaning to plumbing to pest control — so you don't have to juggle multiple vendors. We're a local company serving Los Angeles with experienced, full-time professionals who treat your home like their own." },
+    { question: "What is Handld?", answer: "Handld is your one-stop home maintenance team. We handle 14+ services — from gutter cleaning to plumbing to pest control — so you don't have to juggle multiple vendors. But more than that, we've built a model where we're incentivized to do right by you. We're not trying to close a one-time job — we succeed when your home is genuinely taken care of, season after season. That's why we hire full-time W-2 employees, not gig workers, and why we're a local team that's here for the long haul." },
     { question: "Do I have to commit to anything?", answer: "No commitments, no subscriptions. You pay only for the services you request, after they're completed. Book one service or bundle several — it's completely up to you. Cancel anytime, no fees." },
     { question: "How does pricing work?", answer: "We use a simple, transparent pricing model based on your home's attributes — square footage, lot size, and number of stories. You get a flat-rate quote in under a minute, without needing an in-person walkthrough. No surprises, no waiting days for an estimate." },
     { question: "What areas do you service?", answer: "We currently serve Los Angeles County. Not sure if you're in our zone? Just reach out and we'll let you know." },
     { question: "Is there a cancellation policy?", answer: "We get it — things change. You can reschedule or cancel appointments up to 24 hours in advance. No fees, no problem." },
     { question: "Will I get reminders before service?", answer: "Yes. We'll send you appointment reminders by text or email, depending on your preferences. You'll also get a heads-up when your technician is en route. Plus, you can view all your upcoming and past appointments in your customer portal." },
-    { question: "Who are your service providers?", answer: "Every Handld technician is a W-2 employee — background-checked, trained by us, and covered by our insurance. When we send someone to your home, we're sending someone we'd trust in our own. That's not how most home services work. It's how we think it should." }
+    { question: "Who are your service providers?", answer: "Every Handld technician is a W-2 employee — background-checked, trained by us, and covered by our insurance. When we send someone to your home, we're sending someone we'd trust in our own. We don't use subcontractors who move from company to company — our team is ours, which means we're directly accountable for the quality of every visit. That's not how most home services work. It's how we think it should." }
   ];
 
   useEffect(() => {
@@ -258,8 +261,11 @@ export default function Page() {
             <p>
               Finding someone you trust is exhausting. Waiting days for a quote is frustrating. Coordinating multiple vendors for different jobs? Forget it. And remembering what needs to be done and when — that's a full-time job in itself.
             </p>
+            <p>
+              And even when you do find someone, they have no reason to think past today. The typical vendor wants to close the job and move on. There's no incentive to do it right — just to do it once.
+            </p>
             <p className="font-semibold text-[#2A54A1]">
-              We built Handld to take all of that off your plate.
+              We built Handld differently. Our model only works when your home is truly taken care of — not just today, but long-term. That means we're not here for a one-time gig. We're here because we're set up to do right by you.
             </p>
           </div>
         </div>
@@ -296,8 +302,8 @@ export default function Page() {
               <div className="w-12 h-12 bg-[#2A54A1]/10 rounded-full flex items-center justify-center mb-4">
                 <Shield className="w-6 h-6 text-[#2A54A1]" />
               </div>
-              <h3 className="font-display text-lg md:text-xl font-bold mb-2 text-[#2A54A1]">Experienced W-2 employees</h3>
-              <p className="font-body text-sm text-[#2A54A1]/80">Every Handld technician is a W-2 employee — background-checked, trained by us, and covered by our insurance. When we send someone to your home, we're sending someone we'd trust in our own. That's not how most home services work. It's how we think it should.</p>
+              <h3 className="font-display text-lg md:text-xl font-bold mb-2 text-[#2A54A1]">Our team. Our standards.</h3>
+              <p className="font-body text-sm text-[#2A54A1]/80">Every Handld technician is a W-2 employee — background-checked, trained by us, and covered by our insurance. Because they're our people, not subcontractors passing through, we're accountable for the work they do. That's by design: our model only succeeds when you're genuinely taken care of.</p>
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow-retro border-2 border-[#2A54A1]/10">
@@ -552,6 +558,46 @@ export default function Page() {
             {testimonials.map((_, idx) => (
               <button key={idx} onClick={() => setCurrentTestimonial(idx)} className={`h-2.5 rounded-full transition-all ${idx === currentTestimonial ? 'bg-[#2A54A1] w-8' : 'bg-[#2A54A1]/30 w-2.5'}`} />
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* REFER & RATE SECTION */}
+      <section className="py-12 md:py-16 bg-[#FBF9F0]">
+        <div className="max-w-6xl mx-auto px-4 md:px-6">
+          <div className="grid md:grid-cols-2 gap-8 items-center">
+            {/* Referral CTA */}
+            <div className="bg-white p-8 rounded-2xl shadow-retro border-2 border-[#2A54A1]/10 text-center md:text-left">
+              <div className="w-14 h-14 bg-[#2A54A1]/10 rounded-full flex items-center justify-center mb-4 mx-auto md:mx-0">
+                <Gift className="w-7 h-7 text-[#2A54A1]" />
+              </div>
+              <h2 className="font-display text-2xl md:text-3xl font-bold mb-3 text-[#2A54A1]">
+                Love Handld? Spread the word.
+              </h2>
+              <p className="font-body text-base text-[#2A54A1]/80 mb-2">
+                Refer a friend to Handld. When they book their first service, you get <span className="font-bold text-[#2A54A1]">$50 credit</span> toward your next one.
+              </p>
+              <p className="font-body text-sm text-[#2A54A1]/60 mb-6">
+                Your referral link is in your account portal — just copy and share.
+              </p>
+              <a
+                href="/account"
+                className="cta-button text-white px-8 py-3 rounded-full text-base font-body font-bold inline-block"
+              >
+                Get My Referral Link
+              </a>
+            </div>
+
+            {/* Yelp Review */}
+            <div className="bg-white p-8 rounded-2xl shadow-retro border-2 border-[#2A54A1]/10 text-center flex flex-col items-center justify-center min-h-[280px]">
+              <h3 className="font-display text-2xl md:text-3xl font-bold mb-3 text-[#2A54A1]">
+                See what others are saying
+              </h3>
+              <p className="font-body text-base text-[#2A54A1]/80 mb-6">
+                Had a great experience? We&apos;d love to hear about it.
+              </p>
+              <YelpBadge />
+            </div>
           </div>
         </div>
       </section>
