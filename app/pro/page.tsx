@@ -164,9 +164,9 @@ export default function ProPage() {
             {/* Platform Demo */}
             <div className="text-center">
               <p className="font-body text-sm font-medium text-[#2A54A1]/60 uppercase tracking-wider mb-4">See the platform</p>
-              <div className="relative w-full aspect-[9/16] max-w-[320px] mx-auto rounded-2xl overflow-hidden shadow-retro border-2 border-[#2A54A1]/10">
+              <div className="relative w-full aspect-video mx-auto rounded-2xl overflow-hidden shadow-retro border-2 border-[#2A54A1]/10">
                 <iframe
-                  src="https://www.youtube.com/embed/sNqsMEfmZAg"
+                  src="https://www.youtube.com/embed/o3t3YSTRAoA"
                   title="Handld Pro platform demo"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -183,7 +183,7 @@ export default function ProPage() {
               <p className="font-body text-sm font-medium text-[#2A54A1]/60 uppercase tracking-wider mb-4">What your customers get</p>
               <div className="relative w-full aspect-[9/16] max-w-[320px] mx-auto rounded-2xl overflow-hidden shadow-retro border-2 border-[#2A54A1]/10">
                 <iframe
-                  src="https://www.youtube.com/embed/MQ5zF5IbRFM"
+                  src="https://www.youtube.com/embed/sNqsMEfmZAg"
                   title="Handld Pro customer experience"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
