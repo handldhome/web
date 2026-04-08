@@ -157,44 +157,22 @@ export default function ProPage() {
         </div>
       </section>
 
-      {/* VIDEO SECTION */}
+      {/* PLATFORM DEMO */}
       <section className="py-12 md:py-20 bg-[#FBF9F0]">
-        <div className="max-w-5xl mx-auto px-4 md:px-6">
-          <div className="grid md:grid-cols-2 gap-8 md:gap-12">
-            {/* Platform Demo */}
-            <div className="text-center">
-              <p className="font-body text-sm font-medium text-[#2A54A1]/60 uppercase tracking-wider mb-4">See the platform</p>
-              <div className="relative w-full aspect-video mx-auto rounded-2xl overflow-hidden shadow-retro border-2 border-[#2A54A1]/10">
-                <iframe
-                  src="https://www.youtube.com/embed/o3t3YSTRAoA"
-                  title="Handld Pro platform demo"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="absolute inset-0 w-full h-full"
-                />
-              </div>
-              <p className="font-body text-sm text-[#2A54A1]/60 mt-4">
-                A quick look at what Handld Pro does — built by operators, for operators.
-              </p>
-            </div>
-
-            {/* Customer Experience */}
-            <div className="text-center">
-              <p className="font-body text-sm font-medium text-[#2A54A1]/60 uppercase tracking-wider mb-4">What your customers get</p>
-              <div className="relative w-full aspect-[9/16] max-w-[320px] mx-auto rounded-2xl overflow-hidden shadow-retro border-2 border-[#2A54A1]/10">
-                <iframe
-                  src="https://www.youtube.com/embed/sNqsMEfmZAg"
-                  title="Handld Pro customer experience"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="absolute inset-0 w-full h-full"
-                />
-              </div>
-              <p className="font-body text-sm text-[#2A54A1]/60 mt-4">
-                The customer-facing experience — quoting, booking, and communication, all branded to your business.
-              </p>
-            </div>
+        <div className="max-w-5xl mx-auto px-4 md:px-6 text-center">
+          <p className="font-body text-sm font-medium text-[#2A54A1]/60 uppercase tracking-wider mb-6">See the platform</p>
+          <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-retro border-2 border-[#2A54A1]/10">
+            <iframe
+              src="https://www.youtube.com/embed/o3t3YSTRAoA"
+              title="Handld Pro platform demo"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="absolute inset-0 w-full h-full"
+            />
           </div>
+          <p className="font-body text-sm text-[#2A54A1]/60 mt-4">
+            A quick look at what Handld Pro does — built by operators, for operators.
+          </p>
         </div>
       </section>
 
@@ -247,8 +225,47 @@ export default function ProPage() {
         </div>
       </section>
 
-      {/* THE OFFER */}
+      {/* WHAT YOUR CUSTOMERS GET */}
       <section className="py-16 md:py-24 bg-[#FFFFF2]">
+        <div className="max-w-6xl mx-auto px-4 md:px-6">
+          <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+            {/* Copy */}
+            <div>
+              <p className="font-body text-sm font-medium text-[#2A54A1]/60 uppercase tracking-wider mb-4">What your customers get</p>
+              <h2 className="font-display text-3xl md:text-4xl font-bold mb-6 text-[#2A54A1] leading-tight">
+                A customer experience that makes you look like a bigger operation than you are.
+              </h2>
+              <div className="font-body text-base text-[#2A54A1]/80 leading-relaxed space-y-4">
+                <p>
+                  Your customers get a branded portal where they can view their service history, upcoming appointments, and communicate directly with your team — no phone tag, no lost texts.
+                </p>
+                <p>
+                  Quotes go out looking professional. Appointment reminders happen automatically. Follow-ups and review requests send themselves. It all runs under your brand, so your customers never see ours.
+                </p>
+                <p className="font-semibold text-[#2A54A1]">
+                  You focus on the work. The platform handles everything around it.
+                </p>
+              </div>
+            </div>
+
+            {/* Video */}
+            <div className="flex justify-center">
+              <div className="relative w-full aspect-[9/16] max-w-[300px] rounded-2xl overflow-hidden shadow-retro border-2 border-[#2A54A1]/10">
+                <iframe
+                  src="https://www.youtube.com/embed/sNqsMEfmZAg"
+                  title="Handld Pro customer experience"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="absolute inset-0 w-full h-full"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* THE OFFER */}
+      <section className="py-16 md:py-24 bg-[#FBF9F0]">
         <div className="max-w-5xl mx-auto px-4 md:px-6">
           <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-8 text-center text-[#2A54A1]">
             Here&apos;s the deal
