@@ -240,7 +240,7 @@ export default function ProPage() {
                   Your customers get a branded portal where they can view their service history, upcoming appointments, and communicate directly with your team — no phone tag, no lost texts.
                 </p>
                 <p>
-                  Quotes go out looking professional. Appointment reminders happen automatically. Follow-ups and review requests send themselves. It all runs under your brand, so your customers never see ours.
+                  Quotes go out looking professional. Appointment reminders happen automatically. Follow-ups and review requests send themselves.
                 </p>
                 <p className="font-semibold text-[#2A54A1]">
                   You focus on the work. The platform handles everything around it.
