@@ -130,7 +130,7 @@ export default function ProPage() {
               onClick={scrollToApplication}
               className="cta-button text-white px-6 py-2.5 rounded-full font-body font-semibold text-sm"
             >
-              Apply to Partner
+              Let&apos;s Chat
             </button>
           </div>
         </div>
@@ -146,33 +146,55 @@ export default function ProPage() {
             We made the software. Now we&apos;re looking for operators to grow with.
           </h1>
           <p className="font-body text-lg md:text-xl text-[#2A54A1]/80 leading-relaxed max-w-3xl mx-auto mb-10">
-            Handld Pro is the platform we built to run our own home services business. We&apos;re opening it up to operators in other markets — free to use, in exchange for a simple customer-sharing agreement.
+            Handld Pro is the platform we built to run our own home services business — and we&apos;re opening it up to operators in other markets, completely free. We&apos;ll tell you how it works when we talk.
           </p>
           <button
             onClick={scrollToApplication}
             className="cta-button text-white px-10 py-4 rounded-full text-lg font-body font-bold"
           >
-            Apply to Partner
+            Let&apos;s Chat
           </button>
         </div>
       </section>
 
       {/* VIDEO SECTION */}
       <section className="py-12 md:py-20 bg-[#FBF9F0]">
-        <div className="max-w-4xl mx-auto px-4 md:px-6 text-center">
-          <p className="font-body text-sm font-medium text-[#2A54A1]/60 uppercase tracking-wider mb-6">See the platform</p>
-          <div className="relative w-full aspect-video bg-[#2A54A1]/10 rounded-2xl overflow-hidden shadow-retro border-2 border-[#2A54A1]/10">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-20 h-20 bg-[#2A54A1] rounded-full flex items-center justify-center shadow-xl cursor-pointer hover:scale-105 transition-transform">
-                <svg className="w-8 h-8 text-[#FFFFF2] ml-1" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
+        <div className="max-w-5xl mx-auto px-4 md:px-6">
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12">
+            {/* Platform Demo */}
+            <div className="text-center">
+              <p className="font-body text-sm font-medium text-[#2A54A1]/60 uppercase tracking-wider mb-4">See the platform</p>
+              <div className="relative w-full aspect-[9/16] max-w-[320px] mx-auto rounded-2xl overflow-hidden shadow-retro border-2 border-[#2A54A1]/10">
+                <iframe
+                  src="https://www.youtube.com/embed/sNqsMEfmZAg"
+                  title="Handld Pro platform demo"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="absolute inset-0 w-full h-full"
+                />
               </div>
+              <p className="font-body text-sm text-[#2A54A1]/60 mt-4">
+                A quick look at what Handld Pro does — built by operators, for operators.
+              </p>
+            </div>
+
+            {/* Customer Experience */}
+            <div className="text-center">
+              <p className="font-body text-sm font-medium text-[#2A54A1]/60 uppercase tracking-wider mb-4">What your customers get</p>
+              <div className="relative w-full aspect-[9/16] max-w-[320px] mx-auto rounded-2xl overflow-hidden shadow-retro border-2 border-[#2A54A1]/10">
+                <iframe
+                  src="https://www.youtube.com/embed/MQ5zF5IbRFM"
+                  title="Handld Pro customer experience"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="absolute inset-0 w-full h-full"
+                />
+              </div>
+              <p className="font-body text-sm text-[#2A54A1]/60 mt-4">
+                The customer-facing experience — quoting, booking, and communication, all branded to your business.
+              </p>
             </div>
           </div>
-          <p className="font-body text-sm text-[#2A54A1]/60 mt-4">
-            A quick look at what Handld Pro does — built by operators, for operators.
-          </p>
         </div>
       </section>
 
@@ -355,7 +377,7 @@ export default function ProPage() {
                 disabled={submitting}
                 className="w-full cta-button text-white py-4 rounded-full text-lg font-body font-bold disabled:opacity-50"
               >
-                {submitting ? 'Sending...' : 'Apply to Partner'}
+                {submitting ? 'Sending...' : 'Let\u2019s Chat'}
               </button>
               <p className="font-body text-xs text-[#2A54A1]/50 text-center">
                 We review every application personally and follow up within a few business days.
