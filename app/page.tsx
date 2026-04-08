@@ -666,15 +666,6 @@ export default function Page() {
         </div>
       </section>
 
-      {/* HANDLD PRO CTA */}
-      <section className="py-6 bg-[#FFFFF2]">
-        <div className="text-center">
-          <Link href="/pro" className="inline-block border-2 border-[#2A54A1]/20 text-[#2A54A1] px-6 py-2.5 rounded-full text-sm font-body font-medium hover:bg-[#2A54A1] hover:text-[#FFFFF2] transition-all">
-            Become a Handld Pro
-          </Link>
-        </div>
-      </section>
-
       {/* FOOTER */}
       <footer className="bg-[#1e3d7a] text-[#FFFFF2] py-10">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
@@ -691,6 +682,10 @@ export default function Page() {
             <div>
               <h4 className="font-display font-bold mb-4 text-[#FFFFF2]">Service Area</h4>
               <p className="font-body text-[#FFFFF2]/80">Los Angeles</p>
+              <Link href="/pro" className="inline-flex items-center gap-2 mt-6 border border-[#FFFFF2]/30 px-4 py-2 rounded-full hover:bg-[#FFFFF2]/10 transition-colors">
+                <Image src="/logo.png" alt="Handld" width={60} height={24} className="h-5 w-auto" />
+                <span className="font-body text-sm text-[#FFFFF2]/80">Pro</span>
+              </Link>
             </div>
           </div>
           <div className="border-t border-[#FFFFF2]/20 pt-6 text-center">
