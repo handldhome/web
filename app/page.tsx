@@ -666,6 +666,15 @@ export default function Page() {
         </div>
       </section>
 
+      {/* HANDLD PRO CTA */}
+      <section className="py-6 bg-[#FFFFF2]">
+        <div className="text-center">
+          <Link href="/pro" className="inline-block border-2 border-[#2A54A1]/20 text-[#2A54A1] px-6 py-2.5 rounded-full text-sm font-body font-medium hover:bg-[#2A54A1] hover:text-[#FFFFF2] transition-all">
+            Become a Handld Pro
+          </Link>
+        </div>
+      </section>
+
       {/* FOOTER */}
       <footer className="bg-[#1e3d7a] text-[#FFFFF2] py-10">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
