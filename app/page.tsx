@@ -667,34 +667,34 @@ export default function Page() {
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-[#1e3d7a] text-[#FFFFF2] py-10">
+      <footer className="bg-white text-[#2A54A1] py-10 border-t-2 border-[#2A54A1]/10">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8 mb-8">
             <div>
               <Image src="/logo.png" alt="Handld Home" width={120} height={48} className="h-10 md:h-12 w-auto mb-4" />
-              <p className="font-body text-sm md:text-base text-[#FFFFF2]/80">Your trusted home maintenance partner</p>
+              <p className="font-body text-sm md:text-base text-[#2A54A1]/60">Your trusted home maintenance partner</p>
             </div>
             <div>
-              <h4 className="font-display font-bold mb-4 text-[#FFFFF2]">Contact</h4>
-              <p className="font-body text-[#FFFFF2]/80">Concierge@HandldHome.com</p>
-              <p className="font-body text-[#FFFFF2]/80">(626) 298-7128</p>
+              <h4 className="font-display font-bold mb-4 text-[#2A54A1]">Contact</h4>
+              <p className="font-body text-[#2A54A1]/70">Concierge@HandldHome.com</p>
+              <p className="font-body text-[#2A54A1]/70">(626) 298-7128</p>
             </div>
             <div>
-              <h4 className="font-display font-bold mb-4 text-[#FFFFF2]">Service Area</h4>
-              <p className="font-body text-[#FFFFF2]/80">Los Angeles</p>
-              <Link href="/pro" className="inline-flex items-center gap-2 mt-6 border border-[#FFFFF2]/30 px-4 py-2 rounded-full hover:bg-[#FFFFF2]/10 transition-colors">
-                <Image src="/logo.png" alt="Handld" width={60} height={24} className="h-5 w-auto" />
-                <span className="font-body text-sm text-[#FFFFF2]/80">Pro</span>
+              <h4 className="font-display font-bold mb-4 text-[#2A54A1]">Service Area</h4>
+              <p className="font-body text-[#2A54A1]/70">Los Angeles</p>
+              <Link href="/pro" className="inline-flex items-center gap-3 mt-6 border-2 border-[#2A54A1]/20 px-6 py-3 rounded-full hover:bg-[#2A54A1] hover:text-white hover:border-[#2A54A1] transition-all group">
+                <Image src="/logo.png" alt="Handld" width={80} height={32} className="h-7 w-auto" />
+                <span className="font-body text-base font-semibold text-[#2A54A1] group-hover:text-white transition-colors">Pro</span>
               </Link>
             </div>
           </div>
-          <div className="border-t border-[#FFFFF2]/20 pt-6 text-center">
-            <p className="font-body text-[#FFFFF2]/60 mb-2">&copy; 2024 Handld Home Services. All rights reserved.</p>
+          <div className="border-t border-[#2A54A1]/10 pt-6 text-center">
+            <p className="font-body text-[#2A54A1]/40 mb-2">&copy; 2024 Handld Home Services. All rights reserved.</p>
             <div className="flex justify-center gap-4">
-              <a href="/contact" className="font-body text-[#FFFFF2]/80 hover:text-[#FFFFF2] transition-colors text-sm underline">Contact Us</a>
-              <Link href="/blog" className="font-body text-[#FFFFF2]/80 hover:text-[#FFFFF2] transition-colors text-sm underline">Blog</Link>
-              <a href="/terms" className="font-body text-[#FFFFF2]/80 hover:text-[#FFFFF2] transition-colors text-sm underline">Terms &amp; Conditions</a>
-              <a href="/privacy" className="font-body text-[#FFFFF2]/80 hover:text-[#FFFFF2] transition-colors text-sm underline">Privacy Policy</a>
+              <a href="/contact" className="font-body text-[#2A54A1]/60 hover:text-[#2A54A1] transition-colors text-sm underline">Contact Us</a>
+              <Link href="/blog" className="font-body text-[#2A54A1]/60 hover:text-[#2A54A1] transition-colors text-sm underline">Blog</Link>
+              <a href="/terms" className="font-body text-[#2A54A1]/60 hover:text-[#2A54A1] transition-colors text-sm underline">Terms &amp; Conditions</a>
+              <a href="/privacy" className="font-body text-[#2A54A1]/60 hover:text-[#2A54A1] transition-colors text-sm underline">Privacy Policy</a>
             </div>
           </div>
         </div>
