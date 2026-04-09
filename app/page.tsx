@@ -682,9 +682,8 @@ export default function Page() {
             <div>
               <h4 className="font-display font-bold mb-4 text-[#2A54A1]">Service Area</h4>
               <p className="font-body text-[#2A54A1]/70">Los Angeles</p>
-              <Link href="/pro" className="inline-flex items-center gap-3 mt-6 border-2 border-[#2A54A1]/20 px-6 py-3 rounded-full hover:bg-[#2A54A1] hover:text-white hover:border-[#2A54A1] transition-all group">
-                <Image src="/logo.png" alt="Handld" width={80} height={32} className="h-7 w-auto" />
-                <span className="font-body text-base font-semibold text-[#2A54A1] group-hover:text-white transition-colors">Pro</span>
+              <Link href="/pro" className="inline-block mt-6 cta-button text-white px-8 py-3 rounded-full font-body text-base font-bold">
+                Become a Handld Pro
               </Link>
             </div>
           </div>
