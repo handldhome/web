@@ -211,7 +211,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Fire Zapier webhook to text customer their quote link via Heymarket
-    const quoteLink = `https://handld-quote-viewer.vercel.app/q/${quoteRequest.quote_id}`;
+    // NOTE: use the /quote/ path — this is the canonical, production-proven route
+    // (the admin/tuneup app stores quote links as /quote/HNDLD####). The old /q/
+    // path was not guaranteed to resolve in the quote-viewer SPA router.
+    const quoteLink = `https://handld-quote-viewer.vercel.app/quote/${quoteRequest.quote_id}`;
     const webhookUrl = process.env.ZAPIER_QUOTE_WEBHOOK_URL;
     if (webhookUrl && body.phone && !isFreeHealthCheck) {
       try {
