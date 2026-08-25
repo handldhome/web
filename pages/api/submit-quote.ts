@@ -211,7 +211,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Text the customer their quote link via Twilio.
-    // (Previously a Zapier webhook -> Heymarket; Heymarket was canceled Aug 2026.)
     // NOTE: use the /quote/ path — this is the canonical, production-proven route
     // (the admin/tuneup app stores quote links as /quote/HNDLD####). The old /q/
     // path was not guaranteed to resolve in the quote-viewer SPA router.
