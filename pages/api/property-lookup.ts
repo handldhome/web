@@ -22,9 +22,9 @@ interface RentCastProperty {
 interface PropertyLookupResponse {
   success: boolean;
   data?: {
-    squareFootage: number;
-    lotSize: number;
-    stories: number;
+    squareFootage: number | null;
+    lotSize: number | null;
+    stories: number | null;
     yearBuilt?: number;
     bedrooms?: number;
     bathrooms?: number;
@@ -128,15 +128,13 @@ export default async function handler(
 
     console.log('[PropertyLookup] Extracted values:', { squareFootage, lotSize, stories, floorCount: property.features?.floorCount });
 
-    if (!squareFootage || !lotSize || !stories) {
-      const missing: string[] = [];
-      if (!squareFootage) missing.push('square footage');
-      if (!lotSize) missing.push('lot size');
-      if (!stories) missing.push('stories');
-
+    // Only fail outright if RentCast has none of the values we need.
+    // Partial data (e.g. sqft + lot size but no stories) is still returned so
+    // the customer only has to fill in what's missing.
+    if (!squareFootage && !lotSize && !stories) {
       return res.status(404).json({
         success: false,
-        error: `We found your property but couldn't determine the ${missing.join(', ')}. Please enter your home details manually.`,
+        error: "We found your property but couldn't determine its details. Please enter your home details manually.",
       });
     }
 
@@ -149,9 +147,9 @@ export default async function handler(
     return res.status(200).json({
       success: true,
       data: {
-        squareFootage,
-        lotSize,
-        stories,
+        squareFootage: squareFootage ?? null,
+        lotSize: lotSize ?? null,
+        stories: stories ?? null,
         yearBuilt: property.yearBuilt,
         bedrooms: property.bedrooms,
         bathrooms: property.bathrooms,

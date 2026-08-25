@@ -210,27 +210,44 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     }
 
-    // Fire Zapier webhook to text customer their quote link via Heymarket
+    // Text the customer their quote link via Twilio.
+    // (Previously a Zapier webhook -> Heymarket; Heymarket was canceled Aug 2026.)
     // NOTE: use the /quote/ path — this is the canonical, production-proven route
     // (the admin/tuneup app stores quote links as /quote/HNDLD####). The old /q/
     // path was not guaranteed to resolve in the quote-viewer SPA router.
     const quoteLink = `https://handld-quote-viewer.vercel.app/quote/${quoteRequest.quote_id}`;
-    const webhookUrl = process.env.ZAPIER_QUOTE_WEBHOOK_URL;
-    if (webhookUrl && body.phone && !isFreeHealthCheck) {
+    const twilioSid = process.env.TWILIO_ACCOUNT_SID;
+    const twilioToken = process.env.TWILIO_AUTH_TOKEN;
+    const twilioFrom = process.env.TWILIO_PHONE_NUMBER;
+    if (twilioSid && twilioToken && twilioFrom && body.phone && !isFreeHealthCheck) {
       try {
-        await fetch(webhookUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            first_name: firstName,
-            phone: body.phone,
-            quote_link: quoteLink,
-          }),
-        });
-      } catch (webhookErr) {
-        console.error('Zapier webhook error:', webhookErr);
+        // Normalize to E.164 (assume US numbers)
+        const digits = String(body.phone).replace(/\D/g, '');
+        const to = digits.length === 10 ? `+1${digits}` : digits.length === 11 && digits.startsWith('1') ? `+${digits}` : `+${digits}`;
+
+        const smsBody = `Hi${firstName ? ` ${firstName}` : ''}! Thanks for your Handld quote request. View your personalized quote here: ${quoteLink}`;
+
+        const twilioRes = await fetch(
+          `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`,
+          {
+            method: 'POST',
+            headers: {
+              Authorization: 'Basic ' + Buffer.from(`${twilioSid}:${twilioToken}`).toString('base64'),
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({ To: to, From: twilioFrom, Body: smsBody }),
+          }
+        );
+
+        if (!twilioRes.ok) {
+          console.error('Twilio SMS error:', twilioRes.status, await twilioRes.text());
+        }
+      } catch (smsErr) {
+        console.error('Twilio SMS error:', smsErr);
         // Don't fail the quote submission if the text fails
       }
+    } else if (body.phone && !isFreeHealthCheck) {
+      console.error('Twilio not configured — quote SMS not sent for', quoteRequest.quote_id);
     }
 
     return res.status(200).json({ success: true, serviceType: body.serviceType || null });

@@ -498,11 +498,21 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
       const data = await response.json();
 
       if (data.success && data.data) {
+        const lookup = data.data as PropertyLookupData;
         dispatch({
           type: 'SET_PROPERTY_DATA',
-          data: data.data as PropertyLookupData,
+          data: lookup,
         });
         setShowManualEntry(false);
+        // RentCast found the home but is missing some detail(s) — drop the
+        // customer straight into the edit view, prefilled with what we found,
+        // so they only have to fill in the gaps.
+        if (!lookup.squareFootage || !lookup.lotSize || !lookup.stories) {
+          setEditSquareFootage(lookup.squareFootage?.toString() || '');
+          setEditLotSize(lookup.lotSize?.toString() || '');
+          setEditStories(lookup.stories?.toString() || '');
+          setIsEditingPropertyData(true);
+        }
       } else {
         setPropertyLookupError(data.error || 'Property not found. Please enter your home details manually.');
         setShowManualEntry(true);
@@ -761,16 +771,21 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
 
       case 'propertyLookup':
         // If we already have property data from lookup, show confirmation/edit flow
-        if (formState.propertyDataSource?.startsWith('RentCast') && formState.squareFootage) {
+        // (propertyAddress, not squareFootage — a partial lookup may be missing it)
+        if (formState.propertyDataSource?.startsWith('RentCast') && formState.propertyAddress) {
           // Editing mode - show editable inputs
           if (isEditingPropertyData) {
             return (
               <div>
                 <h2 className="font-display text-2xl md:text-3xl font-bold text-[#2A54A1] mb-2">
-                  Update your home details
+                  {formState.exactSquareFootage && formState.exactLotSize && formState.exactStories
+                    ? 'Update your home details'
+                    : 'We found your home!'}
                 </h2>
                 <p className="font-body text-sm text-[#2A54A1]/60 mb-6">
-                  Enter the correct values for your home
+                  {formState.exactSquareFootage && formState.exactLotSize && formState.exactStories
+                    ? 'Enter the correct values for your home'
+                    : "We couldn't find every detail — please fill in the rest"}
                 </p>
                 <div className="bg-[#2A54A1]/5 border-2 border-[#2A54A1]/20 rounded-xl p-6 mb-6">
                   <p className="font-body font-medium text-[#2A54A1] mb-4">
@@ -905,19 +920,19 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
                   <div>
                     <p className="font-body text-[#2A54A1]/60">Square Feet</p>
                     <p className="font-body font-semibold text-[#2A54A1] text-lg">
-                      {formState.exactSquareFootage?.toLocaleString()}
+                      {formState.exactSquareFootage?.toLocaleString() ?? '—'}
                     </p>
                   </div>
                   <div>
                     <p className="font-body text-[#2A54A1]/60">Lot Size</p>
                     <p className="font-body font-semibold text-[#2A54A1] text-lg">
-                      {formState.exactLotSize?.toLocaleString()} sq ft
+                      {formState.exactLotSize ? `${formState.exactLotSize.toLocaleString()} sq ft` : '—'}
                     </p>
                   </div>
                   <div>
                     <p className="font-body text-[#2A54A1]/60">Stories</p>
                     <p className="font-body font-semibold text-[#2A54A1] text-lg">
-                      {formState.exactStories}
+                      {formState.exactStories ?? '—'}
                     </p>
                   </div>
                 </div>
@@ -936,7 +951,8 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
                 <button
                   type="button"
                   onClick={handleConfirmPropertyData}
-                  className="flex-1 py-3 rounded-xl bg-[#2A54A1] text-white font-body font-medium hover:bg-[#2A54A1]/90 transition-colors"
+                  disabled={!formState.exactSquareFootage || !formState.exactLotSize || !formState.exactStories}
+                  className="flex-1 py-3 rounded-xl bg-[#2A54A1] text-white font-body font-medium hover:bg-[#2A54A1]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Yes, this is correct
                 </button>

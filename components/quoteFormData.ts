@@ -41,9 +41,9 @@ export type FormAction =
   | { type: 'RESET' };
 
 export interface PropertyLookupData {
-  squareFootage: number;
-  lotSize: number;
-  stories: number;
+  squareFootage: number | null;
+  lotSize: number | null;
+  stories: number | null;
   formattedAddress: string;
   city?: string;
   state?: string;
@@ -95,9 +95,11 @@ export function formReducer(state: QuoteFormState, action: FormAction): QuoteFor
         exactSquareFootage: squareFootage,
         exactLotSize: lotSize,
         exactStories: stories,
-        squareFootage: mapSquareFootageToBucket(squareFootage),
-        lotSize: mapLotSizeToBucket(lotSize),
-        stories: mapStoriesToBucket(stories),
+        // RentCast may not have every value; leave missing buckets empty so
+        // step validation forces the customer to fill them in.
+        squareFootage: squareFootage ? mapSquareFootageToBucket(squareFootage) : '',
+        lotSize: lotSize ? mapLotSizeToBucket(lotSize) : '',
+        stories: stories ? mapStoriesToBucket(stories) : '',
         propertyAddress: formattedAddress,
         propertyDataSource: 'RentCast',
         // Also populate city/state/zip if provided and not already filled
