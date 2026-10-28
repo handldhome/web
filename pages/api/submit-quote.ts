@@ -125,7 +125,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { data: quoteReq, error: quoteError } = await getHandldDb()
       .from('quote_requests')
       .insert(quoteRequest)
-      .select('id')
+      .select('id, token')
       .single();
 
     if (quoteError) {
@@ -211,10 +211,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Text the customer their quote link via Twilio.
-    // NOTE: use the /quote/ path — this is the canonical, production-proven route
-    // (the admin/tuneup app stores quote links as /quote/HNDLD####). The old /q/
-    // path was not guaranteed to resolve in the quote-viewer SPA router.
-    const quoteLink = `https://handld-quote-viewer.vercel.app/quote/${quoteRequest.quote_id}`;
+    // Link by the random token, not the sequential HNDLD#### id, so quote links
+    // can't be guessed. handldhome.com/quote/:token redirects to the quote viewer
+    // (see next.config.mjs).
+    const quoteLink = `https://handldhome.com/quote/${quoteReq.token}`;
     const twilioSid = process.env.TWILIO_ACCOUNT_SID;
     const twilioToken = process.env.TWILIO_AUTH_TOKEN;
     const twilioFrom = process.env.TWILIO_PHONE_NUMBER;
