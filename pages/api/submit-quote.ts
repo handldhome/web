@@ -1,5 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getHandldDb } from '@/lib/supabase/handld';
+import { buildQuoteSms, isHoneypotFilled, normalizeUsMobile, sanitizeFirstName } from '@/lib/quoteSms';
+import { createRateLimiter, getClientIp } from '@/lib/rateLimit';
+
+// In-memory, so per serverless instance (see lib/rateLimit.ts).
+// Per IP: caps how fast one client can create quotes and trigger texts.
+export const ipLimiter = createRateLimiter({ limit: 10, windowMs: 60 * 60 * 1000 });
+// Per destination phone: caps how many quote texts one number can receive.
+export const phoneLimiter = createRateLimiter({ limit: 3, windowMs: 24 * 60 * 60 * 1000 });
 
 function generateReferralCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no I/O/0/1 for clarity
@@ -36,7 +44,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const body = req.body;
+    const body = req.body || {};
+
+    // Honeypot: a hidden form field people never see. If it's filled in, a bot
+    // submitted the form; answer as if it worked, but save and send nothing.
+    if (isHoneypotFilled(body)) {
+      return res.status(200).json({ success: true, serviceType: body.serviceType || null });
+    }
+
+    if (!ipLimiter.hit(getClientIp(req))) {
+      return res.status(429).json({
+        error: 'Too many requests. Please try again later or call us at (626) 298-7128.',
+      });
+    }
 
     // Split name into first/last
     const nameParts = (body.name || '').trim().split(/\s+/);
@@ -46,6 +66,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!email) {
       return res.status(400).json({ error: 'Email is required' });
+    }
+
+    // Quote texts only go to US mobile numbers.
+    const smsTo = body.phone ? normalizeUsMobile(body.phone) : null;
+    if (body.phone && !smsTo) {
+      return res.status(400).json({ error: 'Please enter a valid US mobile number' });
     }
 
     // Upsert customer by email
@@ -218,13 +244,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const twilioSid = process.env.TWILIO_ACCOUNT_SID;
     const twilioToken = process.env.TWILIO_AUTH_TOKEN;
     const twilioFrom = process.env.TWILIO_PHONE_NUMBER;
-    if (twilioSid && twilioToken && twilioFrom && body.phone && !isFreeHealthCheck) {
+    if (smsTo && !isFreeHealthCheck && !phoneLimiter.hit(smsTo)) {
+      // The quote is saved; just don't text the same number again so soon.
+      console.warn('Quote SMS rate limit hit — not texting for', quoteRequest.quote_id);
+    } else if (twilioSid && twilioToken && twilioFrom && smsTo && !isFreeHealthCheck) {
       try {
-        // Normalize to E.164 (assume US numbers)
-        const digits = String(body.phone).replace(/\D/g, '');
-        const to = digits.length === 10 ? `+1${digits}` : digits.length === 11 && digits.startsWith('1') ? `+${digits}` : `+${digits}`;
-
-        const smsBody = `Hi${firstName ? ` ${firstName}` : ''}! Thanks for your Handld quote request. View your personalized quote here: ${quoteLink}`;
+        // Only a sanitized first name is echoed back; anything else gets "Hi there".
+        const smsBody = buildQuoteSms(sanitizeFirstName(firstName), quoteLink);
 
         const twilioRes = await fetch(
           `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`,
@@ -234,7 +260,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               Authorization: 'Basic ' + Buffer.from(`${twilioSid}:${twilioToken}`).toString('base64'),
               'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: new URLSearchParams({ To: to, From: twilioFrom, Body: smsBody }),
+            body: new URLSearchParams({ To: smsTo, From: twilioFrom, Body: smsBody }),
           }
         );
 
@@ -245,7 +271,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         console.error('Twilio SMS error:', smsErr);
         // Don't fail the quote submission if the text fails
       }
-    } else if (body.phone && !isFreeHealthCheck) {
+    } else if (smsTo && !isFreeHealthCheck) {
       console.error('Twilio not configured — quote SMS not sent for', quoteRequest.quote_id);
     }
 
