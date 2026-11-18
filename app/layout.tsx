@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { dmSans, libreBaskerville } from "./fonts";
 
 export const metadata: Metadata = {
   title: "Handld Home Services",
@@ -12,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${libreBaskerville.variable} ${dmSans.variable}`}>
       <body>
         {children}
       </body>

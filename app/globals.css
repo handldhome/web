@@ -1,12 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* Shared typography */
-.font-display { font-family: 'Libre Baskerville', serif; }
-.font-body { font-family: 'DM Sans', sans-serif; }
+.font-display { font-family: var(--font-libre-baskerville), serif; }
+.font-body { font-family: var(--font-dm-sans), sans-serif; }
 
 /* Shared CTA button */
 .cta-button {

@@ -1479,6 +1479,15 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
             </button>
           </div>
         )}
+        {isContactStep && (
+          <p className="px-6 pb-4 bg-[#FBF9F0] font-body text-xs text-[#2A54A1]/60 text-right flex-shrink-0">
+            By submitting you confirm you are 18 or older and the property owner or authorized to act for them, and agree to the{' '}
+            <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#2A54A1]">
+              Terms
+            </a>
+            .
+          </p>
+        )}
       </motion.div>
     </div>
   );
