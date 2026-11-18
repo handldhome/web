@@ -1260,6 +1260,20 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
               Almost done! Where should we send your quote?
             </h2>
             <div className="grid gap-4">
+              {/* Honeypot: off-screen and skipped by keyboard and screen readers.
+                  People leave it empty; form-filling bots don't. */}
+              <div aria-hidden="true" className="absolute -left-[9999px] w-px h-px overflow-hidden">
+                <label htmlFor="quote-website">Website</label>
+                <input
+                  id="quote-website"
+                  name="website"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={formState.website}
+                  onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'website', value: e.target.value })}
+                />
+              </div>
               <div>
                 <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">Full Name *</label>
                 <input

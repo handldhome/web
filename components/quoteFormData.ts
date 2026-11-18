@@ -28,6 +28,8 @@ export interface QuoteFormState {
   preferredTime: string;
   // Referral tracking
   referralCode: string;
+  // Honeypot: hidden from people, so only bots fill it (see lib/quoteSms.ts)
+  website: string;
 }
 
 export type FormAction =
@@ -80,6 +82,8 @@ export const initialFormState: QuoteFormState = {
   preferredTime: '',
   // Referral tracking
   referralCode: '',
+  // Honeypot
+  website: '',
 };
 
 export function formReducer(state: QuoteFormState, action: FormAction): QuoteFormState {
