@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import Link from 'next/link';
+import { dmSansWithSemibold } from '@/app/fonts';
 import { useRouter } from 'next/navigation';
 
 type Tab = 'home' | 'services' | 'plan' | 'refer' | 'account';
@@ -351,11 +352,10 @@ export default function PortalPage({ params }: { params: Promise<{ 'org-slug': s
     'Address not set';
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] pb-20">
+    <div className={`min-h-screen bg-[#FAF8F5] pb-20 ${dmSansWithSemibold.variable}`}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap');
-        .font-display { font-family: 'Libre Baskerville', serif; }
-        .font-body { font-family: 'DM Sans', sans-serif; }
+        .font-display { font-family: var(--font-libre-baskerville), serif; }
+        .font-body { font-family: var(--font-dm-sans), sans-serif; }
       `}</style>
 
       {/* Header */}

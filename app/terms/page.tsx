@@ -187,6 +187,11 @@ export default function TermsPage() {
 
         <h3 className="font-semibold text-lg text-navy mt-8 mb-3">8. Your Obligations</h3>
         <p className="text-gray-700 leading-relaxed mb-4">
+          <strong>Eligibility.</strong> You must be at least 18 years old and the owner of the property, or
+          authorized by the owner, to request or approve services.
+        </p>
+
+        <p className="text-gray-700 leading-relaxed mb-4">
           <strong>8.1 Access to Premises.</strong> YOU shall provide HH with adequate access to the premises
           and specific Service area. YOU shall provide, in advance, any special instructions necessary to gain access.
         </p>

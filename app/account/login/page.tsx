@@ -103,9 +103,8 @@ export default function LoginPage() {
     return (
       <div className="min-h-screen bg-[#FFFFF2] flex flex-col items-center justify-center px-4">
         <style jsx>{`
-          @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap');
-          .font-display { font-family: 'Libre Baskerville', serif; }
-          .font-body { font-family: 'DM Sans', sans-serif; }
+          .font-display { font-family: var(--font-libre-baskerville), serif; }
+          .font-body { font-family: var(--font-dm-sans), sans-serif; }
           .shadow-retro { box-shadow: 8px 8px 0px rgba(42, 84, 161, 0.15); }
           .cta-button {
             background: linear-gradient(135deg, #2A54A1 0%, #1e3d7a 100%);
@@ -164,9 +163,8 @@ export default function LoginPage() {
     return (
       <div className="min-h-screen bg-[#FFFFF2] flex flex-col items-center justify-center px-4">
         <style jsx>{`
-          @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap');
-          .font-display { font-family: 'Libre Baskerville', serif; }
-          .font-body { font-family: 'DM Sans', sans-serif; }
+          .font-display { font-family: var(--font-libre-baskerville), serif; }
+          .font-body { font-family: var(--font-dm-sans), sans-serif; }
           .shadow-retro { box-shadow: 8px 8px 0px rgba(42, 84, 161, 0.15); }
           .cta-button {
             background: linear-gradient(135deg, #2A54A1 0%, #1e3d7a 100%);
@@ -263,9 +261,8 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#FFFFF2] flex flex-col items-center justify-center px-4">
       <style jsx>{`
-        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap');
-        .font-display { font-family: 'Libre Baskerville', serif; }
-        .font-body { font-family: 'DM Sans', sans-serif; }
+        .font-display { font-family: var(--font-libre-baskerville), serif; }
+        .font-body { font-family: var(--font-dm-sans), sans-serif; }
         .shadow-retro { box-shadow: 8px 8px 0px rgba(42, 84, 161, 0.15); }
         .cta-button {
           background: linear-gradient(135deg, #2A54A1 0%, #1e3d7a 100%);
