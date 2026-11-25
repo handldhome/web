@@ -1,19 +1,17 @@
-'use client';
+import { Suspense } from 'react';
+import SmsConsentNotice from '@/components/SmsConsentNotice';
+import QuoteRedirect from './QuoteRedirect';
 
-import { useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-
+// Server component so the SMS consent copy is in the raw HTML of /quote.
+// The redirect to the home page (with the quote modal open) happens in the
+// client component below.
 export default function QuotePage() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-
-  useEffect(() => {
-    // Forward all query params to the home page with quote=true
-    const params = new URLSearchParams(searchParams?.toString() || '');
-    params.set('quote', 'true');
-    router.replace(`/?${params.toString()}`);
-  }, [searchParams, router]);
-
-  return null;
+  return (
+    <>
+      <Suspense fallback={null}>
+        <QuoteRedirect />
+      </Suspense>
+      <SmsConsentNotice />
+    </>
+  );
 }

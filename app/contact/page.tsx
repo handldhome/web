@@ -228,10 +228,13 @@ Submitted: ${new Date().toLocaleString()}
               By submitting this form, you agree to our{" "}
               <Link href="/privacy" className="text-brandBlue hover:underline">
                 Privacy Policy
-              </Link>{" "}
-              and{" "}
+              </Link>,{" "}
               <Link href="/terms" className="text-brandBlue hover:underline">
                 Terms &amp; Conditions
+              </Link>{" "}
+              and{" "}
+              <Link href="/sms-terms" className="text-brandBlue hover:underline">
+                SMS Terms
               </Link>
               .
             </p>

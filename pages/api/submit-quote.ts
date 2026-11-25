@@ -2,12 +2,25 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { getHandldDb } from '@/lib/supabase/handld';
 import { buildQuoteSms, isHoneypotFilled, normalizeUsMobile, sanitizeFirstName } from '@/lib/quoteSms';
 import { createRateLimiter, getClientIp } from '@/lib/rateLimit';
+import { SMS_CONSENT_TEXT_CUSTOMER, SMS_CONSENT_VERSION } from '@/lib/smsConsent';
+import { TWILIO_UNSUBSCRIBED_CODE, isOptedOut, recordTwilioOptOut, twilioErrorCode } from '@/lib/smsOptOuts';
 
 // In-memory, so per serverless instance (see lib/rateLimit.ts).
 // Per IP: caps how fast one client can create quotes and trigger texts.
 export const ipLimiter = createRateLimiter({ limit: 10, windowMs: 60 * 60 * 1000 });
 // Per destination phone: caps how many quote texts one number can receive.
 export const phoneLimiter = createRateLimiter({ limit: 3, windowMs: 24 * 60 * 60 * 1000 });
+
+// Why a text was not sent. Returned to the form so the success screen can
+// show the quote link directly instead of "check your texts".
+type SmsSkipReason = 'no_phone' | 'opt_out' | 'rate_limit' | 'not_configured' | 'send_failed' | 'health_check';
+
+// The sms_consents.ip column is inet, so only pass something that looks like
+// an IP address (first hop of x-forwarded-for, via getClientIp).
+function consentIp(req: NextApiRequest): string | null {
+  const ip = getClientIp(req);
+  return /^[0-9a-fA-F.:]+$/.test(ip) ? ip : null;
+}
 
 function generateReferralCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no I/O/0/1 for clarity
@@ -73,6 +86,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (body.phone && !smsTo) {
       return res.status(400).json({ error: 'Please enter a valid US mobile number' });
     }
+    // A phone number is only accepted together with explicit SMS consent.
+    if (body.phone && body.smsConsent !== true) {
+      return res.status(400).json({
+        error: 'Please agree to receive text messages or remove your phone number',
+      });
+    }
+    const smsConsentGiven = !!smsTo && body.smsConsent === true;
 
     // Upsert customer by email
     const { data: customer, error: customerError } = await getHandldDb()
@@ -157,6 +177,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (quoteError) {
       console.error('Quote request insert error:', quoteError);
       return res.status(500).json({ error: `Database error: ${quoteError.message}` });
+    }
+
+    // Record the customer's SMS consent against this quote request.
+    if (smsConsentGiven) {
+      const userAgent = req.headers['user-agent'];
+      const { error: consentError } = await getHandldDb()
+        .from('sms_consents')
+        .insert({
+          phone: smsTo,
+          party: 'customer',
+          purpose: 'transactional',
+          source: 'web_quote_form',
+          consent_text: SMS_CONSENT_TEXT_CUSTOMER,
+          consent_version: SMS_CONSENT_VERSION,
+          ip: consentIp(req),
+          user_agent: typeof userAgent === 'string' ? userAgent.slice(0, 512) : null,
+          reference_id: quoteReq.id,
+        });
+      if (consentError) {
+        // The quote is saved; log loudly but don't fail the submission.
+        console.error('sms_consents insert error:', consentError);
+      }
     }
 
     // Create referral record if a referral code was used
@@ -244,10 +286,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const twilioSid = process.env.TWILIO_ACCOUNT_SID;
     const twilioToken = process.env.TWILIO_AUTH_TOKEN;
     const twilioFrom = process.env.TWILIO_PHONE_NUMBER;
-    if (smsTo && !isFreeHealthCheck && !phoneLimiter.hit(smsTo)) {
+
+    let smsSent = false;
+    let smsSkipped: SmsSkipReason | undefined;
+    if (!smsTo) {
+      smsSkipped = 'no_phone';
+    } else if (isFreeHealthCheck) {
+      smsSkipped = 'health_check';
+    } else if (await isOptedOut(smsTo)) {
+      // They told us (or Twilio) to stop. The quote is saved; the form shows the link.
+      smsSkipped = 'opt_out';
+      console.warn('Quote SMS skipped (opt-out) for', quoteRequest.quote_id);
+    } else if (!phoneLimiter.hit(smsTo)) {
       // The quote is saved; just don't text the same number again so soon.
+      smsSkipped = 'rate_limit';
       console.warn('Quote SMS rate limit hit — not texting for', quoteRequest.quote_id);
-    } else if (twilioSid && twilioToken && twilioFrom && smsTo && !isFreeHealthCheck) {
+    } else if (twilioSid && twilioToken && twilioFrom) {
       try {
         // Only a sanitized first name is echoed back; anything else gets "Hi there".
         const smsBody = buildQuoteSms(sanitizeFirstName(firstName), quoteLink);
@@ -264,18 +318,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }
         );
 
-        if (!twilioRes.ok) {
-          console.error('Twilio SMS error:', twilioRes.status, await twilioRes.text());
+        if (twilioRes.ok) {
+          smsSent = true;
+        } else {
+          smsSkipped = 'send_failed';
+          const errorText = await twilioRes.text();
+          console.error('Twilio SMS error:', twilioRes.status, errorText);
+          if (twilioErrorCode(errorText) === TWILIO_UNSUBSCRIBED_CODE) {
+            // Twilio says this number replied STOP: remember it ourselves too.
+            await recordTwilioOptOut(smsTo);
+          }
         }
       } catch (smsErr) {
+        smsSkipped = 'send_failed';
         console.error('Twilio SMS error:', smsErr);
         // Don't fail the quote submission if the text fails
       }
-    } else if (smsTo && !isFreeHealthCheck) {
+    } else {
+      smsSkipped = 'not_configured';
       console.error('Twilio not configured — quote SMS not sent for', quoteRequest.quote_id);
     }
 
-    return res.status(200).json({ success: true, serviceType: body.serviceType || null });
+    return res.status(200).json({
+      success: true,
+      serviceType: body.serviceType || null,
+      quoteUrl: quoteLink,
+      smsSent,
+      ...(smsSkipped ? { smsSkipped } : {}),
+    });
   } catch (err) {
     console.error('Quote submission error:', err);
     return res.status(500).json({
