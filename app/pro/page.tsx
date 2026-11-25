@@ -428,6 +428,7 @@ export default function ProPage() {
             <div className="flex justify-center gap-4">
               <Link href="/terms" className="font-body text-[#FFFFF2]/80 hover:text-[#FFFFF2] transition-colors text-sm underline">Terms &amp; Conditions</Link>
               <Link href="/privacy" className="font-body text-[#FFFFF2]/80 hover:text-[#FFFFF2] transition-colors text-sm underline">Privacy Policy</Link>
+              <Link href="/sms-terms" className="font-body text-[#FFFFF2]/80 hover:text-[#FFFFF2] transition-colors text-sm underline">SMS Terms</Link>
             </div>
           </div>
         </div>

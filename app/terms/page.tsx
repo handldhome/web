@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import SmsTerms from "@/components/SmsTerms";
 
 export const metadata: Metadata = {
   title: "Terms and Conditions - Handld Home LLC",
@@ -289,6 +290,16 @@ export default function TermsPage() {
           YOU acknowledge that YOU have read and understand this Agreement, including any Addenda and CUSTOMER
           QUOTE, and YOU agree to be bound by all of the terms and conditions herein.
         </p>
+
+        <hr className="border-gray-200 my-8" />
+
+        <h2 className="font-serif text-2xl text-navy mt-10 mb-2">
+          Addendum B &mdash; Consent to Receive Communication
+        </h2>
+        <p className="text-gray-500 mb-6">Handld Home Text Messaging Terms (SMS Terms). Also published at{" "}
+          <a href="/sms-terms" className="text-brandBlue underline hover:text-navy">handldhome.com/sms-terms</a>.
+        </p>
+        <SmsTerms />
 
         <hr className="border-gray-200 my-8" />
 

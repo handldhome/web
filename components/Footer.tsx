@@ -40,6 +40,12 @@ export default function Footer() {
           >
             Privacy Policy
           </Link>
+          <Link
+            href="/sms-terms"
+            className="text-navy/70 text-sm hover:text-navy transition"
+          >
+            SMS Terms
+          </Link>
         </div>
 
         <p className="text-navy/60 text-sm mt-4">

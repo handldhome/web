@@ -18,6 +18,7 @@ import {
   LOT_OPTIONS,
   type PropertyLookupData,
 } from './quoteFormData';
+import SmsConsentLabel from './SmsConsentLabel';
 
 interface QuoteModalProps {
   isOpen: boolean;
@@ -152,6 +153,10 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
   const [direction, setDirection] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  // Customer SMS consent. Unchecked by default; required only when a phone is entered.
+  const [smsConsent, setSmsConsent] = useState(false);
+  // What the API told us after submit, so the thanks screen can show the quote link.
+  const [submitResult, setSubmitResult] = useState<{ quoteUrl?: string; smsSent?: boolean } | null>(null);
   const autoAdvanceTimer = useRef<NodeJS.Timeout | null>(null);
 
   // Property lookup state - structured address fields
@@ -365,16 +370,18 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
       case 'contact':
         // If property lookup was successful, we already have the address - don't require it again
         const addressRequired = !formState.propertyDataSource?.startsWith('RentCast');
+        // Phone is optional, but a phone without SMS consent can't be submitted.
+        const phoneNeedsConsent = formState.phone.trim() !== '' && !smsConsent;
         return (
           formState.name.trim() !== '' &&
           formState.email.trim() !== '' &&
-          formState.phone.trim() !== '' &&
+          !phoneNeedsConsent &&
           (!addressRequired || formState.address.trim() !== '')
         );
       default:
         return true;
     }
-  }, [currentStep, formState, propertyDataConfirmed]);
+  }, [currentStep, formState, propertyDataConfirmed, smsConsent]);
 
   const handleClose = useCallback(() => {
     if (autoAdvanceTimer.current) clearTimeout(autoAdvanceTimer.current);
@@ -382,6 +389,8 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
       dispatch({ type: 'RESET' });
       setStepIndex(0);
       setSubmitError('');
+      setSmsConsent(false);
+      setSubmitResult(null);
     }
     onClose();
   }, [currentStep, onClose]);
@@ -417,12 +426,14 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
         const res = await fetch('/api/submit-quote', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formState),
+          body: JSON.stringify({ ...formState, smsConsent }),
         });
         if (!res.ok) {
           const data = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
           throw new Error(data.error || `Submit failed (${res.status})`);
         }
+        const data = await res.json().catch(() => ({}));
+        setSubmitResult({ quoteUrl: data.quoteUrl, smsSent: data.smsSent === true });
         setDirection(1);
         setStepIndex((prev) => prev + 1);
       } catch (err) {
@@ -590,7 +601,7 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
               Let&apos;s get your home Handld!
             </h2>
             <p className="font-body text-[#2A54A1]/70 mb-8 max-w-md mx-auto">
-              By proceeding, you consent to receive text notifications about your quote. Message and data rates may apply.
+              Takes about 2 minutes.
             </p>
             <button
               onClick={handleNext}
@@ -1295,14 +1306,35 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
                 />
               </div>
               <div>
-                <label className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">Phone Number *</label>
+                <label htmlFor="quote-phone" className="font-body text-sm font-medium text-[#2A54A1] mb-1.5 block">
+                  Mobile Number <span className="font-normal text-[#2A54A1]/60">(optional, to text you your quote link)</span>
+                </label>
                 <input
+                  id="quote-phone"
                   type="tel"
                   value={formState.phone}
                   onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'phone', value: e.target.value })}
                   className="w-full p-3.5 rounded-xl border-2 border-[#2A54A1]/15 bg-white font-body text-[#2A54A1] focus:border-[#2A54A1] focus:outline-none transition-colors"
                   placeholder="(555) 123-4567"
                 />
+                <label htmlFor="quote-sms-consent" className="flex items-start gap-3 mt-3 cursor-pointer">
+                  <input
+                    id="quote-sms-consent"
+                    type="checkbox"
+                    checked={smsConsent}
+                    onChange={(e) => setSmsConsent(e.target.checked)}
+                    aria-describedby={formState.phone.trim() && !smsConsent ? 'quote-sms-consent-error' : undefined}
+                    className="mt-0.5 w-5 h-5 flex-shrink-0 rounded border-2 border-[#2A54A1]/30 accent-[#2A54A1] cursor-pointer"
+                  />
+                  <span className="font-body text-xs text-[#2A54A1]/70 leading-relaxed">
+                    <SmsConsentLabel linkClassName="underline hover:text-[#2A54A1]" />
+                  </span>
+                </label>
+                {formState.phone.trim() !== '' && !smsConsent && (
+                  <p id="quote-sms-consent-error" role="alert" className="font-body text-xs text-red-600 mt-2">
+                    To text you your quote link we need your agreement above. Tick the box, or remove your phone number and we&apos;ll show the link here instead.
+                  </p>
+                )}
               </div>
               {/* Only show address fields if property lookup wasn't successful */}
               {!formState.propertyDataSource?.startsWith('RentCast') && (
@@ -1381,15 +1413,33 @@ export default function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
             </h2>
             <p className="font-body text-[#2A54A1]/70 mb-8 max-w-md mx-auto">
               {formState.serviceType === 'Free Home Health Check'
-                ? "We'll notify you via text once your Home Health Check has been scheduled."
-                : 'Your custom quote is on the way! Check your text for a link in the next 2 minutes.'}
+                ? submitResult?.smsSent
+                  ? "We'll notify you via text once your Home Health Check has been scheduled."
+                  : "We'll be in touch by email once your Home Health Check has been scheduled."
+                : submitResult?.smsSent
+                  ? 'Your custom quote is on the way! Check your text for a link in the next 2 minutes, or view it now.'
+                  : "Your custom quote is ready. We've also kept it on file for you."}
             </p>
-            <button
-              onClick={handleClose}
-              className="cta-button text-white px-10 py-3.5 rounded-full font-body font-bold text-lg"
-            >
-              Done
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+              {submitResult?.quoteUrl && formState.serviceType !== 'Free Home Health Check' && (
+                <a
+                  href={submitResult.quoteUrl}
+                  className="cta-button text-white px-10 py-3.5 rounded-full font-body font-bold text-lg"
+                >
+                  View your quote
+                </a>
+              )}
+              <button
+                onClick={handleClose}
+                className={
+                  submitResult?.quoteUrl && formState.serviceType !== 'Free Home Health Check'
+                    ? 'font-body font-medium text-[#2A54A1] hover:text-[#2A54A1]/70 px-6 py-3.5 transition-colors'
+                    : 'cta-button text-white px-10 py-3.5 rounded-full font-body font-bold text-lg'
+                }
+              >
+                Done
+              </button>
+            </div>
           </div>
         );
 
